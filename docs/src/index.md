@@ -61,7 +61,7 @@ model = fit(EconometricModel,
 data = joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |>
    CSV.read |>
    (data -> data[[:insure, :age, :male, :nonwhite, :site]]) |>
-   (data -> dropmissing!(data, disallowmissing = true)) |>
+   dropmissing |>
    (data -> categorical!(data, [:insure, :site]))
 first(data, 6)
 ```

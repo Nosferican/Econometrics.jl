@@ -84,7 +84,7 @@ end
   data = joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |>
 	CSV.read |>
     (data -> data[[:insure, :age, :male, :nonwhite, :site]]) |>
-    (data -> dropmissing!(data, disallowmissing = true)) |>
+    dropmissing |>
     (data -> categorical!(data, [:insure, :site]))
   model = fit(EconometricModel,
               @formula(insure ~ 1 + age + male + nonwhite + site),
@@ -138,7 +138,7 @@ end
   data = joinpath(dirname(pathof(Econometrics)), "..", "data", "auto.csv") |>
 	CSV.read |>
     (data -> data[[:rep77, :foreign, :length, :mpg]]) |>
-    (data -> dropmissing!(data, disallowmissing = true))
+    dropmissing
   data.rep77 = levels!(categorical(data.rep77; ordered = true),
                        ["Poor", "Fair", "Average", "Good", "Excellent"])
   model = fit(EconometricModel,
