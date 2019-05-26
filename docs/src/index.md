@@ -38,8 +38,8 @@ model = fit(EconometricModel,
 ### Within (two-ways)
 ```@example Main
 model = fit(EconometricModel,
-                 @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + absorb(County + Year)),
-                 data)
+            @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + absorb(County + Year)),
+            data)
 ```
 
 ### Random
@@ -69,10 +69,9 @@ first(data, 6)
 
 ```@example Main
 model = fit(EconometricModel,
-            @formula(insure ~ 1 + age + male + nonwhite + site),
+            @formula(insure ~ age + male + nonwhite + site),
             data,
-            contrasts = Dict(:insure => DummyCoding(base = "Uninsure"))
-            )
+            contrasts = Dict(:insure => DummyCoding(base = "Uninsure")))
 ```
 
 ## Ordinal Response Model
@@ -89,6 +88,5 @@ first(data, 6)
 model = fit(EconometricModel,
             @formula(RecParks ~ Age + Sex + Schooling),
             data,
-            contrasts = Dict(:RecParks => DummyCoding(levels = collect(1:5)))
-            )
+            contrasts = Dict(:RecParks => DummyCoding(levels = collect(1:5))))
 ```

@@ -87,7 +87,7 @@ end
     dropmissing |>
     (data -> categorical!(data, [:insure, :site]))
   model = fit(EconometricModel,
-              @formula(insure ~ 1 + age + male + nonwhite + site),
+              @formula(insure ~ age + male + nonwhite + site),
               data,
               contrasts = Dict(:insure => DummyCoding(base = "Uninsure")))
   β, V = coef(model), vcov(model)
