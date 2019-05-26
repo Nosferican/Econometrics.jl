@@ -105,7 +105,7 @@ PrbConv       1.39581e-5   0.000200244   0.0697054    0.9445  -0.000379273  0.00
 AvgSen       -0.000688924  0.00266514   -0.258494     0.7961  -0.00592262   0.00454478 
 ───────────────────────────────────────────────────────────────────────────────────────</code></pre><h2><a class="nav-anchor" id="Nominal-Response-Model-1" href="#Nominal-Response-Model-1">Nominal Response Model</a></h2><pre><code class="language-julia">data = joinpath(dirname(pathof(Econometrics)), &quot;..&quot;, &quot;data&quot;, &quot;insure.csv&quot;) |&gt;
    CSV.read |&gt;
-   (data -&gt; data[[:insure, :age, :male, :nonwhite, :site]]) |&gt;
+   (data -&gt; select(data, [:insure, :age, :male, :nonwhite, :site])) |&gt;
    dropmissing |&gt;
    (data -&gt; categorical!(data, [:insure, :site]))
 first(data, 6)</code></pre><table class="data-frame"><thead><tr><th></th><th>insure</th><th>age</th><th>male</th><th>nonwhite</th><th>site</th></tr><tr><th></th><th>Categorical…</th><th>Float64</th><th>Int64</th><th>Int64</th><th>Categorical…</th></tr></thead><tbody><p>6 rows × 5 columns</p><tr><th>1</th><td>Indemnity</td><td>73.7221</td><td>0</td><td>0</td><td>2</td></tr><tr><th>2</th><td>Prepaid</td><td>27.8959</td><td>0</td><td>0</td><td>2</td></tr><tr><th>3</th><td>Indemnity</td><td>37.5414</td><td>0</td><td>0</td><td>1</td></tr><tr><th>4</th><td>Prepaid</td><td>23.6413</td><td>0</td><td>1</td><td>3</td></tr><tr><th>5</th><td>Prepaid</td><td>29.6838</td><td>0</td><td>0</td><td>2</td></tr><tr><th>6</th><td>Prepaid</td><td>39.4689</td><td>0</td><td>0</td><td>2</td></tr></tbody></table><pre><code class="language-julia">model = fit(EconometricModel,
@@ -135,7 +135,8 @@ insure: Prepaid ~ male            0.109846    0.365187    0.300793    0.7637  -0
 insure: Prepaid ~ nonwhite        0.757718    0.419575    1.80592     0.0714  -0.0662835  1.58172  
 insure: Prepaid ~ site: 2         1.32456     0.469789    2.81947     0.0050   0.401941   2.24717  
 insure: Prepaid ~ site: 3        -0.380175    0.372819   -1.01973     0.3083  -1.11235    0.352001 
-───────────────────────────────────────────────────────────────────────────────────────────────────</code></pre><h2><a class="nav-anchor" id="Ordinal-Response-Model-1" href="#Ordinal-Response-Model-1">Ordinal Response Model</a></h2><pre><code class="language-julia">data = RDatasets.dataset(&quot;Ecdat&quot;, &quot;Kakadu&quot;)[[:RecParks, :Sex, :Age, :Schooling]]
+───────────────────────────────────────────────────────────────────────────────────────────────────</code></pre><h2><a class="nav-anchor" id="Ordinal-Response-Model-1" href="#Ordinal-Response-Model-1">Ordinal Response Model</a></h2><pre><code class="language-julia">data = RDatasets.dataset(&quot;Ecdat&quot;, &quot;Kakadu&quot;) |&gt;
+       (data -&gt; select(data, [:RecParks, :Sex, :Age, :Schooling]))
 data.RecParks = convert(Vector{Int}, data.RecParks)
 data.RecParks = levels!(categorical(data.RecParks, ordered = true), collect(1:5))
 first(data, 6)</code></pre><table class="data-frame"><thead><tr><th></th><th>RecParks</th><th>Sex</th><th>Age</th><th>Schooling</th></tr><tr><th></th><th>Categorical…</th><th>Categorical…</th><th>Int32</th><th>Int32</th></tr></thead><tbody><p>6 rows × 4 columns</p><tr><th>1</th><td>3</td><td>male</td><td>27</td><td>3</td></tr><tr><th>2</th><td>5</td><td>female</td><td>32</td><td>4</td></tr><tr><th>3</th><td>4</td><td>male</td><td>32</td><td>4</td></tr><tr><th>4</th><td>1</td><td>female</td><td>70</td><td>6</td></tr><tr><th>5</th><td>2</td><td>male</td><td>32</td><td>5</td></tr><tr><th>6</th><td>3</td><td>male</td><td>47</td><td>6</td></tr></tbody></table><pre><code class="language-julia">model = fit(EconometricModel,
