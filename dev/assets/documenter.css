@@ -336,7 +336,7 @@ nav.toc ul::-webkit-scrollbar-thumb:hover {
 article {
     margin-left: 20em;
     min-width: 20em;
-    max-width: 48em;
+    max-width: 55em;
     padding: 2em;
 }
 
