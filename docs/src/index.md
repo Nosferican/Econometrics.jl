@@ -9,7 +9,8 @@ using Econometrics, CSV, RDatasets
 ## Continuous Response Models
 
 ```@example Main
-data = RDatasets.dataset("Ecdat", "Crime")
+data = RDatasets.dataset("Ecdat", "Crime") |>
+  (data -> select(data, [:County, :Year, :CRMRTE, :PrbConv, :AvgSen, :PrbPris]))
 first(data, 6)
 ```
 
