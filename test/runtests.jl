@@ -83,7 +83,7 @@ end
 @testset "Nominal Models" begin
   data = joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |>
 	CSV.read |>
-    (data -> data[[:insure, :age, :male, :nonwhite, :site]]) |>
+	(data -> select(data, [:insure, :age, :male, :nonwhite, :site])) |>
     dropmissing |>
     (data -> categorical!(data, [:insure, :site]))
   model = fit(EconometricModel,
@@ -137,7 +137,7 @@ end
                           0.191939349, 0.171456015, 0.166913580, 0.167631154] rtol = 1e-4
   data = joinpath(dirname(pathof(Econometrics)), "..", "data", "auto.csv") |>
 	CSV.read |>
-    (data -> data[[:rep77, :foreign, :length, :mpg]]) |>
+    (data -> select(data, [:rep77, :foreign, :length, :mpg])) |>
     dropmissing
   data.rep77 = levels!(categorical(data.rep77; ordered = true),
                        ["Poor", "Fair", "Average", "Good", "Excellent"])

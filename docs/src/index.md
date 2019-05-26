@@ -61,7 +61,7 @@ model = fit(EconometricModel,
 ```@example Main
 data = joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |>
    CSV.read |>
-   (data -> data[[:insure, :age, :male, :nonwhite, :site]]) |>
+   (data -> select(data, [:insure, :age, :male, :nonwhite, :site])) |>
    dropmissing |>
    (data -> categorical!(data, [:insure, :site]))
 first(data, 6)
@@ -78,7 +78,8 @@ model = fit(EconometricModel,
 ## Ordinal Response Model
 
 ```@example Main
-data = RDatasets.dataset("Ecdat", "Kakadu")[[:RecParks, :Sex, :Age, :Schooling]]
+data = RDatasets.dataset("Ecdat", "Kakadu") |>
+       (data -> select(data, [:RecParks, :Sex, :Age, :Schooling]))
 data.RecParks = convert(Vector{Int}, data.RecParks)
 data.RecParks = levels!(categorical(data.RecParks, ordered = true), collect(1:5))
 first(data, 6)
