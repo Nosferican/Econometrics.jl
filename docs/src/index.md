@@ -10,6 +10,7 @@ using Econometrics, CSV, RDatasets
 
 ```@example Main
 data = RDatasets.dataset("Ecdat", "Crime")
+first(data, 6)
 ```
 
 ### Pooling
@@ -62,10 +63,15 @@ data = joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |>
    (data -> data[[:insure, :age, :male, :nonwhite, :site]]) |>
    (data -> dropmissing!(data, disallowmissing = true)) |>
    (data -> categorical!(data, [:insure, :site]))
+first(data, 6)
+```
+
+```@example Main
 model = fit(EconometricModel,
             @formula(insure ~ 1 + age + male + nonwhite + site),
             data,
-            contrasts = Dict(:insure => DummyCoding(base = "Uninsure")))
+            contrasts = Dict(:insure => DummyCoding(base = "Uninsure"))
+            )
 ```
 
 ## Ordinal Response Model
@@ -74,6 +80,10 @@ model = fit(EconometricModel,
 data = RDatasets.dataset("Ecdat", "Kakadu")[[:RecParks, :Sex, :Age, :Schooling]]
 data.RecParks = convert(Vector{Int}, data.RecParks)
 data.RecParks = levels!(categorical(data.RecParks, ordered = true), collect(1:5))
+first(data, 6)
+```
+
+```@example Main
 model = fit(EconometricModel,
             @formula(RecParks ~ Age + Sex + Schooling),
             data,
