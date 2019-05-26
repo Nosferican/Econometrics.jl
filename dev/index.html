@@ -50,8 +50,8 @@ PrbConv       6.65981e-6  0.0001985     0.0335507    0.9732  -0.000383272  0.000
 AvgSen        7.83181e-5  0.000127904   0.612318     0.5406  -0.000172936  0.000329572
 PrbPris      -0.0013419   0.00405182   -0.331185     0.7406  -0.00930126   0.00661746 
 ──────────────────────────────────────────────────────────────────────────────────────</code></pre><h3><a class="nav-anchor" id="Within-(two-ways)-1" href="#Within-(two-ways)-1">Within (two-ways)</a></h3><pre><code class="language-julia">model = fit(EconometricModel,
-                 @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + absorb(County + Year)),
-                 data)</code></pre><pre><code class="language-none">Continuous Response Model
+            @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + absorb(County + Year)),
+            data)</code></pre><pre><code class="language-none">Continuous Response Model
 Number of observations: 630
 Loglikelihood: 2290.25
 R-squared: 0.0013
@@ -109,17 +109,16 @@ AvgSen       -0.000688924  0.00266514   -0.258494     0.7961  -0.00592262   0.00
    dropmissing |&gt;
    (data -&gt; categorical!(data, [:insure, :site]))
 first(data, 6)</code></pre><table class="data-frame"><thead><tr><th></th><th>insure</th><th>age</th><th>male</th><th>nonwhite</th><th>site</th></tr><tr><th></th><th>Categorical…</th><th>Float64</th><th>Int64</th><th>Int64</th><th>Categorical…</th></tr></thead><tbody><p>6 rows × 5 columns</p><tr><th>1</th><td>Indemnity</td><td>73.7221</td><td>0</td><td>0</td><td>2</td></tr><tr><th>2</th><td>Prepaid</td><td>27.8959</td><td>0</td><td>0</td><td>2</td></tr><tr><th>3</th><td>Indemnity</td><td>37.5414</td><td>0</td><td>0</td><td>1</td></tr><tr><th>4</th><td>Prepaid</td><td>23.6413</td><td>0</td><td>1</td><td>3</td></tr><tr><th>5</th><td>Prepaid</td><td>29.6838</td><td>0</td><td>0</td><td>2</td></tr><tr><th>6</th><td>Prepaid</td><td>39.4689</td><td>0</td><td>0</td><td>2</td></tr></tbody></table><pre><code class="language-julia">model = fit(EconometricModel,
-            @formula(insure ~ 1 + age + male + nonwhite + site),
+            @formula(insure ~ age + male + nonwhite + site),
             data,
-            contrasts = Dict(:insure =&gt; DummyCoding(base = &quot;Uninsure&quot;))
-            )</code></pre><pre><code class="language-none">Probability Model for Nominal Response
+            contrasts = Dict(:insure =&gt; DummyCoding(base = &quot;Uninsure&quot;)))</code></pre><pre><code class="language-none">Probability Model for Nominal Response
 Categories: Uninsure, Indemnity, Prepaid
 Number of observations: 615
 Null Loglikelihood: -555.85
 Loglikelihood: -534.36
 R-squared: 0.0387
 LR Test: 42.99 ∼ χ²(10) ⟹  Pr &gt; χ² = 0.0000
-Formula: insure ~ 1 + age + male + nonwhite + site
+Formula: insure ~ age + male + nonwhite + site
 ───────────────────────────────────────────────────────────────────────────────────────────────────
                                        PE         SE       t-value  Pr &gt; |t|        2.5%      97.5%
 ───────────────────────────────────────────────────────────────────────────────────────────────────
@@ -142,8 +141,7 @@ data.RecParks = levels!(categorical(data.RecParks, ordered = true), collect(1:5)
 first(data, 6)</code></pre><table class="data-frame"><thead><tr><th></th><th>RecParks</th><th>Sex</th><th>Age</th><th>Schooling</th></tr><tr><th></th><th>Categorical…</th><th>Categorical…</th><th>Int32</th><th>Int32</th></tr></thead><tbody><p>6 rows × 4 columns</p><tr><th>1</th><td>3</td><td>male</td><td>27</td><td>3</td></tr><tr><th>2</th><td>5</td><td>female</td><td>32</td><td>4</td></tr><tr><th>3</th><td>4</td><td>male</td><td>32</td><td>4</td></tr><tr><th>4</th><td>1</td><td>female</td><td>70</td><td>6</td></tr><tr><th>5</th><td>2</td><td>male</td><td>32</td><td>5</td></tr><tr><th>6</th><td>3</td><td>male</td><td>47</td><td>6</td></tr></tbody></table><pre><code class="language-julia">model = fit(EconometricModel,
             @formula(RecParks ~ Age + Sex + Schooling),
             data,
-            contrasts = Dict(:RecParks =&gt; DummyCoding(levels = collect(1:5)))
-            )</code></pre><pre><code class="language-none">Probability Model for Ordinal Response
+            contrasts = Dict(:RecParks =&gt; DummyCoding(levels = collect(1:5))))</code></pre><pre><code class="language-none">Probability Model for Ordinal Response
 Categories: 1 &lt; 2 &lt; 3 &lt; 4 &lt; 5
 Number of observations: 1827
 Null Loglikelihood: -2677.60
