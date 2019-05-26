@@ -1,0 +1,9 @@
+site_name:        Econometrics.jl
+repo_url:         https://github.com/Nosferican/Econometrics.jl
+site_description: Econometrics Docs
+site_author:      José Bayoán Santiago Calderón
+
+theme: material
+
+extra_css:
+  - assets/Documenter.css

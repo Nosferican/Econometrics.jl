@@ -1,0 +1,23 @@
+language: julia
+
+julia:
+  - 1.1
+
+os:
+  - linux
+
+notifications:
+  email: false
+
+after_success:
+  - julia -e 'cd(Pkg.dir("Econometrics")); Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
+
+jobs:
+  include:
+    - stage: "Documentation"
+      julia: 1.1
+      os: linux
+      codecov: true
+      script:
+        - julia --project -e 'using Pkg; Pkg.instantiate()'
+        - julia --project docs/make.jl
