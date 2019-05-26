@@ -18,7 +18,6 @@ jobs:
     - stage: "Documentation"
       julia: 1.1
       os: linux
-      codecov: true
       script:
         - julia --project -e 'using Pkg; Pkg.instantiate()'
         - julia --project docs/make.jl
