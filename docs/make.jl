@@ -1,6 +1,6 @@
 using Documenter, Econometrics
 
-makedocs(format = Documenter.HTML(assets = ["documenter.css"]),
+makedocs(format = Documenter.HTML(assets = ["assets/custom.css"]),
          modules = [Econometrics],
          sitename = "Econometrics.jl"
          )
