@@ -2,6 +2,7 @@ function absorb end
 function PID end
 function TID end
 function between end
+function vce end
 
 function decompose(f::FormulaTerm, data::AbstractDataFrame, contrasts::Dict{Symbol})
     data = dropmissing(data[termvars(f)], disallowmissing = true)
