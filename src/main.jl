@@ -1,5 +1,5 @@
 
-""
+"""
     EconometricModel(f::FormulaTerm, data::AbstractDataFrame;
                      contrasts::Dict{Symbol} = Dict{Symbol,Union{<:AbstractContrasts,<:AbstractTerm}})
 
