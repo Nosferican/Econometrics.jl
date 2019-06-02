@@ -1,3 +1,4 @@
+
 @views function solve(estimator::LinearModelEstimators,
                       X::AbstractMatrix{<:Number},
                       y::AbstractVector{<:Number},

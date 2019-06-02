@@ -1,3 +1,4 @@
+
 dispersion(obj::EconometricModel{<:LinearModelEstimators}) = true
 dispersion(obj::EconometricModel{<:Union{NominalResponse,OrdinalResponse}}) = false
 isiv(obj::EconometricModel{<:LinearModelEstimators}) = obj.iv > 0

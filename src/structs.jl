@@ -1,3 +1,4 @@
+
 abstract type EconometricsModel <: RegressionModel end
 implicit_intercept(::Type{<:EconometricsModel}) = true
 # Estimators
@@ -23,7 +24,7 @@ function show(io::IO, estimator::BetweenEstimator)
         else
             T̄ = round(harmmean(T), digits = 2)
             println(io, "Groups of sizes [$(E[1]), $(E[2])] with harmonnic mean of $(T̄)")
-        end        
+        end
     end
 end
 struct RandomEffectEstimator <: LinearModelEstimators

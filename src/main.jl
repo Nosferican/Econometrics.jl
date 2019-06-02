@@ -1,7 +1,8 @@
-"""
+
+""
     EconometricModel(f::FormulaTerm, data::AbstractDataFrame;
                      contrasts::Dict{Symbol} = Dict{Symbol,Union{<:AbstractContrasts,<:AbstractTerm}})
-    
+
     Use fit(EconometricModel, f, data, contrasts = contrasts)
     Formula has syntax: @formula(response ~ exogenous + (endogenous ~ instruments) +
                                  weights(wts))

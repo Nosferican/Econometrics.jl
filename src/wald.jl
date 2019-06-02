@@ -1,3 +1,4 @@
+
 function wald(obj::EconometricModel)
     β = coef(obj)
     V = vcov(obj)
