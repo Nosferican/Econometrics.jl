@@ -9,6 +9,7 @@ using Test, Econometrics, CSV, RDatasets, LinearAlgebra
     model = fit(EconometricModel,
                 @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris),
                 data)
+	@test_nowarn show(model)
     @test nullloglikelihood(model) ≈ 1633.305 rtol = 1e-3
     @test loglikelihood(model) ≈ 1643.304 rtol = 1e-3
     @test dof(model) == 5
@@ -29,6 +30,7 @@ using Test, Econometrics, CSV, RDatasets, LinearAlgebra
     model = fit(EconometricModel,
                 @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + between(County)),
                 data)
+	@test_nowarn show(model)
     @test nullloglikelihood(model) ≈ 239.5638 rtol = 1e-3
     @test loglikelihood(model) ≈ 244.4479 rtol = 1e-3
     @test dof(model) == 5
@@ -48,6 +50,7 @@ using Test, Econometrics, CSV, RDatasets, LinearAlgebra
     model = fit(EconometricModel,
                 @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + absorb(County)),
                 data)
+	@test_nowarn show(model)
     #
     @test_broken nullloglikelihood(model) ≈ 2277.488 rtol = 1e-3
     @test_broken loglikelihood(model) ≈ 1643.304 rtol = 1e-3
@@ -55,28 +58,34 @@ using Test, Econometrics, CSV, RDatasets, LinearAlgebra
                      @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + absorb(County + Year)),
                      data)
     # Random Effects
-    xtreg = fit(EconometricModel,
+    model = fit(EconometricModel,
                 @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + PID(County) + TID(Year)),
                 data)
+	@test_nowarn show(model)
     # IV Pooling
-    ivreg = fit(EconometricModel,
+    model = fit(EconometricModel,
                 @formula(CRMRTE ~ PrbConv + (AvgSen ~ PrbPris)),
                 data)
+	@test_nowarn show(model)
     # IV Between
-    ivreg_be = fit(EconometricModel,
-                   @formula(CRMRTE ~ PrbConv + (AvgSen ~ PrbPris) + between(County)),
-                   data)
+    model = fit(EconometricModel,
+                @formula(CRMRTE ~ PrbConv + (AvgSen ~ PrbPris) + between(County)),
+                data)
+	@test_nowarn show(model)
     # IV Within
-    ivreg_fe = fit(EconometricModel,
-                   @formula(CRMRTE ~ PrbConv + (AvgSen ~ PrbPris) + absorb(County)),
-                   data)
-    ivreg_fe_i = fit(EconometricModel,
-                     @formula(CRMRTE ~ PrbConv + (AvgSen ~ PrbPris) + absorb(County + Year)),
-                     data)
+    model = fit(EconometricModel,
+	 			@formula(CRMRTE ~ PrbConv + (AvgSen ~ PrbPris) + absorb(County)),
+                data)
+	@test_nowarn show(model)
+    model = fit(EconometricModel,
+                @formula(CRMRTE ~ PrbConv + (AvgSen ~ PrbPris) + absorb(County + Year)),
+				data)
+	@test_nowarn show(model)
     # IV Random
-    ivreg = fit(EconometricModel,
+    model = fit(EconometricModel,
                 @formula(CRMRTE ~ PrbConv + (AvgSen ~ PrbPris) + PID(County) + TID(Year)),
                 data)
+	@test_nowarn show(model)
   end
 end
 # Nominal Models
@@ -90,6 +99,7 @@ end
               @formula(insure ~ age + male + nonwhite + site),
               data,
               contrasts = Dict(:insure => DummyCoding(base = "Uninsure")))
+  @test_nowarn show(model)
   β, V = coef(model), vcov(model)
   @test β ≈ [1.286943, 0.0077961, -0.4518496, -0.2170589, 1.211563, 0.2078123,
              1.556656, -0.0039489, 0.1098438, 0.7577178, 1.324599, -0.3801756
@@ -119,9 +129,8 @@ end
   data.RecParks = levels!(categorical(data.RecParks, ordered = true), collect(1:5))
   model = fit(EconometricModel,
                @formula(RecParks ~ Age + Sex + Schooling),
-               data,
-               contrasts = Dict(:RecParks => DummyCoding(levels = collect(1:5)))
-               )
+               data)
+  @test_nowarn show(model)
   β, V = coef(model), vcov(model)
   @test β ≈ [0.009437926, -0.015143049, -0.103911316,
              -2.92391240, -1.549266200, -0.298963900, 0.6698249] rtol = 1e-4
@@ -144,6 +153,7 @@ end
   model = fit(EconometricModel,
               @formula(rep77 ~ foreign + length + mpg),
               data)
+  @test_nowarn show(model)
   β, V = coef(model), vcov(model)
   @test β ≈ [2.89679875, 0.08282676, 0.23076532, 17.92728, 19.86486, 22.10311, 24.69193] atol = 1e-3
   @test V ≈ [0.62578335	0.0111044038 0.012321411 2.4421745	2.4836507	2.5750058	2.6957587

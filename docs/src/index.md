@@ -87,6 +87,5 @@ first(data, 6)
 ```@example Main
 model = fit(EconometricModel,
             @formula(RecParks ~ Age + Sex + Schooling),
-            data,
-            contrasts = Dict(:RecParks => DummyCoding(levels = collect(1:5))))
+            data)
 ```
