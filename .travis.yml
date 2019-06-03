@@ -3,15 +3,6 @@ os:
   - linux
 julia:
   - 1.1
+codecov: true
 notifications:
   email: false
-after_success:
-  - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
-jobs:
-  include:
-    - stage: "Documentation"
-      julia: 1.1
-      os: linux
-      script:
-        - julia --project -e 'using Pkg; Pkg.instantiate()'
-        - julia --project docs/make.jl
