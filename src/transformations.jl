@@ -11,34 +11,21 @@
               wts::AbstractVector) =
     isempty(D) ? obj : mapslices(col -> within(col, D, wts), obj, dims = 1)
 @views function within(obj::AbstractVector{<:Real},
-                D::AbstractVector{<:AbstractVector{<:AbstractVector{<:Integer}}},
-                wts::AbstractVector)
+                       D::AbstractVector{<:AbstractVector{<:AbstractVector{<:Integer}}},
+                       wts::AbstractVector = Ones(length(obj)))
     isempty(D) && return obj
     current = copy(obj)
     output = copy(obj)
     er = Inf
-    if !isempty(wts)
-        μ = mean(obj, wts)
-        while er > 1e-8
-            for dimension ∈ D
-                current = copy(output)
-                for group ∈ dimension
-                    output[group] .-= mean(current[group], FrequencyWeights(wts[group]))
-                end
+    μ = mean(obj, wts)
+    while er > 1e-8
+        for dimension ∈ D
+            current = copy(output)
+            for group ∈ dimension
+                output[group] .-= mean(current[group], FrequencyWeights(wts[group]))
             end
-            er = √sum((x - y)^2 for (x, y) ∈ zip(output, current))
         end
-    else
-        μ = mean(obj)
-        while er > 1e-8
-            for dimension ∈ D
-                current = copy(output)
-                for group ∈ dimension
-                    output[group] .-= mean(current[group])
-                end
-            end
-            er = √sum((x - y)^2 for (x, y) ∈ zip(output, current))
-        end
+        er = √sum((x - y)^2 for (x, y) ∈ zip(output, current))
     end
     output .+= μ
 end
@@ -68,7 +55,7 @@ end
 end
 transform(estimator::LinearModelEstimators, wts::FrequencyWeights) = wts
 transform(estimator::BetweenEstimator, wts::FrequencyWeights) =
-    FrequencyWeights(Fill(1, length(estimator.groups)))
+    FrequencyWeights(Ones(length(estimator.groups)))
 transform(estimator::ContinuousResponse,
           obj::AbstractVecOrMat{<:Number},
           wts::FrequencyWeights) = isempty(obj) ? obj : within(obj, estimator.groups, wts)

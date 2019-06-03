@@ -89,7 +89,7 @@ function decompose(f::FormulaTerm, data::AbstractDataFrame, contrasts::Dict{Symb
     else
         y, X = modelcols(exogenous, data)
     end
-    wts = isempty(wts) ? FrequencyWeights(Fill(1, size(y, 1))) : wts
+    wts = isempty(wts) ? FrequencyWeights(Ones(size(y, 1))) : wts
     if !isa(iv.lhs, InterceptTerm)
         z, Z = modelcols(iv, data)
         z = isa(z, Tuple) ? hcat(z...) : z

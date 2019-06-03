@@ -16,7 +16,7 @@ module Econometrics
                          mean, quantile, var,
                          # StatsFuns
                          softmax
-    using FillArrays: Fill
+    using FillArrays: Ones
     using Optim: hessian!, optimize, minimizer, TwiceDifferentiable,
                  # ForwardDiff
                  ForwardDiff.Dual, ForwardDiff.value
