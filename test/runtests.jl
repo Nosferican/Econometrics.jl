@@ -30,12 +30,7 @@ using Test, Econometrics, CSV, RDatasets, LinearAlgebra
     model = fit(EconometricModel,
                 @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + between(County)),
                 data)
-	@test sprint(show, model) == "Between Estimator\nCounty with 630 groups\nBalanced groups with size 7\nNumber of observations: 90\nLoglikelihood: 244.40\nR-squared: 0.1029\nWald: 3.29 ∼ F(3, 86) ⟹  P
-r > F = 0.0246\nFormula: CRMRTE ~ PrbConv + AvgSen + PrbPris + :(between(County))\n───────────────────────────────────────────────────────────────────────────────────\n
-                   PE          SE       t-value  Pr > |t|         2.5%       97.5%\n───────────────────────────────────────────────────────────────────────────────────\n
-(Intercept)  -0.00464339   0.0186571   -0.24888     0.8040  -0.0417325   0.0324457 \nPrbConv      -0.00354113   0.0018904   -1.87322     0.0644  -0.00729911  0.00021685\
-nAvgSen        0.000848049  0.00116477   0.728086    0.4685  -0.00146743  0.00316353\nPrbPris       0.0730299    0.0332057    2.19932     0.0305   0.0070191   0.139041
-\n───────────────────────────────────────────────────────────────────────────────────"
+	@test sprint(show, model) == "Between Estimator\nCounty with 630 groups\nBalanced groups with size 7\nNumber of observations: 90\nLoglikelihood: 244.40\nR-squared: 0.1029\nWald: 3.29 ∼ F(3, 86) ⟹  Pr > F = 0.0246\nFormula: CRMRTE ~ PrbConv + AvgSen + PrbPris + :(between(County))\n───────────────────────────────────────────────────────────────────────────────────\n                    PE          SE       t-value  Pr > |t|         2.5%       97.5%\n───────────────────────────────────────────────────────────────────────────────────\n(Intercept)  -0.00464339   0.0186571   -0.24888     0.8040  -0.0417325   0.0324457 \nPrbConv      -0.00354113   0.0018904   -1.87322     0.0644  -0.00729911  0.00021685\nAvgSen        0.000848049  0.00116477   0.728086    0.4685  -0.00146743  0.00316353\nPrbPris       0.0730299    0.0332057    2.19932     0.0305   0.0070191   0.139041  \n───────────────────────────────────────────────────────────────────────────────────"
     @test nullloglikelihood(model) ≈ 239.5638 rtol = 1e-3
     @test loglikelihood(model) ≈ 244.4479 rtol = 1e-3
     @test dof(model) == 5
@@ -55,12 +50,7 @@ nAvgSen        0.000848049  0.00116477   0.728086    0.4685  -0.00146743  0.0031
     model = fit(EconometricModel,
                 @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + absorb(County)),
                 data)
-	@test sprint(show, model) == "Continuous Response Model\nNumber of observations: 630\nLoglikelihood: 2273.95\nR-squared: 0.0009\nWald: 0.16 ∼ F(3, 537) ⟹  Pr > F = 0.9258\nFormula: CRMRTE ~ PrbConv
-+ AvgSen + PrbPris + :(absorb(County))\n──────────────────────────────────────────────────────────────────────────────────────\n                   PE           SE
- t-value  Pr > |t|          2.5%        97.5%\n──────────────────────────────────────────────────────────────────────────────────────\n(Intercept)   0.0314527   0.002046
-38   15.3699       <1e-43   0.0274328    0.0354726  \nPrbConv       6.65981e-6  0.0001985     0.0335507    0.9732  -0.000383272  0.000396592\nAvgSen        7.83181e-5  0
-.000127904   0.612318     0.5406  -0.000172936  0.000329572\nPrbPris      -0.0013419   0.00405182   -0.331185     0.7406  -0.00930126   0.00661746 \n────────────────────
-──────────────────────────────────────────────────────────────────"
+	@test sprint(show, model) == "Continuous Response Model\nNumber of observations: 630\nLoglikelihood: 2273.95\nR-squared: 0.0009\nWald: 0.16 ∼ F(3, 537) ⟹  Pr > F = 0.9258\nFormula: CRMRTE ~ PrbConv + AvgSen + PrbPris + :(absorb(County))\n──────────────────────────────────────────────────────────────────────────────────────\n                   PE           SE        t-value  Pr > |t|          2.5%        97.5%\n──────────────────────────────────────────────────────────────────────────────────────\n(Intercept)   0.0314527   0.00204638   15.3699       <1e-43   0.0274328    0.0354726  \nPrbConv       6.65981e-6  0.0001985     0.0335507    0.9732  -0.000383272  0.000396592\nAvgSen        7.83181e-5  0.000127904   0.612318     0.5406  -0.000172936  0.000329572\nPrbPris      -0.0013419   0.00405182   -0.331185     0.7406  -0.00930126   0.00661746 \n──────────────────────────────────────────────────────────────────────────────────────"
 	#
     @test_broken nullloglikelihood(model) ≈ 2277.488 rtol = 1e-3
     @test_broken loglikelihood(model) ≈ 1643.304 rtol = 1e-3
