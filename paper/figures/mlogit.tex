@@ -1,0 +1,23 @@
+\begin{table}[hbpt]
+    \caption{Multinomial Logistic Regression}
+    \label{mlogitres}
+    \begin{tabularx}{\textwidth}{Y Y c c c c}
+    \toprule
+    Response & Parameter & \multicolumn{2}{l}{Econometrics.jl} & \multicolumn{2}{c}{Stata} \\
+    \midrule
+    \multirow{6}{*}{Indemnity} & (Intercept) & -0.3753 & 0.9148 & -0.3740 & 0.9134 \\
+    & Age & -0.0239 & 0.0004 & -0.0239 & 0.0004 \\
+    & Gender: Male & 0.1635 & 0.9599 & 0.1643 & 0.9591 \\
+    & Nonwhite & 0.5107 & 1.4389 & 0.5116 & 1.4380 \\
+    & Site: 2 & -0.2998 & 0.5258 & -0.2989 & 0.5250 \\
+    & Site: 3 & -1.0356 & -0.1404 & -1.0347 & -0.1412 \\
+    \midrule
+    \multirow{6}{*}{Prepaid} & (Intercept) & -2.4502 & -0.1237 & -2.4479 & -0.1260 \\
+    & Age & -0.0303 & 0.0147 & -0.0302 & 0.0146 \\
+    & Gender: Male & -0.2698 & 1.1736 & -0.2684 & 1.1721 \\
+    & Nonwhite & -0.6188 & 1.0530 & -0.6172 & 1.0513 \\
+    & Site: 2 & -2.1356 & -0.2875 & -2.1338 & -0.2894 \\
+    & Site: 3 & -0.9272 & 0.5115 & -0.9257 & 0.5101 \\
+    \bottomrule
+    \end{tabularx}
+\end{table}

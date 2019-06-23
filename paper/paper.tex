@@ -3,6 +3,60 @@
 \documentclass{juliacon}
 \setcounter{page}{1}
 
+%%%
+%% Language Support
+%%%
+\usepackage[english]{babel}
+\usepackage{csquotes}
+
+%%%
+%% Images
+%%%
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage[export]{adjustbox}
+
+%%%
+%% Fonts and Typewriting
+%%%
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{bbm}
+\usepackage{bm}
+
+%%%
+%% Enhances Figures and Tables environments
+%%%
+\usepackage{placeins}
+\usepackage[hypcap=true]{caption}
+\usepackage{booktabs, multirow, array, tabularx, floatrow, cellspace, threeparttable}
+\floatsetup[table]{capposition = top}
+\newcolumntype{Z}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+\renewcommand{\arraystretch}{1.25}
+
+%%%
+%% Enables hyperlinks
+%%%
+\usepackage{varioref}
+\hypersetup{
+    pdftitle    = {Econometrics.jl},
+    pdfsubject  = {JuliaCon 2019 Proceedings},
+    pdfauthor   = {José Bayoán Santiago Calderón},
+    pdfkeywords = {Julia, Econometrics, Statistical Software, Software Validation},
+    colorlinks  = true,
+    linkcolor   = black,
+    filecolor   = black,
+    urlcolor    = black,
+    citecolor   = black
+}
+\urlstyle{same}
+
+%%%
+%% Cross References
+%%%
+\usepackage{cleveref}
+
 \begin{document}
 
 \input{header}
@@ -11,35 +65,25 @@
 
 \begin{abstract}
 
-This is a guide for authors who are preparing papers for JuliaCon using the \LaTeX{} document
-preparation system and the \verb juliacon  class file.
+Econometrics.jl is a package for econometrics analysis. It provides a series of most common routines for applied econometrics such as models for continuous, nominal, and ordinal outcomes, longitudinal estimators, variable absorption, weights, rank deficient, and robust variance covariance estimators.
 
 \end{abstract}
 
 \section{Introduction}
 
-The \LaTeX{} document preparation system is a special version of the
-\TeX; typesetting program where-in a collection of \TeX; commands
-are added to \LaTeX{} to simplify typesetting. Importantly, it allows
-the author to concentrate on the logical structure of the document
-rather than its visual layout.\vskip 6pt
-Moreover, \LaTeX{} provides a consistent and comprehensive document
-preparation interface. There are simple-to-use commands for
-generating a table of contents, lists of figures and/or tables, and indexes.
-\LaTeX{} can automatically number list entries, equations, figures,
-tables, and footnotes, as well as articles, sections, and subsections.
-Using this numbering system, bibliographic citations, page
-references, and cross references to any other numbered entity (e.g.
-article, section, equation, figure, list entry, etc.) become quite simple
-and straightforward. The use of \LaTeX{} document classes allows
-a simple change of class to transform the appearance of your document.\vskip 6pt
-\LaTeX{} is a powerful tool for managing long and complex documents.
-In particular, partial processing enables long documents to
-be produced article by article without losing sequential information.
-The use of document classes allows a simple change of style
-(or style option) to transform the appearance of your document.
+Software to economists is what hammers are to blacksmiths. As scientists, the tools to work with data are as important as the know-how to perform the analysis. A requirement for good science is that the tools used in the process have a certain standard in terms of quality, transparency, and flexibility. The analysis must allow for the process to be verifiable and replicable.
 
+This study will: (1) provide an overview of common routines and their statistical and technical requirements, (2) provide an overview of tools available with their peculiarities, (3) discuss design decisions in the development of these tools, and (4) showcase \textit{Econometrics.jl} as a new tool for applied work.
 
+Regression models may be used for several purposes. These may provide a basis for prediction models, causal inference, etc. Common targets include confidence intervals of the parameters estimates, joint-significance of a feature, out-of-sample predictive performance, and others. In other words, obtaining the estimates of a model is usually only part of the task. In order to judge a model, one may require to perform diagnostics and tests to justify potential conclusions for an analysis.
+
+Regression analysis is at the core of applied econometrics. It can be challenging to grasp the extent what makes up the broad term of regression analysis. The following describes a very brief survey of what this technique might entail. Regression analysis can be used for both observational and experimental settings and it allows great flexibility for a multitude of applications. The main idea is to find estimates for model parameters to optimize some objective such as the likelihood in maximum likelihood estimation (MLE). Other potential objectives include restricted maximum likelihood (REML) or a Bayesian approach such as maximum a posteriori probability (MAP). One framework is the generalized linear model (GLM) which use a linear predictor that is mapped through a link function to a distribution modeling the response. Continuous responses might use a Normal distribution, count responses a log link with a Negative Binomial distribution, and probability models might use a categorical distribution with links that map to valid probabilities such as the Logit link. In cases such as probability models where the responses are multidimensional, the generalization is known as vector generalized linear models (VGLM). Other generalizations include relaxing the relation between the linear predictor and the outcome to be the sum of smoothing functions through a generalized additive model (GAM) framework or incorporating random effects through a mixed models approach. Some estimators address challenges such as endogeneity, censored responses, and zero-inflated responses through various solutions such as instrumental variables or censored regression model. Others, exploit aspects of the data to overcome challenges or increase efficiency such as random effects in longitudinal data. In relation to the second moment of the estimator, robust variance covariance estimators or boostrapping may be required for inference.
+
+Out of the many potential tools practitioners may require, what are some of the most common? Not every estimator is as widely accessible or commonly used. Some educated guesses may be well justified such as ordinary least squares being more widely used than spatially-weighted regressions. In order to avoid speculation, I defer to a reasonable assumption that the most common estimators are those usually taught in academic programs and available in widely used software similarly to \cite{Renfro_2009}. Most programs teach tools to address the most common response types: continuous, count, rates, nominal, and ordinal outcomes. Hence, some routines might be linear models, Poisson/negative binomial, multinomial logistic regression, and ordinal logistic regression with proportional odds assumption. Topics in time series and panel data are usually offered in most programs. Perhaps the most common topic is short panels (many units of observations through relatively small number of repeated observations). Common estimators include pooling, first-difference, fixed effects / within estimator, and one-way random effects. The between estimator is usually masked as an intermediate model for estimating the error component in the random effects model. Lastly, the two big challenges taught in most programs are endogeneity and heteroscedasticity. These challenges are usually countered through instrumental variables (e.g., 2SLS) or robust variance-covariance estimators (e.g., heteroscedasticity consistent estimators).
+
+\cite{Renfro_2009} surveyed the functionality of 24 alternatives for common econometrics routines. Throughout the history of econometrics software, alternatives have risen and fallen in following. Some high contenders by market share include Stata \cite{Stata}, R \cite{R}, MATLAB, Python \cite{Python}, IBM SPSS Statistics, SAS software, and EViews. These include both commercial and open-source alternatives. Functionality may be provided by the base/standard libraries in the statistical software environment, as a product such as a toolkit or user contributed such as a module/package that is distributed. Some examples of user-contributed functionality include the \textit{reghdfe} Stata module and a series of R packages such as \textit{MASS} \cite{MASS}, \textit{lmtest} \cite{lmtest}, \textit{sandwich} \cite{sandwich}, \textit{plm} \cite{plm}, and \textit{mlogit} \cite{mlogit}.
+
+The Julia language \cite{Julia} is an upcoming language especially well-suited for scientific computing such as econometrics, data science, machine learning, and other related tasks. The following sections describe commons estimators, the Julia ecosystem supporting tools, and Econometrics.jl which provides further functionality.
 
 \section{The JuliaCon Article Class}
 \label{sec:documentclass}

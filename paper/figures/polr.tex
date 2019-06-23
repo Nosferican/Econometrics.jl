@@ -1,0 +1,17 @@
+\begin{table}[hbpt]
+    \caption{Parallel Ordinal Logistic Regression}
+    \label{ologitres}
+    \begin{tabularx}{\textwidth}{Y c c c c c c}
+    \toprule
+    Parameter & \multicolumn{2}{c}{Econometrics.jl} & \multicolumn{2}{c}{Stata} & \multicolumn{2}{c}{R’s MASS} \\
+    \midrule
+    Foreign & 1.3168 & 4.4768 & 1.3472 & 4.4464 & 1.4111 & 4.5293 \\
+    Length & 0.0374 & 0.1282 & 0.0383 & 0.1274 & 0.0395 & 0.1292 \\
+    MPG & 0.0900 & 0.3716 & 0.0927 & 0.3689 & 0.0986 & 0.3781 \\
+    (Intercept): Poor | Fair & 6.8343 & 29.0206 & 7.0473 & 28.8076 &  &  \\
+    (Intercept): Fair | Average & 8.6814 & 31.0487 & 8.8962 & 30.8340 &  &  \\
+    (Intercept): Average | Good & 10.6949 & 33.5117 & 10.9140 & 33.2926 &  &  \\
+    (Intercept): Good | Excellent & 12.9204 & 36.4639 & 13.1465 & 36.2378 &  & \\
+    \bottomrule
+\end{tabularx}
+\end{table}

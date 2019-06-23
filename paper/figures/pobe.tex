@@ -1,0 +1,19 @@
+\begin{table}[hbpt]
+    \caption{Pooling and Between Estimators}
+    \label{poberes}
+    \begin{tabularx}{\textwidth}{Y Y c c c c c c}
+    \toprule
+    Model & Parameter & \multicolumn{2}{c}{Econometrics.jl} & \multicolumn{2}{c}{Stata} & \multicolumn{2}{c}{R (plm)} \\
+    \midrule
+    \multirow{4}{*}{Pooling} & Intercept & 0.0102 & 0.0271 & 0.0102 & 0.0271 & 0.0102 & 0.0271 \\
+    & PrbConv & -0.0020 & -0.0003 & -0.0020 & -0.0003 & -0.0020 & -0.0003 \\
+    & AvgSen & -0.0003 & 0.0008 & -0.0003 & 0.0008 & -0.0003 & 0.0008 \\
+    & PrbPris & 0.0113 & 0.0434 & 0.0113 & 0.0434 & 0.0113 & 0.0434 \\
+    \midrule
+    \multirow{4}{*}{Between} & Intercept & -0.0417 & 0.0324 & -0.0417 & 0.0324 & -0.0412 & 0.0319 \\
+    & PrbConv & -0.0073 & 0.0002 & -0.0073 & 0.0002 & -0.0072 & 0.0002 \\
+    & AvgSen & -0.0015 & 0.0032 & -0.0015 & 0.0032 & -0.0014 & 0.0031 \\
+    & PrbPris & 0.0070 & 0.1390 & 0.0070 & 0.1390 & 0.0079 & 0.1381 \\
+    \bottomrule
+\end{tabularx}
+\end{table}

@@ -1,0 +1,18 @@
+\begin{table}[hbpt]
+    \caption{Random Effects and Instrumental Variables}
+    \label{xtregres}
+    \begin{tabularx}{\textwidth}{Y Y c c c c c c}
+    \toprule
+    Model & Parameter & \multicolumn{2}{c}{Econometrics.jl} & \multicolumn{2}{c}{Stata} & \multicolumn{2}{c}{R (plm)} \\
+    \midrule
+    \multirow{4}{*}{Random} & Intercept & 0.0257 & 0.0362 & 0.0257 & 0.0362 &  &  \\
+    & PrbConv & -0.0004 & 0.0004 & -0.0004 & 0.0003 & -0.0004 & 0.0004 \\
+    & AvgSen & -0.0002 & 0.0003 & -0.0002 & 0.0003 & -0.0002 & 0.0003 \\
+    & PrbPris & -0.0081 & 0.0078 & -0.0080 & 0.0078 & -0.0093 & 0.0066 \\
+    \midrule
+    \multirow{3}{*}{IV Random} & Intercept & -0.0097 & 0.0852 & -0.0096 & 0.0851 & -0.0096 & 0.0851 \\
+    & PrbConv & -0.0004 & 0.0004 & -0.0004 & 0.0004 & -0.0004 & 0.0004 \\
+    & AvgSen & -0.0059 & 0.0045 & -0.0059 & 0.0045 & -0.0059 & 0.0045 \\
+    \bottomrule
+\end{tabularx}
+\end{table}

@@ -1,0 +1,19 @@
+\begin{table}[hbpt]
+    \caption{Absorbing Panel or Panel and Temporal Indicators}
+    \label{withinres}
+    \begin{tabularx}{\textwidth}{Y Y c c c c c c}
+    \toprule
+    Model & Parameter & \multicolumn{2}{c}{Econometrics.jl} & \multicolumn{2}{c}{Stata (reghdfe)} & \multicolumn{2}{c}{R (plm)} \\
+    \midrule
+    \multirow{4}{*}{Within PID} & Intercept & 0.0274 & 0.0355 & 0.0274 & 0.0355 &  &  \\
+    & PrbConv & -0.0004 & 0.0004 & -0.0004 & 0.0004 & -0.0004 & 0.0004 \\
+    & AvgSen & -0.0002 & 0.0003 & -0.0002 & 0.0003 & -0.0002 & 0.0003 \\
+    & PrbPris & -0.0093 & 0.0066 & -0.0093 & 0.0066 & -0.0093 & 0.0066 \\
+    \midrule
+    \multirow{4}{*}{Within PTID} & Intercept & 0.0279 & 0.0360 & 0.0279 & 0.0360 &  &  \\
+    & PrbConv & -0.0003 & 0.0005 & -0.0003 & 0.0005 & -0.0003 & 0.0005 \\
+    & AvgSen & -0.0004 & 0.0002 & -0.0004 & 0.0002 & -0.0004 & 0.0002 \\
+    & PrbPris & -0.0070 & 0.0089 & -0.0070 & 0.0089 & -0.0069 & 0.0089 \\
+    \bottomrule
+    \end{tabularx}
+\end{table}
