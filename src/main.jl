@@ -1,7 +1,7 @@
 """
-    EconometricModel(f::FormulaTerm, data::AbstractDataFrame;
+    EconometricModel(f::FormulaTerm, data;
                      contrasts::Dict{Symbol} = Dict{Symbol,Union{<:AbstractContrasts,<:AbstractTerm}})
-    
+
     Use fit(EconometricModel, f, data, contrasts = contrasts)
     Formula has syntax: @formula(response ~ exogenous + (endogenous ~ instruments) +
                                  weights(wts))
@@ -11,6 +11,7 @@
 """
 mutable struct EconometricModel{E<:ModelEstimator,
                                 F<:FormulaTerm,
+                                D<:Any,
                                 Y<:AbstractVecOrMat{<:Number},
                                 W<:FrequencyWeights,
                                 Ŷ<:AbstractVecOrMat{<:Float64},
@@ -19,7 +20,7 @@ mutable struct EconometricModel{E<:ModelEstimator,
                                          <:AbstractVector{<:AbstractString}}} <: EconometricsModel
     estimator::E
     f::F
-    data::DataFrame
+    data::D
     X::Matrix{Float64}
     y::Y
     w::W
@@ -109,7 +110,7 @@ function show(io::IO, obj::EconometricModel{<:OrdinalResponse})
 end
 function fit(::Type{<:EconometricModel},
              f::FormulaTerm,
-             data::AbstractDataFrame;
+             data;
              contrasts::Dict{Symbol} = Dict{Symbol,Union{<:AbstractContrasts,<:AbstractTerm}}())
     data, f, exogenous, iv, absorbed, pid, tid, wts, effect, y, X, z, Z =
         decompose(deepcopy(f), data, contrasts)

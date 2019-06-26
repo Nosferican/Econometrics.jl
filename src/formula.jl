@@ -4,8 +4,10 @@ function TID end
 function between end
 function vce end
 
-function decompose(f::FormulaTerm, data::AbstractDataFrame, contrasts::Dict{Symbol})
-    data = dropmissing(data[termvars(f)], disallowmissing = true)
+function decompose(f::FormulaTerm, data, contrasts::Dict{Symbol})
+    data = filter(row -> all(!ismissing, row), data[termvars(f)])
+    foreach(pn -> data[pn] = disallowmissing(data[pn]),
+            propertynames(data))
     rhs = isa(f.rhs, Tuple) ? collect(f.rhs) : [f.rhs]
     absorbed = findall(t -> isa(t, FunctionTerm{typeof(absorb)}), rhs)
     if isempty(absorbed)
