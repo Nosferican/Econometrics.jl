@@ -140,8 +140,7 @@ data.RecParks = convert(Vector{Int}, data.RecParks)
 data.RecParks = levels!(categorical(data.RecParks, ordered = true), collect(1:5))
 first(data, 6)</code></pre><table class="data-frame"><thead><tr><th></th><th>RecParks</th><th>Sex</th><th>Age</th><th>Schooling</th></tr><tr><th></th><th>Categorical…</th><th>Categorical…</th><th>Int32</th><th>Int32</th></tr></thead><tbody><p>6 rows × 4 columns</p><tr><th>1</th><td>3</td><td>male</td><td>27</td><td>3</td></tr><tr><th>2</th><td>5</td><td>female</td><td>32</td><td>4</td></tr><tr><th>3</th><td>4</td><td>male</td><td>32</td><td>4</td></tr><tr><th>4</th><td>1</td><td>female</td><td>70</td><td>6</td></tr><tr><th>5</th><td>2</td><td>male</td><td>32</td><td>5</td></tr><tr><th>6</th><td>3</td><td>male</td><td>47</td><td>6</td></tr></tbody></table><pre><code class="language-julia">model = fit(EconometricModel,
             @formula(RecParks ~ Age + Sex + Schooling),
-            data,
-            contrasts = Dict(:RecParks =&gt; DummyCoding(levels = collect(1:5))))</code></pre><pre><code class="language-none">Probability Model for Ordinal Response
+            data)</code></pre><pre><code class="language-none">Probability Model for Ordinal Response
 Categories: 1 &lt; 2 &lt; 3 &lt; 4 &lt; 5
 Number of observations: 1827
 Null Loglikelihood: -2677.60
