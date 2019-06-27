@@ -5,6 +5,7 @@
 """
 module Econometrics
     using Base.Iterators: flatten
+    using DataFrames: AbstractDataFrame, DataFrame, dropmissing
     using Distributions: cdf, ccdf, Categorical, Chisq, FDist, logpdf, Logistic, Normal,
                          pdf, TDist,
                          # Statistics
@@ -29,12 +30,7 @@ module Econometrics
                        aic, aicc, bic, harmmean, FrequencyWeights, CoefTable,
                        ConvergenceException, Weights,
                        # CategoricalArrays
-                       AbstractCategoricalVector, categorical, levels, isordered,
-                       # Missings
-                       disallowmissing,
-                       # Tables
-                       Tables.columns, Tables.columntable, Tables.select, Tables.rows,
-                       Tables.materializer
+                       AbstractCategoricalVector, categorical, levels, isordered
     import Base: show
     import StatsModels: hasintercept, implicit_intercept,
                         # StatsBase
