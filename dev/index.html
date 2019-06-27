@@ -23,6 +23,7 @@ PrbPris       0.0273394    0.00817642    3.34369    0.0009   0.0112829     0.043
 County with 630 groups
 Balanced groups with size 7
 Number of observations: 90
+Null Loglikelihood: 239.56
 Loglikelihood: 244.40
 R-squared: 0.1029
 Wald: 3.29 ∼ F(3, 86) ⟹  Pr &gt; F = 0.0246
@@ -38,8 +39,9 @@ PrbPris       0.0730299    0.0332057    2.19932     0.0305   0.0070191   0.13904
             @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + absorb(County)),
             data)</code></pre><pre><code class="language-none">Continuous Response Model
 Number of observations: 630
+Null Loglikelihood: 1633.30
 Loglikelihood: 2273.95
-R-squared: 0.0009
+R-squared: 0.8707
 Wald: 0.16 ∼ F(3, 537) ⟹  Pr &gt; F = 0.9258
 Formula: CRMRTE ~ PrbConv + AvgSen + PrbPris + :(absorb(County))
 ──────────────────────────────────────────────────────────────────────────────────────
@@ -53,8 +55,9 @@ PrbPris      -0.0013419   0.00405182   -0.331185     0.7406  -0.00930126   0.006
             @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + absorb(County + Year)),
             data)</code></pre><pre><code class="language-none">Continuous Response Model
 Number of observations: 630
+Null Loglikelihood: 1633.30
 Loglikelihood: 2290.25
-R-squared: 0.0013
+R-squared: 0.8775
 Wald: 0.23 ∼ F(3, 531) ⟹  Pr &gt; F = 0.8767
 Formula: CRMRTE ~ PrbConv + AvgSen + PrbPris + :(absorb(County + Year))
 ──────────────────────────────────────────────────────────────────────────────────────
@@ -73,6 +76,7 @@ individual error component: 0.0162
 idiosyncratic error component: 0.0071
 ρ: 0.8399
 Number of observations: 630
+Null Loglikelihood: 2225.79
 Loglikelihood: 2226.01
 R-squared: 0.0007
 Wald: 0.15 ∼ F(3, 626) ⟹  Pr &gt; F = 0.9291
@@ -93,6 +97,7 @@ individual error component: 0.0413
 idiosyncratic error component: 0.0074
 ρ: 0.9691
 Number of observations: 630
+Null Loglikelihood: 2268.01
 Loglikelihood: 2248.34
 R-squared: NaN
 Wald: 0.03 ∼ F(2, 626) ⟹  Pr &gt; F = 0.9671
