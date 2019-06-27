@@ -144,13 +144,11 @@ end
                       wts::AbstractVector)
     @assert isempty(z) && isempty(Z) "Ordinal response models can only contain exogenous features"
     @unpack categories = estimator
-    # Change from levels to the categories after StatsModels patch
-    l = levels(y)
-    y = [ findfirst(isequal(x), l) for x ∈ y ]
-    @assert length(l) > 2
+    y = [ findfirst(isequal(x), categories) for x ∈ y ]
+    @assert length(categories) > 2
     m, n = size(X)
     xs = 1:n
-    ks = length(l) - 1
+    ks = length(categories) - 1
     ζs = ks:(ks + n)
     δ₀ = mapreduce(x -> (1:ks .== x - 1)', vcat, y)
     δ₁ = mapreduce(x -> (1:ks .== x)', vcat, y)
