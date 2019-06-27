@@ -5,7 +5,18 @@ function between end
 function vce end
 
 function decompose(f::FormulaTerm, data, contrasts::Dict{Symbol})
-    data = filter(row -> all(!ismissing, row), data[termvars(f)])
+    pns = termvars(f)
+    # data = data |>
+    # columntable |>
+    # (table -> select(table, pns...)) |>
+    # (table -> filter!(row -> all(!ismissing(getproperty(row, pn)) for pn ∈ pns),
+    #                   collect(rows(table)))) |>
+    # (table -> materializer(table)(table)) |>
+    # (table -> map(disallowmissing, columns(table)))
+    # (table -> materializer(table)(table))
+    data = data[pns]
+    data = data[map(row -> all(!ismissing(getproperty(row, pn)) for pn ∈ pns),
+                rows(data)),:]
     foreach(pn -> data[pn] = disallowmissing(data[pn]),
             propertynames(data))
     rhs = isa(f.rhs, Tuple) ? collect(f.rhs) : [f.rhs]

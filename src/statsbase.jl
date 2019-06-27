@@ -30,7 +30,7 @@ function loglikelihood(obj::EconometricModel{<:Union{NominalResponse,OrdinalResp
 	sum(wts[idx[1]] * logpdf(Categorical(collect(μ[idx[1],:])), idx[2]) for idx in findall(b))
 end
 function nullloglikelihood(obj::EconometricModel{<:LinearModelEstimators})
-	ϕ = √(nulldeviance(obj) / (dof_residual(obj) + (length(coef(obj)) - hasintercept(obj))))
+	ϕ = √(nulldeviance(obj) / (dof_residual(obj) + (dof(obj) - hasintercept(obj))))
 	μ = meanresponse(obj)
 	sum(w * logpdf(Normal(μ, ϕ), y) for (w, y) ∈ zip(weights(obj), response(obj)))
 end

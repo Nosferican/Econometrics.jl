@@ -27,11 +27,14 @@ module Econometrics
                        termvars,
                        # StatsBase
                        aic, aicc, bic, harmmean, FrequencyWeights, CoefTable,
-                       ConvergenceException,
+                       ConvergenceException, Weights,
                        # CategoricalArrays
                        AbstractCategoricalVector, categorical, levels, isordered,
                        # Missings
-                       disallowmissing
+                       disallowmissing,
+                       # Tables
+                       Tables.columns, Tables.columntable, Tables.select, Tables.rows,
+                       Tables.materializer
     import Base: show
     import StatsModels: hasintercept, implicit_intercept,
                         # StatsBase

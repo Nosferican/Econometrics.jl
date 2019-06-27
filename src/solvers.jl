@@ -4,11 +4,16 @@
                       z::AbstractVecOrMat{<:Number},
                       Z::AbstractMatrix{<:Number},
                       wts::AbstractVector)
+    if !isa(wts, Weights)
+        wts = FrequencyWeights(wts)
+    else
+        isa(wts, FrequencyWeights) || throw(ArgumentError("Only frequency weights are supported."))
+    end
     X = transform(estimator, X, wts)
     y = transform(estimator, y, wts)
     z = transform(estimator, z, wts)
     Z = transform(estimator, Z, wts)
-    w = transform(estimator, wts)
+    w = transform(estimator, FrequencyWeights(wts))
     if !isempty(z)
         Z̃ = hcat(X, Z)
         F = bunchkaufman!(Hermitian(Z̃' * Diagonal(w) * Z̃), true)
@@ -22,6 +27,39 @@
     Ψ = Hermitian(inv(F))
     ŷ = isempty(z) ? X * β : hcat(X, z) * β
     X, y, β, Ψ, ŷ, w, collect(1:size(X̃, 2))
+end
+@views function solve(estimator::ContinuousResponse,
+                      X::AbstractMatrix{<:Number},
+                      y::AbstractVector{<:Number},
+                      z::AbstractVecOrMat{<:Number},
+                      Z::AbstractMatrix{<:Number},
+                      wts::AbstractVector)
+    if !isa(wts, Weights)
+        wts = FrequencyWeights(wts)
+    else
+        isa(wts, FrequencyWeights) || throw(ArgumentError("Only frequency weights are supported."))
+    end
+    y₀ = y
+    X = transform(estimator, X, wts)
+    y = transform(estimator, y, wts)
+    z = transform(estimator, z, wts)
+    Z = transform(estimator, Z, wts)
+    w = transform(estimator, FrequencyWeights(wts))
+    if !isempty(z)
+        Z̃ = hcat(X, Z)
+        F = bunchkaufman!(Hermitian(Z̃' * Diagonal(w) * Z̃), true)
+        γ = F \ (Z̃' * Diagonal(w) * z)
+        X̃ = hcat(X, Z̃ * γ)
+    else
+        X̃ = X
+    end
+    F = bunchkaufman!(Hermitian(X̃' * Diagonal(w) * X̃), true)
+    β = F \ (X̃' * Diagonal(w) * y)
+    Ψ = Hermitian(inv(F))
+    ŷ = isempty(z) ? X * β : hcat(X, z) * β
+    û = y - ŷ
+    ŷ .= y₀ .- û
+    X, y₀, β, Ψ, ŷ, w, collect(1:size(X̃, 2))
 end
 """
     obtain_Ω(A::AbstractMatrix{<:Real},
@@ -78,6 +116,9 @@ end
       w .= wts .* μ′
       ℓℓ[1] = ℓℓ[2]
       ℓℓ[2] = sum(wts[idx[1]] * logpdf(Categorical(collect(μ[idx[1],:])), idx[2]) for idx in findall(b))
+      if isone(iteration)
+          ℓℓ₀ = ℓℓ[2]
+      end
       η .+= (b .- μ) ./ μ′
       for idx ∈ 2:size(b, 2)
         C = cholesky!(Hermitian(Q⊤ * Diagonal(w[:,idx]) * Q)).factors
