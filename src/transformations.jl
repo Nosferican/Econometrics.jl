@@ -71,7 +71,7 @@ transform(estimator::BetweenEstimator,
     mapreduce(group -> mean(obj[group, :], FrequencyWeights(wts[group]), dims = 1),
               vcat,
               estimator.groups)
-transform(estimator::RandomEffectEstimator,
+transform(estimator::RandomEffectsEstimator,
           obj::AbstractVecOrMat,
           wts::FrequencyWeights) = isempty(obj) ? obj :
     partialwithin(obj, estimator.pid[2], estimator.θ, wts)

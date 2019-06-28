@@ -23,9 +23,10 @@ model = fit(EconometricModel,
 
 ### Between
 ```@example Main
-model = fit(EconometricModel,
-            @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + between(County)),
-            data)
+model = fit(BetweenEstimator,
+            @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris),
+            data,
+            panel = :County)
 ```
 
 ### Within
@@ -44,16 +45,20 @@ model = fit(EconometricModel,
 
 ### Random
 ```@example Main
-model = fit(EconometricModel,
-            @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + PID(County) + TID(Year)),
-            data)
+model = fit(RandomEffectsEstimator,
+            @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris),
+            data,
+            panel = :County,
+            time = :Year)
 ```
 
 ### Random with Instrumental Variables
 ```@example Main
-model = fit(EconometricModel,
-            @formula(CRMRTE ~ PrbConv + (AvgSen ~ PrbPris) + PID(County) + TID(Year)),
-            data)
+model = fit(RandomEffectsEstimator,
+            @formula(CRMRTE ~ PrbConv + (AvgSen ~ PrbPris)),
+            data,
+            panel = :County,
+            time = :Year)
 ```
 
 ## Nominal Response Model

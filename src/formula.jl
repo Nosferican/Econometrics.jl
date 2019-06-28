@@ -1,16 +1,31 @@
 function absorb end
-function PID end
-function TID end
-function between end
-function vce end
 
-function decompose(f::FormulaTerm, data::AbstractDataFrame, contrasts::Dict{Symbol})
-    pns = termvars(f)
-    data = dropmissing(data[pns])
+function decompose(f::FormulaTerm,
+                   data::AbstractDataFrame,
+                   contrasts::Dict{Symbol},
+                   wts::Union{Nothing,Symbol},
+                   panel::Union{Nothing,Symbol},
+                   time::Union{Nothing,Symbol},
+                   estimator::Type{<:Union{EconometricsModel,ModelEstimator}})
+    # panel = nothing
+    # time = nothing
+    # wts = nothing
     rhs = isa(f.rhs, Tuple) ? collect(f.rhs) : [f.rhs]
     absorbed = findall(t -> isa(t, FunctionTerm{typeof(absorb)}), rhs)
+    # Conditions based on panel and temporal indices and absorbed features
+    if isa(estimator, Type{<:BetweenEstimator}) && isnothing(panel)
+        throw(ArgumentError("The between estimator requires the panel identifier."))
+    elseif isa(estimator, Type{<:RandomEffectsEstimator}) && (isnothing(panel) || isnothing(time))
+        throw(ArgumentError("The random effects estimator requires the panel and temporal identifiers."))
+    elseif (isa(estimator, Type{<:BetweenEstimator}) ||
+            isa(estimator, Type{<:RandomEffectsEstimator})) && !isempty(absorbed)
+        throw(ArgumentError("Absorbing features is only implemented for least squares."))
+    end
+    pns = convert(Vector{Symbol}, filter!(!isnothing, union(termvars(f), [panel, time, wts])))
+    data = dropmissing(data[pns])
     if isempty(absorbed)
-        absorbed = (Vector{Symbol}(), Vector{Vector{Vector{Int}}}())
+        absorbed_features = ""
+        absorbed = Vector{Vector{Vector{Int}}}()
     elseif length(absorbed) == 1
         absorbed = rhs[absorbed[1]]
         if isa(absorbed, AbstractVector)
@@ -18,54 +33,12 @@ function decompose(f::FormulaTerm, data::AbstractDataFrame, contrasts::Dict{Symb
         else
             absorbed = termvars(absorbed)
         end
-        absorbed = (absorbed,
-                    [ [ findall(isequal(l), data[dim]) for l ∈ levels(data[dim]) ] for dim ∈ absorbed ])
+        absorbed_features =
+        absorbed = [ [ findall(isequal(l), data[dim]) for l ∈ levels(data[dim]) ] for dim ∈ absorbed ]
     else
         throw(ArgumentError("There can only be at most one absorb term"))
     end
-    effect = findall(t -> isa(t, FunctionTerm{typeof(between)}), rhs)
-    if isempty(effect)
-        effect = (Vector{Symbol}(), Vector{Vector{Vector{Int}}}())
-    elseif length(effect) == 1
-        effect = termvars(f.rhs[effect[1]])
-        effect = (effect,
-                  [ findall(isequal(l), data[effect[1]]) for l ∈ levels(data[effect[1]]) ])
-    else
-        throw(ArgumentError("There can only be at most one effect for the between estimator"))
-    end
-    pid = findall(t -> isa(t, FunctionTerm{typeof(PID)}), rhs)
-    if isempty(pid)
-        pid = (Vector{Symbol}(), Vector{Vector{Vector{Int}}}())
-    elseif length(pid) == 1
-        pid = termvars(f.rhs[pid[1]])[1]
-        pid = ([pid], [ findall(isequal(l), data[pid]) for l ∈ levels(data[pid]) ])
-    else
-        throw(ArgumentError("There can only be one panel identifier"))
-    end
-    tid = findall(t -> isa(t, FunctionTerm{typeof(TID)}), rhs)
-    if isempty(tid)
-        tid = (Vector{Symbol}(), Vector{Vector{Vector{Int}}}())
-    elseif length(tid) == 1
-        tid = termvars(f.rhs[tid[1]])[1]
-        tid = ([tid], [ findall(isequal(l), data[tid]) for l ∈ levels(data[tid]) ])
-    else
-        throw(ArgumentError("There can only be one time identifier"))
-    end
-    wts = findall(t -> isa(t, FunctionTerm{typeof(weights)}), rhs)
-    if isempty(wts)
-        wts = FrequencyWeights(zeros(0))
-    elseif length(wts) == 1
-        wts = data[termvars(f.rhs[wts[1]])[1]]
-    else
-        throw(ArgumentError("There can only be one weight variable"))
-    end
-    exo_rhs = filter(t -> !(isa(t, FormulaTerm) ||
-                     isa(t, FunctionTerm{<:Union{<:typeof(absorb),
-                                                 <:typeof(PID),
-                                                 <:typeof(TID),
-                                                 <:typeof(weights),
-                                                 <:typeof(between)}})),
-                    rhs)
+    exo_rhs = filter(t -> !(isa(t, FormulaTerm) || isa(t, FunctionTerm)), rhs)
     exogenous = FormulaTerm(f.lhs,
                             isempty(exo_rhs) ? Tuple([ConstantTerm(1)]) : Tuple(exo_rhs))
     @assert length(terms(exogenous.lhs)) == 1 "Response should be a single variable"
@@ -81,6 +54,21 @@ function decompose(f::FormulaTerm, data::AbstractDataFrame, contrasts::Dict{Symb
     f = apply_schema(f, sc)
     exogenous = apply_schema(exogenous, sc, EconometricsModel)
     iv = apply_schema(iv, sc)
+    # Conditions based on response type and instrumental variables
+    if isa(f, FormulaTerm{<:CategoricalTerm})
+        isa(iv.lhs, InterceptTerm{false}) ||
+            throw(ArgumentError("Instrumental variables are only implemented for linear models."))
+        if isordered(data[f.lhs.sym])
+            any(x -> isa(x, InterceptTerm{false}), f.rhs.terms) &&
+                throw(ArgumentError("This estimator requires an intercept term."))
+            estimator = OrdinalResponse(f.lhs.contrasts)
+        else
+            estimator = NominalResponse(f.lhs.contrasts)
+        end
+    elseif isa(estimator, Type{<:RandomEffectsEstimator}) &&
+           any(x -> isa(x, InterceptTerm{false}), f.rhs.terms)
+        throw(ArgumentError("The random effects estimator requires an intercept term."))
+    end
     if isa(exogenous.lhs, CategoricalTerm)
         y = data[exogenous.lhs.sym]
         X = modelcols(exogenous.rhs, data)
@@ -90,7 +78,6 @@ function decompose(f::FormulaTerm, data::AbstractDataFrame, contrasts::Dict{Symb
     else
         y, X = modelcols(exogenous, data)
     end
-    wts = isempty(wts) ? FrequencyWeights(Ones(size(y, 1))) : wts
     if !isa(iv.lhs, InterceptTerm)
         z, Z = modelcols(iv, data)
         z = isa(z, Tuple) ? hcat(z...) : z
@@ -98,5 +85,18 @@ function decompose(f::FormulaTerm, data::AbstractDataFrame, contrasts::Dict{Symb
         z = zeros(0, 0)
         Z = zeros(0, 0)
     end
-    data, f, exogenous, iv, absorbed, pid, tid, wts, effect, y, X, z, Z
+    wts = isnothing(wts) ? FrequencyWeights(Ones(size(y, 1))) : data[wts]
+    if !isa(wts, FrequencyWeights)
+        wts = FrequencyWeights(wts)
+    end
+    if isa(estimator, Type{<:RandomEffectsEstimator})
+        panel = (panel, [ findall(isequal(l), data[panel]) for l ∈ levels(data[panel]) ])
+        time = (time, [ findall(isequal(l), data[time]) for l ∈ levels(data[time]) ])
+        estimator = RandomEffectsEstimator(panel, time, X, y, z, Z, wts)
+    elseif isa(estimator, Type{<:BetweenEstimator})
+        estimator = BetweenEstimator(panel, [ findall(isequal(l), data[panel]) for l ∈ levels(data[panel]) ])
+    elseif isa(estimator, Type{<:EconometricModel}) || isa(estimator, Type{<:ContinuousResponse})
+        estimator = ContinuousResponse(absorbed)
+    end
+    data, exogenous, iv, estimator, X, y, z, Z, wts
 end

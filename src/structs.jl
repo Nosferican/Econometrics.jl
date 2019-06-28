@@ -23,18 +23,21 @@ function show(io::IO, estimator::BetweenEstimator)
         else
             T̄ = round(harmmean(T), digits = 2)
             println(io, "Groups of sizes [$(E[1]), $(E[2])] with harmonnic mean of $(T̄)")
-        end        
+        end
     end
 end
-struct RandomEffectEstimator <: LinearModelEstimators
+struct RandomEffectsEstimator <: LinearModelEstimators
     pid::Tuple{Symbol,Vector{Vector{Int}}}
     tid::Tuple{Symbol,Vector{Vector{Int}}}
     idiosyncratic::Float64
     individual::Float64
     θ::Vector{Float64}
-    function RandomEffectEstimator(pid, tid, X, y, z, Z, wts)
+    RandomEffectsEstimator(pid, tid) =
+        new((pid, Vector{Vector{Int}}()),
+            (tid, Vector{Vector{Int}}()), NaN, NaN, zeros(0))
+    function RandomEffectsEstimator(pid, tid, X, y, z, Z, wts)
         Xbe, ybe, βbe, Ψbe, ŷbe, wtsbe, pivbe =
-            solve(BetweenEstimator(pid[1][1], pid[2]), X, y, z, Z, wts)
+            solve(BetweenEstimator(pid[1], pid[2]), X, y, z, Z, wts)
         Xfe, yfe, βfe, Ψfe, ŷfe, wtsfe, pivfe =
             solve(ContinuousResponse([pid[2]]), X, y, z, Z, wts)
         ivk = size(Z, 2)
@@ -45,10 +48,10 @@ struct RandomEffectEstimator <: LinearModelEstimators
         σᵤ² = max(0, sum((yᵢ - ŷᵢ)^2 for (yᵢ, ŷᵢ) ∈ zip(ybe, ŷbe)) /
                      (length(ybe) - length(βbe) - ivk) - σₑ² / T̄)
         θ = 1 .- sqrt.(σₑ² ./ (T .* σᵤ² .+ σₑ²))
-        new((pid[1][1], pid[2]), (tid[1][1], tid[2]), √σₑ², √σᵤ², θ)
+        new(pid, tid, √σₑ², √σᵤ², θ)
     end
 end
-function show(io::IO, estimator::RandomEffectEstimator)
+function show(io::IO, estimator::RandomEffectsEstimator)
     pid, D = estimator.pid
     tid, T = estimator.tid
     @unpack idiosyncratic, individual = estimator

@@ -1,10 +1,13 @@
 """
     EconometricModel(f::FormulaTerm, data;
-                     contrasts::Dict{Symbol} = Dict{Symbol,Union{<:AbstractContrasts,<:AbstractTerm}})
+                     contrasts::Dict{Symbol} = Dict{Symbol,Union{<:AbstractContrasts,<:AbstractTerm}},
+                     weights::Union{Nothing,Symbol} = nothing,
+                     panel::Union{Nothing,Symbol} = nothing,
+                     time::Union{Nothing,Symbol} = nothing,
+                     estimator::ModelEstimator = ModelEstimator)
 
     Use fit(EconometricModel, f, data, contrasts = contrasts)
-    Formula has syntax: @formula(response ~ exogenous + (endogenous ~ instruments) +
-                                 weights(wts))
+    Formula has syntax: @formula(response ~ exogenous + (endogenous ~ instruments))
     For absorbing categorical features use the term `absorb(features)`
     For the between estimator use the term `between(features)`
     For the one-way random effects model use the terms `PID(pid) + TID(tid)`
@@ -37,9 +40,16 @@ function show(io::IO, obj::EconometricModel{<:LinearModelEstimators})
     println(io, @sprintf("R-squared: %.4f", r2(obj)))
     W, F, p = wald(obj)
     if !isnan(p)
-        println(io, @sprintf("Wald: %.2f ∼ F(%i, %i) ⟹  Pr > F = %.4f", W, params(F)..., p))
+        println(io, @sprintf("Wald: %.2f ∼ F(%i, %i) ⟹ Pr > F = %.4f", W, params(F)..., p))
     end
-    println(io, string("Formula: ", obj.f))
+    f = obj.f
+    fs = string(f.lhs, " ~ ", mapreduce(x -> isa(x, FormulaTerm) ? "($x)" : x, (x,y) -> "$x + $y", f.rhs))
+    if !isa(obj.estimator, RandomEffectsEstimator)
+        if !occursin(r" ~ -?[0-1](?= + )", fs)
+            fs = replace(fs, r"(^.*?) ~ " => s"\1 ~ 1 + ")
+        end
+    end
+    println(io, string("Formula: ", fs))
     show(io, coeftable(obj))
 end
 function show(io::IO, obj::EconometricModel{<:ContinuousResponse})
@@ -63,10 +73,16 @@ function show(io::IO, obj::EconometricModel{<:ContinuousResponse})
     else
         W, F, p = wald(obj)
         if !isnan(p)
-            println(io, @sprintf("Wald: %.2f ∼ F(%i, %i) ⟹  Pr > F = %.4f", W, params(F)..., p))
+            println(io, @sprintf("Wald: %.2f ∼ F(%i, %i) ⟹ Pr > F = %.4f", W, params(F)..., p))
         end
     end
-    println(io, string("Formula: ", obj.f))
+    f = obj.f
+    f = string(f.lhs, " ~ ", mapreduce(x -> isa(x, FormulaTerm) ? "($x)" : x, (x,y) -> "$x + $y", f.rhs))
+    fs = replace(f, r"(:\(|\)(?=\)))" => "")
+    if !occursin(r" ~ -?[0-1](?= + )", fs)
+        fs = replace(fs, r"(^.*?) ~ " => s"\1 ~ 1 + ")
+    end
+    println(io, string("Formula: ", fs))
     show(io, coeftable(obj))
 end
 function show(io::IO, obj::EconometricModel{<:NominalResponse})
@@ -83,9 +99,13 @@ function show(io::IO, obj::EconometricModel{<:NominalResponse})
     if k > zero(k)
         χ² = Chisq(k)
         p = ccdf(χ², lr)
-        println(io, @sprintf("LR Test: %.2f ∼ χ²(%i) ⟹  Pr > χ² = %.4f", lr, k, p))
+        println(io, @sprintf("LR Test: %.2f ∼ χ²(%i) ⟹ Pr > χ² = %.4f", lr, k, p))
     end
-    println(io, string("Formula: ", obj.f))
+    fs = replace(string(obj.f), r"(:\(|\)(?=\)))" => "")
+    if !occursin(r" ~ -?[0-1](?= + )", fs)
+        fs = replace(fs, "~" => "~ 1 +")
+    end
+    println(io, string("Formula: ", fs))
     show(io, coeftable(obj))
 end
 function show(io::IO, obj::EconometricModel{<:OrdinalResponse})
@@ -102,41 +122,20 @@ function show(io::IO, obj::EconometricModel{<:OrdinalResponse})
     if k > zero(k)
         χ² = Chisq(k)
         p = ccdf(χ², lr)
-        println(io, @sprintf("LR Test: %.2f ∼ χ²(%i) ⟹  Pr > χ² = %.4f", lr, k, p))
+        println(io, @sprintf("LR Test: %.2f ∼ χ²(%i) ⟹ Pr > χ² = %.4f", lr, k, p))
     end
-    println(io, string("Formula: ", obj.f))
+    println(io, string("Formula: ", replace(string(obj.f), r"(?<= ~ )1 \+ " => "")))
     show(io, coeftable(obj))
 end
-function fit(::Type{<:EconometricModel},
+function fit(estimator::Type{<:Union{EconometricModel,ModelEstimator}},
              f::FormulaTerm,
              data;
-             contrasts::Dict{Symbol} = Dict{Symbol,Union{<:AbstractContrasts,<:AbstractTerm}}())
-    data, f, exogenous, iv, absorbed, pid, tid, wts, effect, y, X, z, Z =
-        decompose(deepcopy(f), data, contrasts)
-    ispanel = !isempty(pid[1])
-    istime = !isempty(tid[1])
-    hdf = !isempty(absorbed[1])
-    isbetween = !isempty(effect[1])
-    instrumental = !isa(iv.lhs, InterceptTerm)
-    if isa(y, AbstractCategoricalVector)
-        @assert !isbetween "Between Estimator only defined for continous response"
-        @assert !hdf "Absorbing covariates only is only defined for continous response"
-        @assert !ispanel "Panel is reserved for the random effects estimator"
-        @assert !instrumental "Only exogenous variables are supported for categorical responses"
-        estimator = isordered(y) ?
-            OrdinalResponse(exogenous.lhs.contrasts) :
-            NominalResponse(exogenous.lhs.contrasts)
-    elseif isbetween
-        @assert !ispanel "Panel ID not required for the between estimator"
-        @assert !hdf "Absorbing covariates not implemented with the between estimator"
-        estimator = BetweenEstimator(effect[1][1], effect[2])
-    elseif ispanel && istime
-        @assert !hdf "Absorbing covariates not implemented with the between estimator"
-        @assert hasintercept(exogenous) "Random Effects Models require an InterceptTerm"
-        estimator = RandomEffectEstimator(pid, tid, X, y, z, Z, wts)
-    else
-        estimator = ContinuousResponse(absorbed[2])
-    end
+             contrasts::Dict{Symbol} = Dict{Symbol,Union{<:AbstractContrasts,<:AbstractTerm}}(),
+             weights::Union{Nothing,Symbol} = nothing,
+             panel::Union{Nothing,Symbol} = nothing,
+             time::Union{Nothing,Symbol} = nothing)
+    data, exogenous, iv, estimator, X, y, z, Z, wts =
+        decompose(deepcopy(f), data, contrasts, weights, panel, time, estimator)
     X, y, β, Ψ, ŷ, wts, piv = solve(estimator, X, y, z, Z, wts)
     vars = (coefnames(exogenous.lhs),
             convert(Vector{String}, vcat(coefnames(exogenous.rhs), coefnames(iv.lhs))[piv]))
