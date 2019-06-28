@@ -9,7 +9,7 @@ Null Loglikelihood: 1633.30
 Loglikelihood: 1643.30
 R-squared: 0.0312
 LR Test: 19.99 ∼ χ²(3) ⟹  Pr &gt; χ² = 0.0002
-Formula: CRMRTE ~ PrbConv + AvgSen + PrbPris
+Formula: CRMRTE ~ 1 + PrbConv + AvgSen + PrbPris
 ──────────────────────────────────────────────────────────────────────────────────────
                     PE           SE      t-value  Pr &gt; |t|          2.5%         97.5%
 ──────────────────────────────────────────────────────────────────────────────────────
@@ -17,17 +17,18 @@ Formula: CRMRTE ~ PrbConv + AvgSen + PrbPris
 PrbConv      -0.00116473   0.000422062  -2.75961    0.0060  -0.00199356   -0.0003359  
 AvgSen        0.000236185  0.000268216   0.88058    0.3789  -0.000290526   0.000762897
 PrbPris       0.0273394    0.00817642    3.34369    0.0009   0.0112829     0.0433959  
-──────────────────────────────────────────────────────────────────────────────────────</code></pre><h3><a class="nav-anchor" id="Between-1" href="#Between-1">Between</a></h3><pre><code class="language-julia">model = fit(EconometricModel,
-            @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + between(County)),
-            data)</code></pre><pre><code class="language-none">Between Estimator
+──────────────────────────────────────────────────────────────────────────────────────</code></pre><h3><a class="nav-anchor" id="Between-1" href="#Between-1">Between</a></h3><pre><code class="language-julia">model = fit(BetweenEstimator,
+            @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris),
+            data,
+            panel = :County)</code></pre><pre><code class="language-none">Between Estimator
 County with 630 groups
 Balanced groups with size 7
 Number of observations: 90
 Null Loglikelihood: 239.56
 Loglikelihood: 244.40
 R-squared: 0.1029
-Wald: 3.29 ∼ F(3, 86) ⟹  Pr &gt; F = 0.0246
-Formula: CRMRTE ~ PrbConv + AvgSen + PrbPris + :(between(County))
+Wald: 3.29 ∼ F(3, 86) ⟹ Pr &gt; F = 0.0246
+Formula: CRMRTE ~ 1 + PrbConv + AvgSen + PrbPris
 ───────────────────────────────────────────────────────────────────────────────────
                     PE          SE       t-value  Pr &gt; |t|         2.5%       97.5%
 ───────────────────────────────────────────────────────────────────────────────────
@@ -42,8 +43,8 @@ Number of observations: 630
 Null Loglikelihood: 1633.30
 Loglikelihood: 2273.95
 R-squared: 0.8707
-Wald: 0.16 ∼ F(3, 537) ⟹  Pr &gt; F = 0.9258
-Formula: CRMRTE ~ PrbConv + AvgSen + PrbPris + :(absorb(County))
+Wald: 0.16 ∼ F(3, 537) ⟹ Pr &gt; F = 0.9258
+Formula: CRMRTE ~ 1 + PrbConv + AvgSen + PrbPris + absorb(County)
 ──────────────────────────────────────────────────────────────────────────────────────
                    PE           SE        t-value  Pr &gt; |t|          2.5%        97.5%
 ──────────────────────────────────────────────────────────────────────────────────────
@@ -58,8 +59,8 @@ Number of observations: 630
 Null Loglikelihood: 1633.30
 Loglikelihood: 2290.25
 R-squared: 0.8775
-Wald: 0.23 ∼ F(3, 531) ⟹  Pr &gt; F = 0.8767
-Formula: CRMRTE ~ PrbConv + AvgSen + PrbPris + :(absorb(County + Year))
+Wald: 0.23 ∼ F(3, 531) ⟹ Pr &gt; F = 0.8767
+Formula: CRMRTE ~ 1 + PrbConv + AvgSen + PrbPris + absorb(County + Year)
 ──────────────────────────────────────────────────────────────────────────────────────
                     PE           SE       t-value  Pr &gt; |t|          2.5%        97.5%
 ──────────────────────────────────────────────────────────────────────────────────────
@@ -67,9 +68,11 @@ Formula: CRMRTE ~ PrbConv + AvgSen + PrbPris + :(absorb(County + Year))
 PrbConv       7.90362e-5   0.000196089   0.403062    0.6871  -0.00030617   0.000464242
 AvgSen       -9.4788e-5    0.000134924  -0.702531    0.4827  -0.000359838  0.000170262
 PrbPris       0.000979533  0.0040432     0.242267    0.8087  -0.00696309   0.00892216 
-──────────────────────────────────────────────────────────────────────────────────────</code></pre><h3><a class="nav-anchor" id="Random-1" href="#Random-1">Random</a></h3><pre><code class="language-julia">model = fit(EconometricModel,
-            @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + PID(County) + TID(Year)),
-            data)</code></pre><pre><code class="language-none">One-way Random Effect Model
+──────────────────────────────────────────────────────────────────────────────────────</code></pre><h3><a class="nav-anchor" id="Random-1" href="#Random-1">Random</a></h3><pre><code class="language-julia">model = fit(RandomEffectsEstimator,
+            @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris),
+            data,
+            panel = :County,
+            time = :Year)</code></pre><pre><code class="language-none">One-way Random Effect Model
 Longitudinal dataset: County, Year
 Balanced dataset with 90 panels of length 7
 individual error component: 0.0162
@@ -79,8 +82,8 @@ Number of observations: 630
 Null Loglikelihood: 2225.79
 Loglikelihood: 2226.01
 R-squared: 0.0007
-Wald: 0.15 ∼ F(3, 626) ⟹  Pr &gt; F = 0.9291
-Formula: CRMRTE ~ PrbConv + AvgSen + PrbPris + :(PID(County)) + :(TID(Year))
+Wald: 0.15 ∼ F(3, 626) ⟹ Pr &gt; F = 0.9291
+Formula: CRMRTE ~ PrbConv + AvgSen + PrbPris
 ──────────────────────────────────────────────────────────────────────────────────────
                     PE           SE       t-value  Pr &gt; |t|          2.5%        97.5%
 ──────────────────────────────────────────────────────────────────────────────────────
@@ -88,9 +91,11 @@ Formula: CRMRTE ~ PrbConv + AvgSen + PrbPris + :(PID(County)) + :(TID(Year))
 PrbConv      -3.96634e-5   0.000198471  -0.199845    0.8417  -0.000429413  0.000350086
 AvgSen        8.2428e-5    0.000127818   0.644887    0.5192  -0.000168575  0.000333431
 PrbPris      -0.000123327  0.00404272   -0.030506    0.9757  -0.00806226   0.00781561 
-──────────────────────────────────────────────────────────────────────────────────────</code></pre><h3><a class="nav-anchor" id="Random-with-Instrumental-Variables-1" href="#Random-with-Instrumental-Variables-1">Random with Instrumental Variables</a></h3><pre><code class="language-julia">model = fit(EconometricModel,
-            @formula(CRMRTE ~ PrbConv + (AvgSen ~ PrbPris) + PID(County) + TID(Year)),
-            data)</code></pre><pre><code class="language-none">One-way Random Effect Model
+──────────────────────────────────────────────────────────────────────────────────────</code></pre><h3><a class="nav-anchor" id="Random-with-Instrumental-Variables-1" href="#Random-with-Instrumental-Variables-1">Random with Instrumental Variables</a></h3><pre><code class="language-julia">model = fit(RandomEffectsEstimator,
+            @formula(CRMRTE ~ PrbConv + (AvgSen ~ PrbPris)),
+            data,
+            panel = :County,
+            time = :Year)</code></pre><pre><code class="language-none">One-way Random Effect Model
 Longitudinal dataset: County, Year
 Balanced dataset with 90 panels of length 7
 individual error component: 0.0413
@@ -100,8 +105,8 @@ Number of observations: 630
 Null Loglikelihood: 2268.01
 Loglikelihood: 2248.34
 R-squared: NaN
-Wald: 0.03 ∼ F(2, 626) ⟹  Pr &gt; F = 0.9671
-Formula: CRMRTE ~ PrbConv + AvgSen ~ PrbPris + :(PID(County)) + :(TID(Year))
+Wald: 0.03 ∼ F(2, 626) ⟹ Pr &gt; F = 0.9671
+Formula: CRMRTE ~ PrbConv + (AvgSen ~ PrbPris)
 ───────────────────────────────────────────────────────────────────────────────────────
                     PE           SE        t-value  Pr &gt; |t|          2.5%        97.5%
 ───────────────────────────────────────────────────────────────────────────────────────
@@ -122,8 +127,8 @@ Number of observations: 615
 Null Loglikelihood: -555.85
 Loglikelihood: -534.36
 R-squared: 0.0387
-LR Test: 42.99 ∼ χ²(10) ⟹  Pr &gt; χ² = 0.0000
-Formula: insure ~ age + male + nonwhite + site
+LR Test: 42.99 ∼ χ²(10) ⟹ Pr &gt; χ² = 0.0000
+Formula: insure ~ 1 + age + male + nonwhite + site
 ───────────────────────────────────────────────────────────────────────────────────────────────────
                                        PE         SE       t-value  Pr &gt; |t|        2.5%      97.5%
 ───────────────────────────────────────────────────────────────────────────────────────────────────
@@ -151,7 +156,7 @@ Number of observations: 1827
 Null Loglikelihood: -2677.60
 Loglikelihood: -2657.40
 R-squared: 0.0075
-LR Test: 40.42 ∼ χ²(3) ⟹  Pr &gt; χ² = 0.0000
+LR Test: 40.42 ∼ χ²(3) ⟹ Pr &gt; χ² = 0.0000
 Formula: RecParks ~ Age + Sex + Schooling
 ──────────────────────────────────────────────────────────────────────────────────────────
                           PE          SE        t-value  Pr &gt; |t|         2.5%       97.5%
