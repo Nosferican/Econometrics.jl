@@ -1,8 +1,49 @@
 using Econometrics, Test
-using Econometrics: Hermitian
-using RDatasets
-using RDatasets: CSV
+using Econometrics: ConvergenceException, Hermitian
+using RDatasets: categorical!, CSV, dataset, dropmissing, select
 
+# Exceptions
+@testset "Exceptions" begin
+	data = dataset("Ecdat", "Crime")
+	data.AvgSen2 = 2 * data.AvgSen
+	# Rank-deficient model
+	@test isa(fit(EconometricModel,
+			      @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + AvgSen2),
+				  data),
+			  EconometricModel)
+	@test isa(fit(RandomEffectsEstimator,
+				  @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris),
+				  data,
+				  panel = :County,
+				  time = :Year),
+			  EconometricModel)
+	# Model specifics
+	@test_throws(ArgumentError("The between estimator requires the panel identifier."),
+				 fit(BetweenEstimator,
+				 	 @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + absorb(Year)),
+					 data))
+	@test_throws(ArgumentError("Absorbing features is only implemented for least squares."),
+				 fit(BetweenEstimator,
+				 	 @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + absorb(Year)),
+					 data,
+					 panel = :County))
+	@test_throws(ArgumentError("The random effects estimator requires the panel and temporal identifiers."),
+				 fit(RandomEffectsEstimator,
+				 	 @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + absorb(Year)),
+					 data,
+					 panel = :County))
+	@test_throws(ArgumentError("Absorbing features is only implemented for least squares."),
+				 fit(RandomEffectsEstimator,
+				 	 @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + absorb(Year)),
+					 data,
+					 panel = :County,
+					 time = :Year))
+	data = dataset("datasets", "iris")
+	@test_throws(ConvergenceException,
+				 fit(EconometricModel,
+				 	 @formula(Species ~ SepalLength + SepalWidth),
+				 	 data))
+end
 # Linear Models
 @testset "Linear Models" begin
 	@testset "Balanced Panel Data" begin

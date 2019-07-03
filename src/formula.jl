@@ -19,6 +19,10 @@ function decompose(f::FormulaTerm,
         throw(ArgumentError("Absorbing features is only implemented for least squares."))
     end
     pns = convert(Vector{Symbol}, filter!(!isnothing, union(termvars(f), [panel, time, wts])))
+    data = copy(data[pns])
+    if isa(wts, Symbol)
+        data[wts] = ifelse(data[wts] .≤ 0, missing, data[wts])
+    end
     data = dropmissing(data[pns])
     if isempty(absorbed)
         absorbed_features = ""
