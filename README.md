@@ -8,7 +8,4 @@
 
 TODO
 
-- [ ] Add support for rank deficient
 - [ ] Add support for robust variance covariance estimators
-- [ ] Improve cache for null/loglikelihood with absorbed features
-- [ ] Clean up internals

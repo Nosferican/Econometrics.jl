@@ -7,9 +7,6 @@ function decompose(f::FormulaTerm,
                    panel::Union{Nothing,Symbol},
                    time::Union{Nothing,Symbol},
                    estimator::Type{<:Union{EconometricsModel,ModelEstimator}})
-    # panel = nothing
-    # time = nothing
-    # wts = nothing
     rhs = isa(f.rhs, Tuple) ? collect(f.rhs) : [f.rhs]
     absorbed = findall(t -> isa(t, FunctionTerm{typeof(absorb)}), rhs)
     # Conditions based on panel and temporal indices and absorbed features

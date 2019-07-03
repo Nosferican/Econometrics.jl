@@ -16,17 +16,35 @@
     w = transform(estimator, FrequencyWeights(wts))
     if !isempty(z)
         Z̃ = hcat(X, Z)
-        F = bunchkaufman!(Hermitian(Z̃' * Diagonal(w) * Z̃), true)
+        F = bunchkaufman(Hermitian(Z̃' * Diagonal(w) * Z̃), true, check = false)
+        bkr = count(x -> abs(x) ≥ √eps(), F.D)
+		if bkr < size(F, 2)
+            lin_ind = sort!(invperm(F.p)[1:bkr])
+            count(x -> lin_ind > size(X, 2) + 1) ≥ size(z, 2) ||
+                throw(ArgumentError("Insufficient number of instruments."))
+            Z̃ = Z̃[:,lin_ind]
+            F = bunchkaufman(Hermitian(Z̃' * Diagonal(w) * Z̃), true)
+        else
+            lin_ind = collect(1:size(F, 2))
+        end
         γ = F \ (Z̃' * Diagonal(w) * z)
         X̃ = hcat(X, Z̃ * γ)
     else
         X̃ = X
     end
-    F = bunchkaufman!(Hermitian(X̃' * Diagonal(w) * X̃), true)
+    F = bunchkaufman(Hermitian(X̃' * Diagonal(w) * X̃), true, check = false)
+    bkr = count(x -> abs(x) ≥ √eps(), F.D)
+    if bkr < size(F, 2)
+        lin_ind = sort!(invperm(F.p)[1:bkr])
+        X̃ = convert(Matrix{Float64}, X̃[:,lin_ind])
+        F = bunchkaufman(Hermitian(X̃' * Diagonal(w) * X̃), true)
+    else
+        lin_ind = collect(1:size(F, 2))
+    end
     β = F \ (X̃' * Diagonal(w) * y)
     Ψ = Hermitian(inv(F))
-    ŷ = isempty(z) ? X * β : hcat(X, z) * β
-    X, y, β, Ψ, ŷ, w, collect(1:size(X̃, 2))
+    ŷ = isempty(z) ? X̃ * β : hcat(X, z)[:,lin_ind] * β
+    X̃, y, β, Ψ, ŷ, w, lin_ind
 end
 @views function solve(estimator::ContinuousResponse,
                       X::AbstractMatrix{<:Number},
@@ -47,19 +65,37 @@ end
     w = transform(estimator, FrequencyWeights(wts))
     if !isempty(z)
         Z̃ = hcat(X, Z)
-        F = bunchkaufman!(Hermitian(Z̃' * Diagonal(w) * Z̃), true)
+        F = bunchkaufman(Hermitian(Z̃' * Diagonal(w) * Z̃), true, check = false)
+        bkr = count(x -> abs(x) ≥ √eps(), F.D)
+		if bkr < size(F, 2)
+            lin_ind = sort!(invperm(F.p)[1:bkr])
+            count(x -> lin_ind > size(X, 2) + 1) ≥ size(z, 2) ||
+                throw(ArgumentError("Insufficient number of instruments."))
+            Z̃ = Z̃[:,lin_ind]
+            F = bunchkaufman(Hermitian(Z̃' * Diagonal(w) * Z̃), true)
+        else
+            lin_ind = collect(1:size(F, 2))
+        end
         γ = F \ (Z̃' * Diagonal(w) * z)
         X̃ = hcat(X, Z̃ * γ)
     else
         X̃ = X
     end
-    F = bunchkaufman!(Hermitian(X̃' * Diagonal(w) * X̃), true)
+    F = bunchkaufman(Hermitian(X̃' * Diagonal(w) * X̃), true, check = false)
+    bkr = count(x -> abs(x) ≥ √eps(), F.D)
+    if bkr < size(F, 2)
+        lin_ind = sort!(invperm(F.p)[1:bkr])
+        X̃ = convert(Matrix{Float64}, X̃[:,lin_ind])
+        F = bunchkaufman(Hermitian(X̃' * Diagonal(w) * X̃), true)
+    else
+        lin_ind = collect(1:size(F, 2))
+    end
     β = F \ (X̃' * Diagonal(w) * y)
     Ψ = Hermitian(inv(F))
-    ŷ = isempty(z) ? X * β : hcat(X, z) * β
+    ŷ = isempty(z) ? X̃ * β : hcat(X, z)[:,lin_ind] * β
     û = y - ŷ
     ŷ .= y₀ .- û
-    X, y₀, β, Ψ, ŷ, w, collect(1:size(X̃, 2))
+    X̃, y₀, β, Ψ, ŷ, w, lin_ind
 end
 """
     obtain_Ω(A::AbstractMatrix{<:Real},
@@ -96,6 +132,14 @@ end
     y = [ findfirst(isequal(x), categories) for x ∈ y ]
     b = mapreduce(elem -> (eachindex(categories) .== elem)', vcat, y)
     F = qr(X, Val(true))
+    qrr = count(x -> abs(x) ≥ √eps(), diag(F.R))
+    if qrr < size(F, 2)
+        lin_ind = sort!(invperm(F.p)[1:qrr])
+        X = convert(Matrix{Float64}, X[:,lin_ind])
+        F = qr(X, Val(true))
+    else
+        lin_ind = collect(1:size(F, 2))
+    end
     Q = Matrix(F.Q)
     Q⊤ = transpose(Q)
     m, p = size(F)
@@ -146,6 +190,14 @@ end
     @unpack categories = estimator
     y = [ findfirst(isequal(x), categories) for x ∈ y ]
     @assert length(categories) > 2
+    F = qr(X, Val(true))
+    qrr = count(x -> abs(x) ≥ √eps(), diag(F.R))
+    if qrr < size(F, 2)
+        lin_ind = sort!(invperm(F.p)[1:qrr])
+        X = convert(Matrix{Float64}, X[:,lin_ind])
+    else
+        lin_ind = collect(1:size(F, 2))
+    end
     m, n = size(X)
     xs = 1:n
     ks = length(categories) - 1
