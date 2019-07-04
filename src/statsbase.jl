@@ -3,7 +3,6 @@ dispersion(obj::EconometricModel{<:Union{NominalResponse,OrdinalResponse}}) = fa
 isiv(obj::EconometricModel{<:LinearModelEstimators}) = obj.iv > 0
 coef(obj::EconometricModel) = obj.β
 coefnames(obj::EconometricModel) = obj.vars
-# StatsBase.confint(obj::StatisticalModel) = error("coefint is not defined for $(typeof(obj)).")
 deviance(obj::EconometricModel) = -2loglikelihood(obj)
 deviance(obj::EconometricModel{<:LinearModelEstimators}) =
 	weights(obj) |>
@@ -77,11 +76,39 @@ function adjr2(obj::EconometricModel{<:LinearModelEstimators})
 end
 informationmatrix(obj::EconometricModel; expected::Bool = true) = obj.Ψ
 vcov(obj::EconometricModel) = informationmatrix(obj)
-vcov(obj::EconometricModel{<:LinearModelEstimators}) =
-	deviance(obj) / dof_residual(obj) * informationmatrix(obj)
-stderror(obj::EconometricModel) = sqrt.(diag(vcov(obj)))
-confint(obj::EconometricModel, α = 0.05) =
-    stderror(obj) * quantile(TDist(dof_residual(obj)), 1 - α / 2) |>
+function vcov(obj::EconometricModel{<:LinearModelEstimators})
+	vcov(obj::EconometricModel{<:LinearModelEstimators}, obj.vce)
+end
+function vcov(obj::EconometricModel{<:LinearModelEstimators}, vce::VCE)
+	vce == OIM &&
+		return deviance(obj) / dof_residual(obj) * informationmatrix(obj)
+	X = modelmatrix(obj)
+	Ψ = informationmatrix(obj)
+	û = residuals(obj)
+	m = nobs(obj)
+	k = dof(obj) - hasintercept(obj)
+	p = dof_residual(obj)
+	λ = vce == HC1 ? m / p : 1
+	if vce == HC0 || vce == HC1
+		ũ = û.^2
+	else
+		h = leverage(obj)
+		if vce == HC2
+			ũ = û.^2 ./ (1 .- h)
+		elseif vce == HC3
+			ũ = û.^2 ./ (1 .- h).^2
+		elseif vce == HC4
+			ũ = û.^2 ./ (1 .- h).^min.(4, m / k * h)
+		end
+	end
+	Ω = X' * Diagonal(ũ) * X
+	Hermitian(λ * Ψ * Ω * Ψ)
+end
+stderror(obj::EconometricModel, vce::VCE) = sqrt.(diag(vcov(obj, vce)))
+confint(obj::EconometricModel;
+		σ::AbstractVector{<:Real} = stderror(obj),
+		α::Real = 0.05) =
+    σ * quantile(TDist(dof_residual(obj)), 1 - α / 2) |>
     (σ -> coef(obj) |>
         (β -> hcat(β .- σ, β .+ σ)))
 weights(obj::EconometricModel) = obj.w
@@ -90,7 +117,12 @@ fitted(obj::EconometricModel) = obj.ŷ
 response(obj::EconometricModel) = obj.y
 meanresponse(obj::EconometricModel{<:LinearModelEstimators}) = mean(response(obj), weights(obj))
 modelmatrix(obj::EconometricModel) = obj.X
-# leverage(obj::RegressionModel) = error("leverage is not defined for $(typeof(obj)).")
+function leverage(obj::EconometricModel)
+	X = modelmatrix(obj)
+	Ψ = informationmatrix(obj)
+	ω = weights(obj)
+	diag(X * Ψ * X' * Diagonal(ω))
+end
 residuals(obj::EconometricModel{<:LinearModelEstimators}) = response(obj) - fitted(obj)
 function residuals(obj::EconometricModel{<:NominalResponse})
 	@unpack y = obj
@@ -115,34 +147,50 @@ function predict(obj::EconometricModel{<:OrdinalResponse})
 			  vcat,
 			  eachindex(y))
 end
-function coeftable(obj::EconometricModel)
+function coeftable(obj::EconometricModel;
+				   vce::VCE = obj.vce,
+				   α::Real = 0.05)
     β = coef(obj)
-    σ = stderror(obj)
+    σ = stderror(obj, vce)
     t = β ./ σ
     p = 2ccdf.(TDist(dof_residual(obj)), abs.(t))
-    mat = hcat(β, σ, t, p, confint(obj))
-    colnms = ["PE   ", "SE   ", "t-value", "Pr > |t|", "2.5%", "97.5%"]
-    rownms = obj.vars[2]
+    mat = hcat(β, σ, t, p, confint(obj, σ = σ, α = α))
+	lims = (100α / 2, 100 - 100α / 2)
+    colnms = ["PE   ", "SE   ",
+			  "t-value", "Pr > |t|",
+			  string(@sprintf("%.2f", lims[1]), "%"),
+			  string(@sprintf("%.2f", lims[2]), "%")]
+    rownms = coefnames(obj)[2]
     CoefTable(mat, colnms, rownms, 4)
 end
-function coeftable(obj::EconometricModel{<:NominalResponse})
+function coeftable(obj::EconometricModel{<:NominalResponse};
+				   α::Real = 0.05)
     β = coef(obj)
     σ = stderror(obj)
     t = β ./ σ
     p = 2ccdf.(TDist(dof_residual(obj)), abs.(t))
-    mat = hcat(β, σ, t, p, confint(obj))
-    colnms = ["PE   ", "SE   ", "t-value", "Pr > |t|", "2.5%", "97.5%"]
+	mat = hcat(β, σ, t, p, confint(obj, σ = σ, α = α))
+	lims = (100α / 2, 100 - 100α / 2)
+    colnms = ["PE   ", "SE   ",
+			  "t-value", "Pr > |t|",
+			  string(@sprintf("%.2f", lims[1]), "%"),
+			  string(@sprintf("%.2f", lims[2]), "%")]
 	vars = coefnames(obj)
     rownms = [ string(lhs, " ~ ", rhs) for lhs ∈ vars[1] for rhs ∈ vars[2] ]
     CoefTable(mat, colnms, rownms, 4)
 end
-function coeftable(obj::EconometricModel{<:OrdinalResponse})
+function coeftable(obj::EconometricModel{<:OrdinalResponse};
+				   α::Real = 0.05)
     β = coef(obj)
     σ = stderror(obj)
     t = β ./ σ
     p = 2ccdf.(TDist(dof_residual(obj)), abs.(t))
-    mat = hcat(β, σ, t, p, confint(obj))
-    colnms = ["PE   ", "SE   ", "t-value", "Pr > |t|", "2.5%", "97.5%"]
+	mat = hcat(β, σ, t, p, confint(obj, σ = σ, α = α))
+	lims = (100α / 2, 100 - 100α / 2)
+    colnms = ["PE   ", "SE   ",
+			  "t-value", "Pr > |t|",
+			  string(@sprintf("%.2f", lims[1]), "%"),
+			  string(@sprintf("%.2f", lims[2]), "%")]
 	vars = coefnames(obj)
 	outcomes = obj.estimator.categories
 	rownms = vcat(vars[2],

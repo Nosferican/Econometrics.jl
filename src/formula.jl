@@ -6,7 +6,8 @@ function decompose(f::FormulaTerm,
                    wts::Union{Nothing,Symbol},
                    panel::Union{Nothing,Symbol},
                    time::Union{Nothing,Symbol},
-                   estimator::Type{<:Union{EconometricsModel,ModelEstimator}})
+                   estimator::Type{<:Union{EconometricsModel,ModelEstimator}},
+                   vce::VCE)
     rhs = isa(f.rhs, Tuple) ? collect(f.rhs) : [f.rhs]
     absorbed = findall(t -> isa(t, FunctionTerm{typeof(absorb)}), rhs)
     # Conditions based on panel and temporal indices and absorbed features
@@ -25,16 +26,16 @@ function decompose(f::FormulaTerm,
     end
     data = dropmissing(data[pns])
     if isempty(absorbed)
-        absorbed_features = ""
         absorbed = Vector{Vector{Vector{Int}}}()
     elseif length(absorbed) == 1
+        vce ≥ HC2 &&
+            throw(ArgumentError("When absorbing features, only HC2-HC4 are unavailable."))
         absorbed = rhs[absorbed[1]]
         if isa(absorbed, AbstractVector)
             absorbed = unique(flatten(termvars(t) for t ∈ absorbed))
         else
             absorbed = termvars(absorbed)
         end
-        absorbed_features =
         absorbed = [ [ findall(isequal(l), data[dim]) for l ∈ levels(data[dim]) ] for dim ∈ absorbed ]
     else
         throw(ArgumentError("There can only be at most one absorb term"))
@@ -59,6 +60,8 @@ function decompose(f::FormulaTerm,
     if isa(f, FormulaTerm{<:CategoricalTerm})
         isa(iv.lhs, InterceptTerm{false}) ||
             throw(ArgumentError("Instrumental variables are only implemented for linear models."))
+        vce == OIM ||
+            throw(ArgumentError("Robust variance covariance estimators only available for continous response models."))
         if isordered(data[f.lhs.sym])
             any(x -> isa(x, InterceptTerm{false}), f.rhs.terms) &&
                 throw(ArgumentError("This estimator requires an intercept term."))

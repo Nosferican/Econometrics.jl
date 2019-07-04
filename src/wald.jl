@@ -1,6 +1,6 @@
-function wald(obj::EconometricModel)
+function wald(obj::EconometricModel, vce::VCE = obj.vce)
     β = coef(obj)
-    V = vcov(obj)
+    V = vcov(obj, vce)
 	k = length(β) - 1
 	rdf = dof_residual(obj)
 	R = hasintercept(obj) ? hcat(zeros(k), I) : I

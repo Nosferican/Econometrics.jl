@@ -19,7 +19,8 @@ mutable struct EconometricModel{E<:ModelEstimator,
                                 Ŷ<:AbstractVecOrMat{<:Float64},
                                 N<:Tuple{<:Union{<:AbstractVector{<:AbstractString},
                                                  <:AbstractString},
-                                         <:AbstractVector{<:AbstractString}}} <: EconometricsModel
+                                         <:AbstractVector{<:AbstractString}},
+                                VC<:Union{<:Type{<:VCE},<:VCE}} <: EconometricsModel
     estimator::E
     f::F
     data::DataFrame
@@ -31,6 +32,7 @@ mutable struct EconometricModel{E<:ModelEstimator,
     ŷ::Ŷ
     vars::N
     iv::Int
+    vce::VC
 end
 function show(io::IO, obj::EconometricModel{<:LinearModelEstimators})
     show(io, obj.estimator)
@@ -50,6 +52,7 @@ function show(io::IO, obj::EconometricModel{<:LinearModelEstimators})
         end
     end
     println(io, string("Formula: ", fs))
+    println(io, "Variance Covariance Estimator: $(obj.vce)")
     show(io, coeftable(obj))
 end
 function show(io::IO, obj::EconometricModel{<:ContinuousResponse})
@@ -83,6 +86,7 @@ function show(io::IO, obj::EconometricModel{<:ContinuousResponse})
         fs = replace(fs, r"(^.*?) ~ " => s"\1 ~ 1 + ")
     end
     println(io, string("Formula: ", fs))
+    println(io, "Variance Covariance Estimator: $(obj.vce)")
     show(io, coeftable(obj))
 end
 function show(io::IO, obj::EconometricModel{<:NominalResponse})
@@ -133,11 +137,12 @@ function fit(estimator::Type{<:Union{EconometricModel,ModelEstimator}},
              contrasts::Dict{Symbol} = Dict{Symbol,Union{<:AbstractContrasts,<:AbstractTerm}}(),
              weights::Union{Nothing,Symbol} = nothing,
              panel::Union{Nothing,Symbol} = nothing,
-             time::Union{Nothing,Symbol} = nothing)
+             time::Union{Nothing,Symbol} = nothing,
+             vce::VCE = OIM)
     data, exogenous, iv, estimator, X, y, z, Z, wts =
-        decompose(deepcopy(f), data, contrasts, weights, panel, time, estimator)
+        decompose(deepcopy(f), data, contrasts, weights, panel, time, estimator, vce)
     X, y, β, Ψ, ŷ, wts, piv = solve(estimator, X, y, z, Z, wts)
     vars = (coefnames(exogenous.lhs),
             convert(Vector{String}, vcat(coefnames(exogenous.rhs), coefnames(iv.lhs))[piv]))
-    EconometricModel(estimator, f, data, X, y, wts, β, Ψ, ŷ, vars, size(Z, 2))
+    EconometricModel(estimator, f, data, X, y, wts, β, Ψ, ŷ, vars, size(Z, 2), vce)
 end

@@ -98,3 +98,12 @@ function show(io::IO, estimator::OrdinalResponse)
     println(io, "Probability Model for Ordinal Response")
     println(io, "Categories: $(join(estimator.categories, " < "))")
 end
+# Variance-covariance Estimators
+@enum VCE begin
+    OIM = -1
+    HC0 = 0
+    HC1 = 1
+    HC2 = 2
+    HC3 = 3
+    HC4 = 4
+end

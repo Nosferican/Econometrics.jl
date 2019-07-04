@@ -21,6 +21,28 @@ model = fit(EconometricModel,
             data)
 ```
 
+You can also request heteroscedasticity consistent estimators for linear models.
+
+```@example Main
+vcov(model, HC0)
+```
+
+```@example Main
+vcov(model, HC1)
+```
+
+```@example Main
+vcov(model, HC2)
+```
+
+```@example Main
+vcov(model, HC3)
+```
+
+```@example Main
+vcov(model, HC4)
+```
+
 ### Between
 ```@example Main
 model = fit(BetweenEstimator,
