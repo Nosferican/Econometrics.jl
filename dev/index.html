@@ -10,14 +10,35 @@ Loglikelihood: 1643.30
 R-squared: 0.0312
 LR Test: 19.99 ∼ χ²(3) ⟹  Pr &gt; χ² = 0.0002
 Formula: CRMRTE ~ 1 + PrbConv + AvgSen + PrbPris
+Variance Covariance Estimator: OIM
 ──────────────────────────────────────────────────────────────────────────────────────
-                    PE           SE      t-value  Pr &gt; |t|          2.5%         97.5%
+                    PE           SE      t-value  Pr &gt; |t|         2.50%        97.50%
 ──────────────────────────────────────────────────────────────────────────────────────
 (Intercept)   0.0186413    0.00431066    4.32447    &lt;1e-4    0.0101762     0.0271064  
 PrbConv      -0.00116473   0.000422062  -2.75961    0.0060  -0.00199356   -0.0003359  
 AvgSen        0.000236185  0.000268216   0.88058    0.3789  -0.000290526   0.000762897
 PrbPris       0.0273394    0.00817642    3.34369    0.0009   0.0112829     0.0433959  
-──────────────────────────────────────────────────────────────────────────────────────</code></pre><h3><a class="nav-anchor" id="Between-1" href="#Between-1">Between</a></h3><pre><code class="language-julia">model = fit(BetweenEstimator,
+──────────────────────────────────────────────────────────────────────────────────────</code></pre><p>You can also request heteroscedasticity consistent estimators for linear models.</p><pre><code class="language-julia">vcov(model, HC0)</code></pre><pre><code class="language-none">4×4 LinearAlgebra.Hermitian{Float64,Array{Float64,2}}:
+  1.51708e-5   3.58518e-7  -7.30083e-7  -2.0324e-5 
+  3.58518e-7   2.85571e-7  -3.58783e-8  -4.13434e-7
+ -7.30083e-7  -3.58783e-8   9.36232e-8  -1.46277e-7
+ -2.0324e-5   -4.13434e-7  -1.46277e-7   5.1739e-5 </code></pre><pre><code class="language-julia">vcov(model, HC1)</code></pre><pre><code class="language-none">4×4 LinearAlgebra.Hermitian{Float64,Array{Float64,2}}:
+  1.52677e-5   3.60808e-7  -7.34748e-7  -2.04539e-5
+  3.60808e-7   2.87396e-7  -3.61076e-8  -4.16076e-7
+ -7.34748e-7  -3.61076e-8   9.42214e-8  -1.47212e-7
+ -2.04539e-5  -4.16076e-7  -1.47212e-7   5.20696e-5</code></pre><pre><code class="language-julia">vcov(model, HC2)</code></pre><pre><code class="language-none">4×4 LinearAlgebra.Hermitian{Float64,Array{Float64,2}}:
+  1.56208e-5   9.05631e-8  -7.36e-7     -2.08761e-5
+  9.05631e-8   6.78782e-7  -5.03354e-8  -3.93296e-8
+ -7.36e-7     -5.03354e-8   9.59715e-8  -1.59383e-7
+ -2.08761e-5  -3.93296e-8  -1.59383e-7   5.27586e-5</code></pre><pre><code class="language-julia">vcov(model, HC3)</code></pre><pre><code class="language-none">4×4 LinearAlgebra.Hermitian{Float64,Array{Float64,2}}:
+  1.66839e-5  -9.88963e-7  -7.1342e-7   -2.23048e-5
+ -9.88963e-7   2.16675e-6  -1.04165e-7   1.50077e-6
+ -7.1342e-7   -1.04165e-7   9.98145e-8  -2.14382e-7
+ -2.23048e-5   1.50077e-6  -2.14382e-7   5.50463e-5</code></pre><pre><code class="language-julia">vcov(model, HC4)</code></pre><pre><code class="language-none">4×4 LinearAlgebra.Hermitian{Float64,Array{Float64,2}}:
+  3.21597e-5  -2.14119e-5  -4.18897e-9  -4.43245e-5
+ -2.14119e-5   2.97197e-5  -1.09486e-6   3.08355e-5
+ -4.18897e-9  -1.09486e-6   1.38192e-7  -1.26498e-6
+ -4.43245e-5   3.08355e-5  -1.26498e-6   8.67924e-5</code></pre><h3><a class="nav-anchor" id="Between-1" href="#Between-1">Between</a></h3><pre><code class="language-julia">model = fit(BetweenEstimator,
             @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris),
             data,
             panel = :County)</code></pre><pre><code class="language-none">Between Estimator
@@ -29,8 +50,9 @@ Loglikelihood: 244.40
 R-squared: 0.1029
 Wald: 3.29 ∼ F(3, 86) ⟹ Pr &gt; F = 0.0246
 Formula: CRMRTE ~ 1 + PrbConv + AvgSen + PrbPris
+Variance Covariance Estimator: OIM
 ───────────────────────────────────────────────────────────────────────────────────
-                    PE          SE       t-value  Pr &gt; |t|         2.5%       97.5%
+                    PE          SE       t-value  Pr &gt; |t|        2.50%      97.50%
 ───────────────────────────────────────────────────────────────────────────────────
 (Intercept)  -0.00464339   0.0186571   -0.24888     0.8040  -0.0417325   0.0324457 
 PrbConv      -0.00354113   0.0018904   -1.87322     0.0644  -0.00729911  0.00021685
@@ -45,8 +67,9 @@ Loglikelihood: 2273.95
 R-squared: 0.8707
 Wald: 0.16 ∼ F(3, 537) ⟹ Pr &gt; F = 0.9258
 Formula: CRMRTE ~ 1 + PrbConv + AvgSen + PrbPris + absorb(County)
+Variance Covariance Estimator: OIM
 ──────────────────────────────────────────────────────────────────────────────────────
-                   PE           SE        t-value  Pr &gt; |t|          2.5%        97.5%
+                   PE           SE        t-value  Pr &gt; |t|         2.50%       97.50%
 ──────────────────────────────────────────────────────────────────────────────────────
 (Intercept)   0.0314527   0.00204638   15.3699       &lt;1e-43   0.0274328    0.0354726  
 PrbConv       6.65981e-6  0.0001985     0.0335507    0.9732  -0.000383272  0.000396592
@@ -61,8 +84,9 @@ Loglikelihood: 2290.25
 R-squared: 0.8775
 Wald: 0.23 ∼ F(3, 531) ⟹ Pr &gt; F = 0.8767
 Formula: CRMRTE ~ 1 + PrbConv + AvgSen + PrbPris + absorb(County + Year)
+Variance Covariance Estimator: OIM
 ──────────────────────────────────────────────────────────────────────────────────────
-                    PE           SE       t-value  Pr &gt; |t|          2.5%        97.5%
+                    PE           SE       t-value  Pr &gt; |t|         2.50%       97.50%
 ──────────────────────────────────────────────────────────────────────────────────────
 (Intercept)   0.0319651    0.00206378   15.4886      &lt;1e-44   0.027911     0.0360193  
 PrbConv       7.90362e-5   0.000196089   0.403062    0.6871  -0.00030617   0.000464242
@@ -84,8 +108,9 @@ Loglikelihood: 2226.01
 R-squared: 0.0007
 Wald: 0.15 ∼ F(3, 626) ⟹ Pr &gt; F = 0.9291
 Formula: CRMRTE ~ PrbConv + AvgSen + PrbPris
+Variance Covariance Estimator: OIM
 ──────────────────────────────────────────────────────────────────────────────────────
-                    PE           SE       t-value  Pr &gt; |t|          2.5%        97.5%
+                    PE           SE       t-value  Pr &gt; |t|         2.50%       97.50%
 ──────────────────────────────────────────────────────────────────────────────────────
 (Intercept)   0.0309293    0.00266706   11.5968      &lt;1e-27   0.0256918    0.0361668  
 PrbConv      -3.96634e-5   0.000198471  -0.199845    0.8417  -0.000429413  0.000350086
@@ -107,8 +132,9 @@ Loglikelihood: 2248.34
 R-squared: NaN
 Wald: 0.03 ∼ F(2, 626) ⟹ Pr &gt; F = 0.9671
 Formula: CRMRTE ~ PrbConv + (AvgSen ~ PrbPris)
+Variance Covariance Estimator: OIM
 ───────────────────────────────────────────────────────────────────────────────────────
-                    PE           SE        t-value  Pr &gt; |t|          2.5%        97.5%
+                    PE           SE        t-value  Pr &gt; |t|         2.50%       97.50%
 ───────────────────────────────────────────────────────────────────────────────────────
 (Intercept)   0.037747     0.0241684     1.56183      0.1188  -0.00971405   0.085208   
 PrbConv       1.39581e-5   0.000200244   0.0697054    0.9445  -0.000379273  0.000407189
@@ -130,7 +156,7 @@ R-squared: 0.0387
 LR Test: 42.99 ∼ χ²(10) ⟹ Pr &gt; χ² = 0.0000
 Formula: insure ~ 1 + age + male + nonwhite + site
 ───────────────────────────────────────────────────────────────────────────────────────────────────
-                                       PE         SE       t-value  Pr &gt; |t|        2.5%      97.5%
+                                       PE         SE       t-value  Pr &gt; |t|       2.50%     97.50%
 ───────────────────────────────────────────────────────────────────────────────────────────────────
 insure: Indemnity ~ (Intercept)   1.28694     0.59232     2.17271     0.0302   0.123689   2.4502   
 insure: Indemnity ~ age           0.00779612  0.0114418   0.681372    0.4959  -0.0146743  0.0302666
@@ -159,7 +185,7 @@ R-squared: 0.0075
 LR Test: 40.42 ∼ χ²(3) ⟹ Pr &gt; χ² = 0.0000
 Formula: RecParks ~ Age + Sex + Schooling
 ──────────────────────────────────────────────────────────────────────────────────────────
-                          PE          SE        t-value  Pr &gt; |t|         2.5%       97.5%
+                          PE          SE        t-value  Pr &gt; |t|        2.50%      97.50%
 ──────────────────────────────────────────────────────────────────────────────────────────
 Age                  0.00943647  0.00254031    3.71469     0.0002   0.00445424   0.0144187
 Sex: male           -0.0151659   0.0846365    -0.179188    0.8578  -0.181161     0.150829 
