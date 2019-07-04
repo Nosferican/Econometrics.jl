@@ -20,11 +20,11 @@ function decompose(f::FormulaTerm,
         throw(ArgumentError("Absorbing features is only implemented for least squares."))
     end
     pns = convert(Vector{Symbol}, filter!(!isnothing, union(termvars(f), [panel, time, wts])))
-    data = copy(data[pns])
+    data = select(data, pns)
     if isa(wts, Symbol)
-        data[wts] = ifelse(data[wts] .≤ 0, missing, data[wts])
+        data[wts] = ifelse(getproperty(data, wts) .≤ 0, missing, getproperty(data, wts))
     end
-    data = dropmissing(data[pns])
+    data = dropmissing(select(data, pns, copycols = false))
     if isempty(absorbed)
         absorbed = Vector{Vector{Vector{Int}}}()
     elseif length(absorbed) == 1
@@ -36,7 +36,7 @@ function decompose(f::FormulaTerm,
         else
             absorbed = termvars(absorbed)
         end
-        absorbed = [ [ findall(isequal(l), data[dim]) for l ∈ levels(data[dim]) ] for dim ∈ absorbed ]
+        absorbed = [ [ findall(isequal(l), getproperty(data, dim)) for l ∈ levels(getproperty(data, dim)) ] for dim ∈ absorbed ]
     else
         throw(ArgumentError("There can only be at most one absorb term"))
     end
@@ -62,7 +62,7 @@ function decompose(f::FormulaTerm,
             throw(ArgumentError("Instrumental variables are only implemented for linear models."))
         vce == OIM ||
             throw(ArgumentError("Robust variance covariance estimators only available for continous response models."))
-        if isordered(data[f.lhs.sym])
+        if isordered(getproperty(data, f.lhs.sym))
             any(x -> isa(x, InterceptTerm{false}), f.rhs.terms) &&
                 throw(ArgumentError("This estimator requires an intercept term."))
             estimator = OrdinalResponse(f.lhs.contrasts)
@@ -74,7 +74,7 @@ function decompose(f::FormulaTerm,
         throw(ArgumentError("The random effects estimator requires an intercept term."))
     end
     if isa(exogenous.lhs, CategoricalTerm)
-        y = data[exogenous.lhs.sym]
+        y = getproperty(data, exogenous.lhs.sym)
         X = modelcols(exogenous.rhs, data)
         if isordered(y)
             X = X[:,2:end]
@@ -89,16 +89,17 @@ function decompose(f::FormulaTerm,
         z = zeros(0, 0)
         Z = zeros(0, 0)
     end
-    wts = isnothing(wts) ? FrequencyWeights(Ones(size(y, 1))) : data[wts]
+    wts = isnothing(wts) ? FrequencyWeights(Ones(size(y, 1))) : getproperty(data, wts)
     if !isa(wts, FrequencyWeights)
         wts = FrequencyWeights(wts)
     end
     if isa(estimator, Type{<:RandomEffectsEstimator})
-        panel = (panel, [ findall(isequal(l), data[panel]) for l ∈ levels(data[panel]) ])
-        time = (time, [ findall(isequal(l), data[time]) for l ∈ levels(data[time]) ])
+        panel = (panel,
+                 [ findall(isequal(l), getproperty(data, panel)) for l ∈ levels(getproperty(data, panel)) ])
+        time = (time, [ findall(isequal(l), getproperty(data, time)) for l ∈ levels(getproperty(data, time)) ])
         estimator = RandomEffectsEstimator(panel, time, X, y, z, Z, wts)
     elseif isa(estimator, Type{<:BetweenEstimator})
-        estimator = BetweenEstimator(panel, [ findall(isequal(l), data[panel]) for l ∈ levels(data[panel]) ])
+        estimator = BetweenEstimator(panel, [ findall(isequal(l), getproperty(data, panel)) for l ∈ levels(getproperty(data, panel)) ])
     elseif isa(estimator, Type{<:EconometricModel}) || isa(estimator, Type{<:ContinuousResponse})
         estimator = ContinuousResponse(absorbed)
     end

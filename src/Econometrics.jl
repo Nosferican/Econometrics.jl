@@ -5,7 +5,7 @@
 """
 module Econometrics
     using Base.Iterators: flatten
-    using DataFrames: AbstractDataFrame, DataFrame, dropmissing,
+    using DataFrames: AbstractDataFrame, DataFrame, dropmissing, select,
                       # CategoricalArrays
                       AbstractCategoricalVector, categorical, levels, isordered
     using Distributions: cdf, ccdf, Categorical, Chisq, FDist, logpdf, Logistic, Normal,
