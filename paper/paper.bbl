@@ -1,8 +1,129 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
 
-\bibitem{bezanson2017julia}
-Jeff Bezanson, Alan Edelman, Stefan Karpinski, and Viral~B Shah.
+\bibitem{BV_1987}
+Pietro Balestra and Jayalakshmi Varadharajan-Krishnakumar.
+Full information estimations of a system of simultaneous equations with error
+  component structure.
+{\em Econometric Theory}, 3(2):223–246, 1987.
+
+\bibitem{LinearMixedModels}
+Douglas Bates, José~Bayoán Santiago~Calderón, Dave Kleinschmidt, Tony
+  Kelman, Simon Babayan, Patrick~Kofod Mogensen, Morten Piibeleht, Milan
+  Bouchet-Valat, Michael Hatherly, Elliot Saba, Antoine Baldassari, and Andreas
+  Noack.
+Mixedmodels.jl, 2019.
+
+\bibitem{Bezanson_Edelman_Karpinski_Shah_2017}
+Jeff Bezanson, Alan Edelman, Stefan Karpinski, and Viral~B. Shah.
 Julia: A fresh approach to numerical computing.
-{\em SIAM review}, 59(1):65--98, 2017.
+{\em {SIAM} Review}, 59(1):65--98, 2017.
+
+\bibitem{Crime}
+Christopher Cornwell and William~N. Trumbull.
+Estimating the economic model of crime with panel data.
+{\em The Review of Economics and Statistics}, 76(2):360--366, 1994.
+
+\bibitem{Singletons}
+Sergio Correia.
+Singletons, cluster-robust standard errors and fixed effects: A bad mix, 2015.
+
+\bibitem{reghdfe}
+Sergio Correia.
+Linear models with high-dimensional fixed effects: An efficient and feasible
+  estimator.
+Technical report, Duke University, 2017.
+Working Paper.
+
+\bibitem{mlogit}
+Yves Croissant.
+{\em mlogit: Multinomial Logit Models}, 2018.
+R package version 0.3-0.
+
+\bibitem{plm}
+Yves Croissant and Giovanni Millo.
+Panel data econometrics in \textit{R} : The plm package.
+{\em Journal of Statistical Software}, 27(2), 2008.
+
+\bibitem{LSMR}
+David Chin-Lung Fong and Michael Saunders.
+{LSMR}: An iterative algorithm for sparse least-squares problems.
+{\em {SIAM} Journal on Scientific Computing}, 33(5):2950--2971, 2011.
+
+\bibitem{FWL}
+Ragnar Frisch and Frederick~V. Waugh.
+Partial time regressions as compared with individual trends.
+{\em Econometrica}, 1(4):387, 1933.
+
+\bibitem{Optim}
+Patrick K~Mogensen and Asbjørn N~Riseth.
+Optim: A mathematical optimization package for julia.
+{\em Journal of Open Source Software}, 3(24):615, 2018.
+
+\bibitem{Konis_2007}
+Kjell Konis.
+{\em Linear Programming Algorithms for Detecting Separated Data in Binary
+  Logistic Regression Models}.
+PhD thesis, Worcester College, University of Oxford, 2007.
+
+\bibitem{FWLProof}
+Michael~C. Lovell.
+A simple proof of the {FWL} theorem.
+{\em The Journal of Economic Education}, 39(1):88--91, 2008.
+
+\bibitem{ologit}
+Richard~D. McKelvey and William Zavoina.
+A statistical model for the analysis of ordinal level dependent variables.
+{\em The Journal of Mathematical Sociology}, 4(1):103--120, 1975.
+
+\bibitem{OLeary_1990}
+Dianne~P. O'Leary.
+Robust regression computation using iteratively reweighted least squares.
+{\em {SIAM} Journal on Matrix Analysis and Applications}, 11(3):466--480, 1990.
+
+\bibitem{Python}
+{Python Software Foundation}.
+{\em Python Software}, 2018.
+
+\bibitem{R}
+{R Core Team}.
+{\em R: A Language and Environment for Statistical Computing}.
+R Foundation for Statistical Computing, Vienna, Austria, 2018.
+
+\bibitem{Renfro_2009}
+Charles~G. Renfro.
+{\em The Practice of Econometric Theory}, volume~44 of {\em Advanced Studies in
+  Theoretical and Applied Econometrics}.
+Springer Berlin Heidelberg, 2009.
+
+\bibitem{ForwardDiff}
+Jarrett Revels, Miles Lubin, and Theodore Papamarkou.
+Forward-mode automatic differentiation in julia.
+{\em CoRR}, abs/1607.07892, 2016.
+
+\bibitem{Stata}
+StataCorp.
+{\em Stata Statistical Software: Release 15}, 2017.
+
+\bibitem{SwamyArora}
+P.~A. V.~B. Swamy and S.~S. Arora.
+The exact finite sample properties of the estimators of coefficients in the
+  error components regression models.
+{\em Econometrica}, 40(2):261, 1972.
+
+\bibitem{MASS}
+W.~N. Venables and B.~D. Ripley.
+{\em Modern Applied Statistics with S}.
+Springer, New York, fourth edition, 2002.
+ISBN 0-387-95457-0.
+
+\bibitem{sandwich}
+Achim Zeileis.
+Econometric computing with {HC} and {HAC} covariance matrix estimators.
+{\em Journal of Statistical Software}, 11(10):1--17, 2004.
+
+\bibitem{lmtest}
+Achim Zeileis and Torsten Hothorn.
+Diagnostic checking in regression relationships.
+{\em R News}, 2(3):7--10, 2002.
 
 \end{thebibliography}
