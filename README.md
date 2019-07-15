@@ -6,3 +6,4 @@
 [![Documentation: dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://nosferican.github.io/Econometrics.jl/dev)
 [![Build Status](https://travis-ci.com/Nosferican/Econometrics.jl.svg?branch=master)](https://travis-ci.com/Nosferican/Econometrics.jl)
 [![Code Coverage](https://codecov.io/gh/Nosferican/Econometrics.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/Nosferican/Econometrics.jl)
+[![JuliaCon](https://submissions.juliacon.org/papers/446fde271579d85e0d4c691d54093dbb/status.svg)](https://submissions.juliacon.org/papers/446fde271579d85e0d4c691d54093dbb)
