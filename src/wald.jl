@@ -1,3 +1,8 @@
+"""
+    wald(obj::EconometricModel, vce::VCE = obj.vce)
+
+Provides the Wald statistic as Wald value, a F-Distribution, and the associated p-value.
+"""
 function wald(obj::EconometricModel, vce::VCE = obj.vce)
     β = coef(obj)
     V = vcov(obj, vce)

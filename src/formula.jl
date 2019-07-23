@@ -1,5 +1,33 @@
-function absorb end
+"""
+    absorb
 
+Dummy function for constructing the FunctionTerm{typeof(absorb)} used in decompose.
+"""
+function absorb end
+"""
+    decompose(f::FormulaTerm,
+              data::AbstractDataFrame,
+              contrasts::Dict{Symbol},
+              wts::Union{Nothing,Symbol},
+              panel::Union{Nothing,Symbol},
+              time::Union{Nothing,Symbol},
+              estimator::Type{<:Union{EconometricsModel,ModelEstimator}},
+              vce::VCE)
+
+Decomposes the arguments passed to a fit(::EconometricModel) into its components.
+
+# Returns
+
+- data::DataFrame
+- exogenous::FormulaTerm
+- iv::FormulaTerm
+- estimator::ModelEstimator
+- X::Matrix{Float64}
+- y::VecOrMat{<:Union{Bool,Int,Float64}}
+- z::Vector{Float64}
+- Z::Matrix{Float64}
+- wts::FrequencyWeights
+"""
 function decompose(f::FormulaTerm,
                    data::AbstractDataFrame,
                    contrasts::Dict{Symbol},
