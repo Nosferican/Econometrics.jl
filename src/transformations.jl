@@ -53,6 +53,25 @@ end
     end
     output
 end
+"""
+    transform(estimator::LinearModelEstimators, wts::FrequencyWeights)
+    transform(estimator::BetweenEstimator, wts::FrequencyWeights)
+    transform(estimator::ContinuousResponse,
+              obj::AbstractVecOrMat{<:Number},
+              wts::FrequencyWeights)
+    transform(estimator::BetweenEstimator,
+              obj::AbstractVector{<:Number},
+              wts::FrequencyWeights)
+    transform(estimator::BetweenEstimator,
+              obj::AbstractMatrix{<:Number},
+              wts::FrequencyWeights)
+    transform(estimator::RandomEffectsEstimator,
+              obj::AbstractVecOrMat,
+              wts::FrequencyWeights)
+
+Applies a transformation to a model component based on the model estimator.
+"""
+function transform end
 transform(estimator::LinearModelEstimators, wts::FrequencyWeights) = wts
 transform(estimator::BetweenEstimator, wts::FrequencyWeights) =
     FrequencyWeights(Ones(length(estimator.groups)))

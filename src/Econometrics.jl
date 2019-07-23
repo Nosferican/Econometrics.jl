@@ -35,7 +35,6 @@ module Econometrics
                       meanresponse, modelmatrix, leverage, residuals, predict,
                       predict!, dof_residual, RegressionModel, params
     import StatsModels: hasintercept, implicit_intercept
-
     foreach(file -> include(joinpath(dirname(@__DIR__), "src", "$file.jl")),
             ["structs", "transformations", "formula", "solvers", "main", "statsbase", "wald"])
     export @formula, DummyCoding, aic, aicc, bic, coef, coefnames,

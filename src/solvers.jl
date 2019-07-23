@@ -1,3 +1,14 @@
+"""
+    solve(estimator::LinearModelEstimators,
+          X::AbstractMatrix{<:Number},
+          y::AbstractVector{<:Number},
+          z::AbstractVecOrMat{<:Number},
+          Z::AbstractMatrix{<:Number},
+          wts::AbstractVector)
+
+Solves models continous response models without features absorption.
+For example, Swamy-Arora random effects model for longitudinal data.
+"""
 @views function solve(estimator::LinearModelEstimators,
                       X::AbstractMatrix{<:Number},
                       y::AbstractVector{<:Number},
@@ -46,6 +57,16 @@
     ŷ = isempty(z) ? X̃ * β : hcat(X, z)[:,lin_ind] * β
     X̃, y, β, Ψ, ŷ, w, lin_ind
 end
+"""
+    solve(estimator::ContinuousResponse,
+          X::AbstractMatrix{<:Number},
+          y::AbstractVector{<:Number},
+          z::AbstractVecOrMat{<:Number},
+          Z::AbstractMatrix{<:Number},
+          wts::AbstractVector)
+
+Solves continuous response models with potential features absorption.
+"""
 @views function solve(estimator::ContinuousResponse,
                       X::AbstractMatrix{<:Number},
                       y::AbstractVector{<:Number},
@@ -121,6 +142,16 @@ Obtain Ω for a multinomial regression by building the matrix by blocks.
   end
   Hermitian(Σ)
 end
+"""
+    solve(estimator::NominalResponse,
+          X::AbstractMatrix{<:Number},
+          y::AbstractVector,
+          z::AbstractVecOrMat{<:Number},
+          Z::AbstractMatrix{<:Number},
+          wts::AbstractVector)
+
+Solves a multinomial logistic regression.
+"""
 @views function solve(estimator::NominalResponse,
                       X::AbstractMatrix{<:Number},
                       y::AbstractVector,
@@ -180,6 +211,16 @@ end
     β = collect(vec(β)[size(X, 2) + 1:end])
     X, y, β, Ψ, ŷ, wts, 1:size(F, 2)
 end
+"""
+    solve(estimator::OrdinalResponse,
+          X::AbstractMatrix{<:Number},
+          y::AbstractVector,
+          z::AbstractVecOrMat{<:Number},
+          Z::AbstractMatrix{<:Number},
+          wts::AbstractVector)
+
+Solves a proportional odds logistic regression.
+"""
 @views function solve(estimator::OrdinalResponse,
                       X::AbstractMatrix{<:Number},
                       y::AbstractVector,
