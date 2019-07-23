@@ -42,7 +42,7 @@ module Econometrics
            nullloglikelihood, score, nobs, dof, mss, rss, informationmatrix, vcov, stderror,
            weights, isfitted, fit, fit!, r2, adjr2, fitted, response, meanresponse,
            modelmatrix, leverage, residuals, predict, predict!, dof_residual,
-           params, EconometricModel, absorb, between, PID, TID,
-           BetweenEstimator, RandomEffectsEstimator,
+           params,
+           EconometricModel, absorb, BetweenEstimator, RandomEffectsEstimator,
            OIM, HC0, HC1, HC2, HC3, HC4
 end
