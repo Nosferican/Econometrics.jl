@@ -133,3 +133,21 @@ function decompose(f::FormulaTerm,
     end
     data, exogenous, iv, estimator, X, y, z, Z, wts
 end
+
+remove_intercept(f::AbstractString) =
+    occursin(" ~ 1 + ", f) ? replace(f, " ~ 1 + " => " ~ ") : f
+add_intercept(f::AbstractString) =
+    !occursin(r" ~ -?[0-1] ", f) ? replace(f, r"(^.*?) ~ " => s"\1 ~ 1 + ") : f
+clean_rhs(obj::Tuple) = mapreduce(clean_rhs, (x, y) -> "$x + $y", obj)
+clean_rhs(obj::AbstractTerm) = string(obj)
+clean_rhs(obj::InteractionTerm) = mapreduce(clean_rhs, (x, y) -> "$x & $y", obj.terms)
+clean_rhs(obj::FunctionTerm) = string(obj)[2:end]
+clean_rhs(obj::FormulaTerm) = string("(", obj.lhs, " ~ ", clean_rhs(obj.rhs), ")")
+clean_rhs(obj::FunctionTerm{typeof(absorb)}) = string(obj)[3:end - 1]
+clean_fm(obj::EconometricsModel) =
+    obj.f |>
+    (f -> string(f.lhs, " ~ ", clean_rhs(f.rhs))) |>
+    (f -> isa(obj, EconometricModel{<:Union{RandomEffectsEstimator,
+                                            OrdinalResponse}}) ?
+          remove_intercept(f) : add_intercept(f)) |>
+    (f -> "Formula: $f")
