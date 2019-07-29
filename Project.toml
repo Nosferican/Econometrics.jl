@@ -19,7 +19,6 @@ StatsFuns = "4c63d2b9-4356-54db-8cca-17b64c39e42c"
 StatsModels = "3eaba693-59b7-5ba5-a881-562e759f1c8d"
 
 [compat]
-CSV = "0.5"
 DataFrames = "0.18, 0.19"
 FillArrays = "0.6"
 Optim = "0.18"
@@ -27,11 +26,3 @@ Parameters = "0.10"
 StatsBase = "0.31"
 StatsModels = "0.6"
 julia = "1.1"
-
-[extras]
-CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
-RDatasets = "ce6b1742-4840-55fa-b093-852dadbb1d8b"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[targets]
-test = ["Test", "CSV", "RDatasets"]

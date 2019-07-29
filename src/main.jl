@@ -44,14 +44,7 @@ function show(io::IO, obj::EconometricModel{<:LinearModelEstimators})
     if !isnan(p)
         println(io, @sprintf("Wald: %.2f ∼ F(%i, %i) ⟹ Pr > F = %.4f", W, params(F)..., p))
     end
-    f = obj.f
-    fs = string(f.lhs, " ~ ", mapreduce(x -> isa(x, FormulaTerm) ? "($x)" : x, (x,y) -> "$x + $y", f.rhs))
-    if !isa(obj.estimator, RandomEffectsEstimator)
-        if !occursin(r" ~ -?[0-1](?= + )", fs)
-            fs = replace(fs, r"(^.*?) ~ " => s"\1 ~ 1 + ")
-        end
-    end
-    println(io, string("Formula: ", fs))
+    println(io, clean_fm(obj))
     println(io, "Variance Covariance Estimator: $(obj.vce)")
     show(io, coeftable(obj))
 end
@@ -79,13 +72,7 @@ function show(io::IO, obj::EconometricModel{<:ContinuousResponse})
             println(io, @sprintf("Wald: %.2f ∼ F(%i, %i) ⟹ Pr > F = %.4f", W, params(F)..., p))
         end
     end
-    f = obj.f
-    f = string(f.lhs, " ~ ", mapreduce(x -> isa(x, FormulaTerm) ? "($x)" : x, (x,y) -> "$x + $y", f.rhs))
-    fs = replace(f, r"(:\(|\)(?=\)))" => "")
-    if !occursin(r" ~ -?[0-1](?= + )", fs)
-        fs = replace(fs, r"(^.*?) ~ " => s"\1 ~ 1 + ")
-    end
-    println(io, string("Formula: ", fs))
+    println(io, clean_fm(obj))
     println(io, "Variance Covariance Estimator: $(obj.vce)")
     show(io, coeftable(obj))
 end
@@ -105,11 +92,7 @@ function show(io::IO, obj::EconometricModel{<:NominalResponse})
         p = ccdf(χ², lr)
         println(io, @sprintf("LR Test: %.2f ∼ χ²(%i) ⟹ Pr > χ² = %.4f", lr, k, p))
     end
-    fs = replace(string(obj.f), r"(:\(|\)(?=\)))" => "")
-    if !occursin(r" ~ -?[0-1](?= + )", fs)
-        fs = replace(fs, "~" => "~ 1 +")
-    end
-    println(io, string("Formula: ", fs))
+    println(io, clean_fm(obj))
     show(io, coeftable(obj))
 end
 function show(io::IO, obj::EconometricModel{<:OrdinalResponse})
@@ -128,7 +111,7 @@ function show(io::IO, obj::EconometricModel{<:OrdinalResponse})
         p = ccdf(χ², lr)
         println(io, @sprintf("LR Test: %.2f ∼ χ²(%i) ⟹ Pr > χ² = %.4f", lr, k, p))
     end
-    println(io, string("Formula: ", replace(string(obj.f), r"(?<= ~ )1 \+ " => "")))
+    println(io, clean_fm(obj))
     show(io, coeftable(obj))
 end
 function fit(estimator::Type{<:Union{EconometricModel,ModelEstimator}},

@@ -25,8 +25,8 @@ module Econometrics
     using StatsFuns: softmax
     using StatsModels: AbstractContrasts, AbstractTerm, apply_schema, CategoricalTerm,
                        ConstantTerm, ContrastsMatrix, DummyCoding, @formula, FormulaTerm,
-                       FunctionTerm, InterceptTerm, MatrixTerm, modelcols, schema, terms,
-                       termvars
+                       FunctionTerm, InteractionTerm, InterceptTerm, MatrixTerm,
+                       modelcols, schema, terms, termvars
     import Base: show
     import StatsBase: coef, coefnames, coeftable, confint, deviance, islinear,
                       nulldeviance, loglikelihood, nullloglikelihood, score, nobs,
