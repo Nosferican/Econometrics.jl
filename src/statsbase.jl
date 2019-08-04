@@ -42,7 +42,7 @@ function nullloglikelihood(obj::EconometricModel{<:Union{NominalResponse,Ordinal
 	sum(wᵢ * logpdf(Categorical(μ), yᵢ) for (yᵢ, wᵢ) ∈ zip(y, wts))
 end
 # StatsBase.score(obj::StatisticalModel) = error("score is not defined for $(typeof(obj)).")
-nobs(obj::EconometricModel) = sum(obj.w)
+nobs(obj::EconometricModel) = sum(weights(obj))
 dof(obj::EconometricModel{<:LinearModelEstimators}) =
 	length(coef(obj)) + dispersion(obj) + obj.iv
 dof(obj::EconometricModel{<:ContinuousResponse}) =
@@ -111,7 +111,7 @@ confint(obj::EconometricModel;
     σ * quantile(TDist(dof_residual(obj)), 1 - α / 2) |>
     (σ -> coef(obj) |>
         (β -> hcat(β .- σ, β .+ σ)))
-weights(obj::EconometricModel) = obj.w
+weights(obj::EconometricModel) = obj.wts
 isfitted(obj::EconometricModel) = !isempty(obj.Ψ)
 fitted(obj::EconometricModel) = obj.ŷ
 response(obj::EconometricModel) = obj.y

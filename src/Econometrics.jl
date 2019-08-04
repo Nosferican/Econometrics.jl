@@ -18,7 +18,7 @@ module Econometrics
                          Diagonal, Hermitian, I, LowerTriangular, qr,
                          UpperTriangular
     using Optim: hessian!, optimize, minimizer, TwiceDifferentiable
-    using Parameters: @unpack
+    using Parameters: @unpack, @pack!
     using Printf: @sprintf
     using StatsBase: aic, aicc, bic, harmmean, FrequencyWeights, CoefTable,
                      ConvergenceException, Weights
@@ -36,7 +36,7 @@ module Econometrics
                       predict!, dof_residual, RegressionModel, params
     import StatsModels: hasintercept, implicit_intercept
     foreach(file -> include(joinpath(dirname(@__DIR__), "src", "$file.jl")),
-            ["structs", "transformations", "formula", "solvers", "main", "statsbase", "wald"])
+            ["structs", "transformations", "formula", "main", "solvers", "statsbase", "wald"])
     export @formula, DummyCoding, aic, aicc, bic, coef, coefnames,
            coeftable, confint, deviance, islinear, nulldeviance, loglikelihood,
            nullloglikelihood, score, nobs, dof, mss, rss, informationmatrix, vcov, stderror,
@@ -44,5 +44,6 @@ module Econometrics
            modelmatrix, leverage, residuals, predict, predict!, dof_residual,
            params,
            EconometricModel, absorb, BetweenEstimator, RandomEffectsEstimator,
+           ContinuousResponse,
            OIM, HC0, HC1, HC2, HC3, HC4
 end

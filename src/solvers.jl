@@ -15,6 +15,50 @@ For example, Swamy-Arora random effects model for longitudinal data.
                       z::AbstractVecOrMat{<:Number},
                       Z::AbstractMatrix{<:Number},
                       wts::AbstractVector)
+	if !isa(wts, Weights)
+        wts = FrequencyWeights(wts)
+    else
+        isa(wts, FrequencyWeights) || throw(ArgumentError("Only frequency weights are supported."))
+    end
+    X = transform(estimator, X, wts)
+    y = transform(estimator, y, wts)
+    z = transform(estimator, z, wts)
+    Z = transform(estimator, Z, wts)
+    wts = transform(estimator, FrequencyWeights(wts))
+    if !isempty(z)
+        Z̃ = hcat(X, Z)
+        F = bunchkaufman(Hermitian(Z̃' * Diagonal(wts) * Z̃), true, check = false)
+        bkr = count(x -> abs(x) ≥ √eps(), F.D)
+		if bkr < size(F, 2)
+            lin_ind = sort!(invperm(F.p)[1:bkr])
+            count(x -> lin_ind > size(X, 2) + 1) ≥ size(z, 2) ||
+                throw(ArgumentError("Insufficient number of instruments."))
+            Z̃ = Z̃[:,lin_ind]
+            F = bunchkaufman(Hermitian(Z̃' * Diagonal(wts) * Z̃), true)
+        else
+            lin_ind = collect(1:size(F, 2))
+        end
+        γ = F \ (Z̃' * Diagonal(wts) * z)
+        X̃ = hcat(X, Z̃ * γ)
+    else
+        X̃ = X
+    end
+    F = bunchkaufman(Hermitian(X̃' * Diagonal(wts) * X̃), true, check = false)
+    bkr = count(x -> abs(x) ≥ √eps(), F.D)
+    if bkr < size(F, 2)
+        lin_ind = sort!(invperm(F.p)[1:bkr])
+        X̃ = convert(Matrix{Float64}, X̃[:,lin_ind])
+        F = bunchkaufman(Hermitian(X̃' * Diagonal(wts) * X̃), true)
+    else
+        lin_ind = collect(1:size(F, 2))
+    end
+    β = F \ (X̃' * Diagonal(wts) * y)
+    Ψ = Hermitian(inv(F))
+    ŷ = isempty(z) ? X̃ * β : hcat(X, z)[:,lin_ind] * β
+	X̃, y, β, Ψ, ŷ, wts, lin_ind
+end
+@views function fit!(obj::EconometricModel{<:LinearModelEstimators})
+	@unpack estimator, X, y, z, Z, wts = obj
     if !isa(wts, Weights)
         wts = FrequencyWeights(wts)
     else
@@ -24,10 +68,10 @@ For example, Swamy-Arora random effects model for longitudinal data.
     y = transform(estimator, y, wts)
     z = transform(estimator, z, wts)
     Z = transform(estimator, Z, wts)
-    w = transform(estimator, FrequencyWeights(wts))
+    wts = transform(estimator, FrequencyWeights(wts))
     if !isempty(z)
         Z̃ = hcat(X, Z)
-        F = bunchkaufman(Hermitian(Z̃' * Diagonal(w) * Z̃), true, check = false)
+        F = bunchkaufman(Hermitian(Z̃' * Diagonal(wts) * Z̃), true, check = false)
         bkr = count(x -> abs(x) ≥ √eps(), F.D)
 		if bkr < size(F, 2)
             lin_ind = sort!(invperm(F.p)[1:bkr])
@@ -38,41 +82,31 @@ For example, Swamy-Arora random effects model for longitudinal data.
         else
             lin_ind = collect(1:size(F, 2))
         end
-        γ = F \ (Z̃' * Diagonal(w) * z)
+        γ = F \ (Z̃' * Diagonal(wts) * z)
         X̃ = hcat(X, Z̃ * γ)
     else
         X̃ = X
     end
-    F = bunchkaufman(Hermitian(X̃' * Diagonal(w) * X̃), true, check = false)
+    F = bunchkaufman(Hermitian(X̃' * Diagonal(wts) * X̃), true, check = false)
     bkr = count(x -> abs(x) ≥ √eps(), F.D)
     if bkr < size(F, 2)
         lin_ind = sort!(invperm(F.p)[1:bkr])
         X̃ = convert(Matrix{Float64}, X̃[:,lin_ind])
-        F = bunchkaufman(Hermitian(X̃' * Diagonal(w) * X̃), true)
+        F = bunchkaufman(Hermitian(X̃' * Diagonal(wts) * X̃), true)
     else
         lin_ind = collect(1:size(F, 2))
     end
-    β = F \ (X̃' * Diagonal(w) * y)
+    β = F \ (X̃' * Diagonal(wts) * y)
     Ψ = Hermitian(inv(F))
     ŷ = isempty(z) ? X̃ * β : hcat(X, z)[:,lin_ind] * β
-    X̃, y, β, Ψ, ŷ, w, lin_ind
+	X = X̃
+	wts = FrequencyWeights(collect(wts))
+	@pack! obj = X, y, β, Ψ, ŷ, wts
+	obj.vars = (obj.vars[1], obj.vars[2][lin_ind])
+	obj
 end
-"""
-    solve(estimator::ContinuousResponse,
-          X::AbstractMatrix{<:Number},
-          y::AbstractVector{<:Number},
-          z::AbstractVecOrMat{<:Number},
-          Z::AbstractMatrix{<:Number},
-          wts::AbstractVector)
-
-Solves continuous response models with potential features absorption.
-"""
-@views function solve(estimator::ContinuousResponse,
-                      X::AbstractMatrix{<:Number},
-                      y::AbstractVector{<:Number},
-                      z::AbstractVecOrMat{<:Number},
-                      Z::AbstractMatrix{<:Number},
-                      wts::AbstractVector)
+@views function fit!(obj::EconometricModel{<:ContinuousResponse})
+	@unpack estimator, X, y, z, Z, wts = obj
     if !isa(wts, Weights)
         wts = FrequencyWeights(wts)
     else
@@ -116,7 +150,11 @@ Solves continuous response models with potential features absorption.
     ŷ = isempty(z) ? X̃ * β : hcat(X, z)[:,lin_ind] * β
     û = y - ŷ
     ŷ .= y₀ .- û
-    X̃, y₀, β, Ψ, ŷ, w, lin_ind
+	X = X̃
+	y = y₀
+	@pack! obj = X, y, β, Ψ, ŷ
+	obj.vars = (obj.vars[1], obj.vars[2][lin_ind])
+	obj
 end
 """
     obtain_Ω(A::AbstractMatrix{<:Real},
@@ -142,25 +180,10 @@ Obtain Ω for a multinomial regression by building the matrix by blocks.
   end
   Hermitian(Σ)
 end
-"""
-    solve(estimator::NominalResponse,
-          X::AbstractMatrix{<:Number},
-          y::AbstractVector,
-          z::AbstractVecOrMat{<:Number},
-          Z::AbstractMatrix{<:Number},
-          wts::AbstractVector)
-
-Solves a multinomial logistic regression.
-"""
-@views function solve(estimator::NominalResponse,
-                      X::AbstractMatrix{<:Number},
-                      y::AbstractVector,
-                      z::AbstractVecOrMat{<:Number},
-                      Z::AbstractMatrix{<:Number},
-                      wts::AbstractVector)
+@views function fit!(obj::EconometricModel{<:NominalResponse})
+	@unpack estimator, X, y, z, Z, wts = obj
+	@unpack categories = estimator
     @assert isempty(z) && isempty(Z) "Nominal response models can only contain exogenous features"
-    @unpack categories = estimator
-    y = [ findfirst(isequal(x), categories) for x ∈ y ]
     b = mapreduce(elem -> (eachindex(categories) .== elem)', vcat, y)
     F = qr(X, Val(true))
     qrr = count(x -> abs(x) ≥ √eps(), diag(F.R))
@@ -209,7 +232,9 @@ Solves a multinomial logistic regression.
     Ψ = Hermitian(inv(bunchkaufman!(obtain_Ω(X, μ, wts))))
     ŷ = X * β
     β = collect(vec(β)[size(X, 2) + 1:end])
-    X, y, β, Ψ, ŷ, wts, 1:size(F, 2)
+	@pack! obj = X, y, β, Ψ, ŷ
+	obj.vars = (obj.vars[1], obj.vars[2][lin_ind])
+	obj
 end
 """
     solve(estimator::OrdinalResponse,
@@ -221,16 +246,10 @@ end
 
 Solves a proportional odds logistic regression.
 """
-@views function solve(estimator::OrdinalResponse,
-                      X::AbstractMatrix{<:Number},
-                      y::AbstractVector,
-                      z::AbstractVecOrMat{<:Number},
-                      Z::AbstractMatrix{<:Number},
-                      wts::AbstractVector)
+@views function fit!(obj::EconometricModel{<:OrdinalResponse})
+	@unpack estimator, X, y, z, Z, wts = obj
+	@unpack categories = estimator
     @assert isempty(z) && isempty(Z) "Ordinal response models can only contain exogenous features"
-    @unpack categories = estimator
-    y = [ findfirst(isequal(x), categories) for x ∈ y ]
-    @assert length(categories) > 2
     F = qr(X, Val(true))
     qrr = count(x -> abs(x) ≥ √eps(), diag(F.R))
     if qrr < size(F, 2)
@@ -292,5 +311,8 @@ Solves a proportional odds logistic regression.
     Ψ = Hermitian(A * Ψ * A')
     ŷ = X * β[1:size(X, 2)]
     β[ks:end] .= cumsum(vcat(β[ks], exp.(β[ks + 1:end])))
-    X, y, β, Ψ, ŷ, wts, collect(2:size(X, 2) + 1)
+	@pack! obj = X, y, β, Ψ, ŷ
+	# Fix the rank-deficient here
+	obj.vars = (obj.vars[1], obj.vars[2][collect(2:size(X, 2) + 1)])
+	obj
 end
