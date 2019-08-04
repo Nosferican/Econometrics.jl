@@ -5,9 +5,7 @@
 """
 module Econometrics
     using Base.Iterators: flatten
-    using DataFrames: AbstractDataFrame, DataFrame, dropmissing, select,
-                      # CategoricalArrays
-                      AbstractCategoricalVector, categorical, levels, isordered
+    using CategoricalArrays: CategoricalValue, levels, levels!, isordered, ordered!
     using Distributions: cdf, ccdf, Categorical, Chisq, FDist, logpdf, Logistic, Normal,
                          pdf, TDist,
                          # Statistics
@@ -27,6 +25,7 @@ module Econometrics
                        ConstantTerm, ContrastsMatrix, DummyCoding, @formula, FormulaTerm,
                        FunctionTerm, InteractionTerm, InterceptTerm, MatrixTerm,
                        modelcols, schema, terms, termvars
+    using Tables: Tables, columns, eachcolumn, select, materializer, rows
     import Base: show
     import StatsBase: coef, coefnames, coeftable, confint, deviance, islinear,
                       nulldeviance, loglikelihood, nullloglikelihood, score, nobs,

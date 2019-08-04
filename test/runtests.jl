@@ -247,7 +247,8 @@ end
   	data = joinpath(dirname(pathof(Econometrics)), "..", "data", "auto.csv") |>
 		CSV.read |>
     	(data -> select(data, [:rep77, :foreign, :length, :mpg])) |>
-    	dropmissing
+    	dropmissing |>
+		categorical!
   	data.rep77 = levels!(categorical(data.rep77; ordered = true),
                        	 ["Poor", "Fair", "Average", "Good", "Excellent"])
   	model = fit(EconometricModel,

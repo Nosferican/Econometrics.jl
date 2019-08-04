@@ -6,7 +6,7 @@ Dummy function for constructing the FunctionTerm{typeof(absorb)} used in decompo
 function absorb end
 """
     decompose(f::FormulaTerm,
-              data::AbstractDataFrame,
+              data,
               contrasts::Dict{Symbol},
               wts::Union{Nothing,Symbol},
               panel::Union{Nothing,Symbol},
@@ -18,7 +18,7 @@ Decomposes the arguments passed to a fit(::EconometricModel) into its components
 
 # Returns
 
-- data::DataFrame
+- data
 - exogenous::FormulaTerm
 - iv::FormulaTerm
 - estimator::ModelEstimator
@@ -29,7 +29,7 @@ Decomposes the arguments passed to a fit(::EconometricModel) into its components
 - wts::FrequencyWeights
 """
 function decompose(f::FormulaTerm,
-                   data::AbstractDataFrame,
+                   data,
                    contrasts::Dict{Symbol},
                    wts::Union{Nothing,Symbol},
                    panel::Union{Nothing,Symbol},
@@ -48,11 +48,26 @@ function decompose(f::FormulaTerm,
         throw(ArgumentError("Absorbing features is only implemented for least squares."))
     end
     pns = convert(Vector{Symbol}, filter!(!isnothing, union(termvars(f), [panel, time, wts])))
-    data = select(data, pns)
+    data = select(data, pns...)
     if isa(wts, Symbol)
         data[wts] = ifelse(getproperty(data, wts) .≤ 0, missing, getproperty(data, wts))
     end
-    data = dropmissing(select(data, pns, copycols = false))
+	categorical_variables = Tables.schema(data) |>
+		(x -> [name for (name, type) ∈ zip(x.names, x.types) if
+			isa(type, Type{<:Union{AbstractString, CategoricalValue}})])
+	data_categorical =
+		zip(categorical_variables,
+			(levels(col), isordered(col)) for
+		    col ∈ eachcolumn(select(data, categorical_variables...))) |>
+		Dict
+	data = materializer(data)(row for row ∈ rows(data) if
+        all(pn -> !ismissing(getproperty(row, pn)), propertynames(row)))
+    for cn ∈ categorical_variables
+		col = getproperty(data, cn)
+		levels!(col, intersect(data_categorical[cn][1],
+							   unique(col)))
+		ordered!(col, data_categorical[cn][2])
+	end
     if isempty(absorbed)
         absorbed = Vector{Vector{Vector{Int}}}()
     elseif length(absorbed) == 1
