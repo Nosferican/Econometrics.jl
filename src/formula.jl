@@ -127,7 +127,7 @@ function decompose(f::FormulaTerm,
     end
     if !isa(iv.lhs, InterceptTerm)
         z, Z = modelcols(iv, data)
-        z = isa(z, Tuple) ? hcat(z...) : z
+        z = isa(z, Tuple) ? hcat(z...) : convert(Matrix{Float64}, reshape(z, length(z), 1))
     else
         z = zeros(0, 0)
         Z = zeros(0, 0)
