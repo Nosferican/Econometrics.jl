@@ -59,7 +59,7 @@ mutable struct EconometricModel{E<:ModelEstimator,
         wts = FrequencyWeights(collect(wts))
         vars = (coefnames(exogenous.lhs),
                 convert(Vector{String}, vcat(coefnames(exogenous.rhs), coefnames(iv.lhs))))
-        new{typeof(estimator), typeof(f), typeof(y), typeof(wts), typeof(ŷ), typeof(vars), typeof(vce)}(
+        new{typeof(estimator), typeof(f), typeof(data), typeof(y), typeof(wts), typeof(ŷ), typeof(vars), typeof(vce)}(
             estimator, f, data, X, y, wts, zeros(0), Hermitian(zeros(0, 0)), ŷ,
             z, Z, vars, size(Z, 2), vce)
     end
