@@ -74,7 +74,7 @@ Applies a transformation to a model component based on the model estimator.
 function transform end
 transform(estimator::LinearModelEstimators, wts::FrequencyWeights) = wts
 transform(estimator::BetweenEstimator, wts::FrequencyWeights) =
-    FrequencyWeights(Ones(length(estimator.groups)))
+    FrequencyWeights(ones(length(estimator.groups)))
 transform(estimator::ContinuousResponse,
           obj::AbstractVecOrMat{<:Number},
           wts::FrequencyWeights) = isempty(obj) ? obj : within(obj, estimator.groups, wts)
