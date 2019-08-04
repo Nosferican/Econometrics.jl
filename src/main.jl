@@ -14,6 +14,7 @@
 """
 mutable struct EconometricModel{E<:ModelEstimator,
                                 F<:FormulaTerm,
+                                T<:Any,
                                 Y<:AbstractVecOrMat{<:Number},
                                 W<:FrequencyWeights,
                                 Ŷ<:AbstractVecOrMat{<:Float64},
@@ -23,7 +24,7 @@ mutable struct EconometricModel{E<:ModelEstimator,
                                 VC<:Union{<:Type{<:VCE},<:VCE}} <: EconometricsModel
     estimator::E
     f::F
-    data::DataFrame
+    data::T
     X::Matrix{Float64}
     y::Y
     w::W
