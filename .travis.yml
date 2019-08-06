@@ -1,8 +1,4 @@
 language: julia
-os:
-  - linux
-  - osx
-  - windows
 matrix:
   include:
     - name: linux
