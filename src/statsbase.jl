@@ -9,6 +9,11 @@ deviance(obj::EconometricModel{<:LinearModelEstimators}) =
 	(wts -> isa(wts, FrequencyWeights) ?
 			sum(w * (y - ŷ)^2 for (w, y, ŷ) ∈ zip(wts, response(obj), fitted(obj))) :
 			sum((y - ŷ)^2 for (y, ŷ) ∈ zip(response(obj), fitted(obj))))
+"""
+	hasintercept(obj::EconometricModel)::Bool
+
+Return whether the model has an intercept.
+"""
 hasintercept(obj::EconometricModel) = true
 hasintercept(obj::EconometricModel{<:LinearModelEstimators}) =
 	!any(t -> isa(t, InterceptTerm{false}), terms(obj.f.rhs))
@@ -75,6 +80,13 @@ function adjr2(obj::EconometricModel{<:LinearModelEstimators})
 	end
 end
 informationmatrix(obj::EconometricModel; expected::Bool = true) = obj.Ψ
+"""
+	vcov(obj::EconometricModel)
+	vcov(obj::EconometricModel{<:LinearModelEstimators}, vce::VCE = obj.vce)
+
+Return the variance-covariance matrix for the coefficients of the model.
+The `vce` argument allows to request variance estimators.
+"""
 vcov(obj::EconometricModel) = informationmatrix(obj)
 function vcov(obj::EconometricModel{<:LinearModelEstimators})
 	vcov(obj::EconometricModel{<:LinearModelEstimators}, obj.vce)
@@ -104,13 +116,29 @@ function vcov(obj::EconometricModel{<:LinearModelEstimators}, vce::VCE)
 	Ω = X' * Diagonal(ũ) * X
 	Hermitian(λ * Ψ * Ω * Ψ)
 end
+"""
+	stderror(obj::EconometricModel)
+	stderror(obj::EconometricModel{<:LinearModelEstimators}, vce::VCE = obj.vce)
+
+Return the standard errors for the coefficients of the model.
+The `vce` argument allows to request variance estimators.
+"""
 stderror(obj::EconometricModel, vce::VCE) = sqrt.(diag(vcov(obj, vce)))
-confint(obj::EconometricModel;
-		σ::AbstractVector{<:Real} = stderror(obj),
-		α::Real = 0.05) =
-    σ * quantile(TDist(dof_residual(obj)), 1 - α / 2) |>
+"""
+	confint(obj::EconometricModel; se::AbstractVector{<:Real} = stderror(obj), level::Real = 0.95)
+
+Compute the confidence intervals for coefficients, with confidence level `level` (by default, 95%).
+`se` can be provided as a precomputed value.
+"""
+function confint(obj::EconometricModel;
+				 se::AbstractVector{<:Real} = stderror(obj),
+				 level::Real = 0.95)
+	@assert zero(level) ≤ level ≤ one(level)
+	α = 1 - level
+	se * quantile(TDist(dof_residual(obj)), 1 - α / 2) |>
     (σ -> coef(obj) |>
         (β -> hcat(β .- σ, β .+ σ)))
+end
 weights(obj::EconometricModel) = obj.wts
 isfitted(obj::EconometricModel) = !isempty(obj.Ψ)
 fitted(obj::EconometricModel) = obj.ŷ
@@ -147,15 +175,26 @@ function predict(obj::EconometricModel{<:OrdinalResponse})
 			  vcat,
 			  eachindex(y))
 end
+"""
+	coeftable(obj::EconometricModel;
+			  level::Real = 0.95)
+	coeftable(obj::EconometricModel{<:LinearModelEstimators};
+			  level::Real = 0.95,
+			  vce::VCE = obj.vce)
+
+Return a table of class `CoefTable` with coefficients and related statistics.
+`level` determines the level for confidence intervals (by default, 95%).
+`vce` determines the variance-covariance estimator (by default, `OIM`).
+"""
 function coeftable(obj::EconometricModel;
-				   vce::VCE = obj.vce,
-				   α::Real = 0.05)
+				   level::Real = 0.95,
+				   vce::VCE = obj.vce)
     β = coef(obj)
     σ = stderror(obj, vce)
     t = β ./ σ
     p = 2ccdf.(TDist(dof_residual(obj)), abs.(t))
-    mat = hcat(β, σ, t, p, confint(obj, σ = σ, α = α))
-	lims = (100α / 2, 100 - 100α / 2)
+    mat = hcat(β, σ, t, p, confint(obj, se = σ, level = level))
+	lims = (100(1 - level) / 2, 100(1 - (1 - level) / 2))
     colnms = ["PE   ", "SE   ",
 			  "t-value", "Pr > |t|",
 			  string(@sprintf("%.2f", lims[1]), "%"),
@@ -164,13 +203,14 @@ function coeftable(obj::EconometricModel;
     CoefTable(mat, colnms, rownms, 4)
 end
 function coeftable(obj::EconometricModel{<:NominalResponse};
-				   α::Real = 0.05)
+				   level::Real = 0.95)
+	@assert zero(level) ≤ level ≤ one(level)
     β = coef(obj)
     σ = stderror(obj)
     t = β ./ σ
     p = 2ccdf.(TDist(dof_residual(obj)), abs.(t))
-	mat = hcat(β, σ, t, p, confint(obj, σ = σ, α = α))
-	lims = (100α / 2, 100 - 100α / 2)
+	mat = hcat(β, σ, t, p, confint(obj, se = σ, level = level))
+	lims = (100(1 - level) / 2, 100(1 - (1 - level) / 2))
     colnms = ["PE   ", "SE   ",
 			  "t-value", "Pr > |t|",
 			  string(@sprintf("%.2f", lims[1]), "%"),
@@ -180,13 +220,14 @@ function coeftable(obj::EconometricModel{<:NominalResponse};
     CoefTable(mat, colnms, rownms, 4)
 end
 function coeftable(obj::EconometricModel{<:OrdinalResponse};
-				   α::Real = 0.05)
+				   level::Real = 0.95)
+	@assert zero(level) ≤ level ≤ one(level)
     β = coef(obj)
     σ = stderror(obj)
     t = β ./ σ
     p = 2ccdf.(TDist(dof_residual(obj)), abs.(t))
-	mat = hcat(β, σ, t, p, confint(obj, σ = σ, α = α))
-	lims = (100α / 2, 100 - 100α / 2)
+	mat = hcat(β, σ, t, p, confint(obj, se = σ, level = level))
+	lims = (100(1 - level) / 2, 100(1 - (1 - level) / 2))
     colnms = ["PE   ", "SE   ",
 			  "t-value", "Pr > |t|",
 			  string(@sprintf("%.2f", lims[1]), "%"),

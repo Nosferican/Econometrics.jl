@@ -50,7 +50,7 @@ function decompose(f::FormulaTerm,
     pns = convert(Vector{Symbol}, filter!(!isnothing, union(termvars(f), [panel, time, wts])))
     data = select(data, pns...)
     if isa(wts, Symbol)
-        data[wts] = ifelse(getproperty(data, wts) .≤ 0, missing, getproperty(data, wts))
+		wts = ifelse.(getproperty(data, wts) .≤ 0, missing, getproperty(data, wts))
     end
 	categorical_variables = Tables.schema(data) |>
 		(x -> [name for (name, type) ∈ zip(x.names, x.types) if
@@ -132,15 +132,14 @@ function decompose(f::FormulaTerm,
         z = zeros(0, 0)
         Z = zeros(0, 0)
     end
-    wts = isnothing(wts) ? FrequencyWeights(Ones(size(y, 1))) : getproperty(data, wts)
-    if !isa(wts, FrequencyWeights)
-        wts = FrequencyWeights(wts)
-    end
+	wts = isnothing(wts) ?
+		  FrequencyWeights(ones(length(y))) :
+		  FrequencyWeights(collect(wts))
     if isa(estimator, Type{<:RandomEffectsEstimator})
         panel = (panel,
                  [ findall(isequal(l), getproperty(data, panel)) for l ∈ levels(getproperty(data, panel)) ])
         time = (time, [ findall(isequal(l), getproperty(data, time)) for l ∈ levels(getproperty(data, time)) ])
-        estimator = RandomEffectsEstimator(panel, time, X, y, z, Z, wts)
+        estimator = RandomEffectsEstimator(panel, time, X, y, z, Z, FrequencyWeights(wts))
     elseif isa(estimator, Type{<:BetweenEstimator})
         estimator = BetweenEstimator(panel, [ findall(isequal(l), getproperty(data, panel)) for l ∈ levels(getproperty(data, panel)) ])
     elseif isa(estimator, Type{<:EconometricModel}) || isa(estimator, Type{<:ContinuousResponse})
@@ -152,7 +151,9 @@ end
 remove_intercept(f::AbstractString) =
     occursin(" ~ 1 + ", f) ? replace(f, " ~ 1 + " => " ~ ") : f
 add_intercept(f::AbstractString) =
-    !occursin(r" ~ -?[0-1] ", f) ? replace(f, r"(^.*?) ~ " => s"\1 ~ 1 + ") : f
+    !occursin(r" ~ -?[0-1] ?", f) ? replace(f, r"(^.*?) ~ " => s"\1 ~ 1 + ") : f
+clean_lhs(obj::AbstractTerm) = string(obj)
+clean_lhs(obj::FunctionTerm) = string(obj)[3:end - 1]
 clean_rhs(obj::Tuple) = mapreduce(clean_rhs, (x, y) -> "$x + $y", obj)
 clean_rhs(obj::AbstractTerm) = string(obj)
 clean_rhs(obj::InteractionTerm) = mapreduce(clean_rhs, (x, y) -> "$x & $y", obj.terms)
@@ -161,7 +162,7 @@ clean_rhs(obj::FormulaTerm) = string("(", obj.lhs, " ~ ", clean_rhs(obj.rhs), ")
 clean_rhs(obj::FunctionTerm{typeof(absorb)}) = string(obj)[3:end - 1]
 clean_fm(obj::EconometricsModel) =
     obj.f |>
-    (f -> string(f.lhs, " ~ ", clean_rhs(f.rhs))) |>
+    (f -> string(clean_lhs(f.lhs), " ~ ", clean_rhs(f.rhs))) |>
     (f -> isa(obj, EconometricModel{<:Union{RandomEffectsEstimator,
                                             OrdinalResponse}}) ?
           remove_intercept(f) : add_intercept(f)) |>

@@ -1,0 +1,197 @@
+# Estimators
+
+## The Basics
+
+Regression analysis assumes a model for the data generation process of some outcome. For example, the [Mincer earnings function](https://doi.org/10.1086/258055) assumes that earnings are a function of schooling and experience.
+
+```math
+\begin{equation}
+\begin{aligned}
+  \ln(\text{wage}) &= \beta_{0} + \beta_{1}\text{ schooling} + \beta_{2}\text{ experience} + \beta_{3}\text{ (experience)}^{2} + \varepsilon\\\\
+  \varepsilon &\sim \mathcal{N}\left(\mu, \sigma^{2}\right)
+\end{aligned}
+\end{equation}
+```
+
+The response variable, earnings, is usually log-normal distributed ([Clementi and Gallegati 2005](https://doi.org/10.1007/88-470-0389-X_1)). In addition, earnings are non-negative and assuming the sample has positive earnings a useful transformation is to take the natural log-normal distributed response. Schooling is commonly measured in years of schooling and experience as the number of years in the labor market. The model assumes a polynomial relationship between years of experience and the log of earnings of degree two.
+
+How could we use Econometrics.jl to analyze such a model?
+
+We can use the RDatasets package for accessing various example datasets.
+
+The following line loads packages for the tutorial.
+
+```julia
+using CSV, RDatasets, Econometrics
+```
+
+We can load the PSID dataset from the Ecdat R package.
+
+```julia
+data = RDatasets.dataset("Ecdat", "PSID")
+data = data[data.Earnings .> 0 .&
+            data.Kids .< 98,:] # Only those with earnings and valid number of kids
+```
+
+Baseline model
+
+```julia; line_width = 90
+model = fit(EconometricModel, # Indicates the default model
+            @formula(log(Earnings) ~ Educatn + Age + Age^2), # formula
+            data)
+```
+
+### Frequency weights
+
+We can also specify observation weights,
+
+```julia; line_width = 90
+model = fit(EconometricModel,
+            @formula(log(Earnings) ~ Educatn + Age + Age^2),
+            data,
+            wts = :PersNum) # frequency weights
+```
+
+### Categorical variables
+
+Categorical variables can be passed through a contrast or if the feature is coded as a categorical variables it will be handled as categorical.
+
+```julia; line_width = 90
+model = fit(EconometricModel,
+            @formula(log(Earnings) ~ Educatn + Age + Age^2 + Kids),
+            data,
+            wts = :PersNum,
+            contrasts = Dict(:Kids => DummyCoding()))
+```
+
+### Absorbing features
+
+If one only care about the estimates of a subset of features and controls such as number of kids (as categorical), one can absorb those features,
+
+```julia; line_width = 90
+model = fit(EconometricModel,
+            @formula(log(Earnings) ~ Educatn + Age + Age^2 + absorb(Kids)),
+            data,
+            wts = :PersNum)
+```
+
+### Variance Covariance Estimators
+
+Various variance-covariance estimators are available for continous response models.
+
+For example,
+
+```julia; line_width = 90
+vcov(model, HC0)
+```
+
+```julia; line_width = 90
+vcov(model, HC1)
+```
+
+```julia; line_width = 90
+vcov(model, HC2)
+```
+
+```julia; line_width = 90
+vcov(model, HC3)
+```
+
+```julia; line_width = 90
+vcov(model, HC4)
+```
+
+## Longitudinal Data
+
+Longitudinal data is when a sample contains repeated measurements of the unit of observation. This kind of data allows for various estimators that make use of such a structure.
+
+Example,
+
+```julia; line_width = 90
+data = RDatasets.dataset("Ecdat", "Crime") |>
+  (data -> select(data, [:County, :Year, :CRMRTE, :PrbConv, :AvgSen, :PrbPris]))
+```
+
+### The Between estimator
+
+```julia; line_width = 90
+model = fit(BetweenEstimator, # Indicates the between estimator
+            @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris),
+            data,
+            panel = :County)
+```
+
+### The Within estimator (Fixed Effects)
+
+```julia; line_width = 90
+model = fit(EconometricModel,
+            @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + absorb(County)),
+            data)
+```
+
+Absorbing the panel and temporal indicators
+
+```julia; line_width = 90
+model = fit(EconometricModel,
+            @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + absorb(County + Year)),
+            data)
+```
+
+### The random effects model à la Swamy-Arora
+
+```julia; line_width = 90
+model = fit(RandomEffectsEstimator, # Indicates the random effects estimator
+            @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris),
+            data,
+            panel = :County,
+            time = :Year)
+```
+
+## Instrumental Variables
+
+Instrumental variables models are estimated using the 2SLS estimator.
+
+```julia; line_width = 90
+model = fit(RandomEffectsEstimator,
+            @formula(CRMRTE ~ PrbConv + (AvgSen ~ PrbPris)),
+            data,
+            panel = :County,
+            time = :Year)
+```
+
+## Nominal Response Models
+
+```julia; line_width = 90
+data = joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |>
+   CSV.read |>
+   (data -> select(data, [:insure, :age, :male, :nonwhite, :site])) |>
+   dropmissing |>
+   (data -> categorical!(data, [:insure, :site]))
+```
+
+The model automatically detects that the response is nominal and uses the correct model.
+
+```julia; line_width = 120
+model = fit(EconometricModel,
+            @formula(insure ~ age + male + nonwhite + site),
+            data,
+            contrasts = Dict(:insure => DummyCoding(base = "Uninsure")))
+```
+
+## Ordinal Response Models
+
+```julia; line_width = 90
+data = RDatasets.dataset("Ecdat", "Kakadu") |>
+       (data -> select(data, [:RecParks, :Sex, :Age, :Schooling]))
+data.RecParks = convert(Vector{Int}, data.RecParks)
+data.RecParks = levels!(categorical(data.RecParks, ordered = true), collect(1:5))
+data
+```
+
+The model automatically detects that the response is ordinal and uses the correct model.
+
+```julia; line_width = 90
+model = fit(EconometricModel,
+            @formula(RecParks ~ Age + Sex + Schooling),
+            data)
+```
