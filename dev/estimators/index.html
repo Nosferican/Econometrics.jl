@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Estimators · Econometrics.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link href="../assets/documenter.css" rel="stylesheet" type="text/css"/><link href="../assets/custom.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><h1>Econometrics.jl</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="../search/"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="../">Introduction</a></li><li><a class="toctext" href="../getting_started/">Getting Started</a></li><li class="current"><a class="toctext" href>Estimators</a><ul class="internal"><li><a class="toctext" href="#The-Basics-1">The Basics</a></li><li><a class="toctext" href="#Longitudinal-Data-1">Longitudinal Data</a></li><li><a class="toctext" href="#Instrumental-Variables-1">Instrumental Variables</a></li><li><a class="toctext" href="#Nominal-Response-Models-1">Nominal Response Models</a></li><li><a class="toctext" href="#Ordinal-Response-Models-1">Ordinal Response Models</a></li></ul></li></ul></nav><article id="docs"><header><nav><ul><li><a href>Estimators</a></li></ul><a class="edit-page" href="https://github.com/Nosferican/Econometrics.jl/blob/master/docs/src/estimators.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Estimators</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="Estimators-1" href="#Estimators-1">Estimators</a></h1><h2><a class="nav-anchor" id="The-Basics-1" href="#The-Basics-1">The Basics</a></h2><p>Regression analysis assumes a model for the data generation process of some outcome. For example, the <a href="https://doi.org/10.1086/258055">Mincer earnings function</a> assumes that earnings are a function of schooling and experience.</p><div>\[\begin{equation}
+\begin{aligned}
+  \ln(\text{wage}) &amp;= \beta_{0} + \beta_{1}\text{ schooling} + \beta_{2}\text{ experience} + \beta_{3}\text{ (experience)}^{2} + \varepsilon\\\\
+  \varepsilon &amp;\sim \mathcal{N}\left(\mu, \sigma^{2}\right)
+\end{aligned}
+\end{equation}\]</div><p>The response variable, earnings, is usually log-normal distributed (<a href="https://doi.org/10.1007/88-470-0389-X_1">Clementi and Gallegati 2005</a>). In addition, earnings are non-negative and assuming the sample has positive earnings a useful transformation is to take the natural log-normal distributed response. Schooling is commonly measured in years of schooling and experience as the number of years in the labor market. The model assumes a polynomial relationship between years of experience and the log of earnings of degree two.</p><p>How could we use Econometrics.jl to analyze such a model?</p><p>We can use the RDatasets package for accessing various example datasets.</p><p>The following line loads packages for the tutorial.</p><pre><code class="language-julia">using CSV, RDatasets, Econometrics</code></pre><p>We can load the PSID dataset from the Ecdat R package.</p><pre><code class="language-julia">data = RDatasets.dataset(&quot;Ecdat&quot;, &quot;PSID&quot;)
+data = data[data.Earnings .&gt; 0 .&amp;
+            data.Kids .&lt; 98,:] # Only those with earnings and valid number of kids</code></pre><pre><code class="language-none">3652×8 DataFrame. Omitted printing of 1 columns
+│ Row  │ IntNum │ PersNum │ Age   │ Educatn │ Earnings │ Hours │ Kids  │
+│      │ Int32  │ Int32   │ Int32 │ Int32⍰  │ Int32    │ Int32 │ Int32 │
+├──────┼────────┼─────────┼───────┼─────────┼──────────┼───────┼───────┤
+│ 1    │ 4      │ 4       │ 39    │ 12      │ 77250    │ 2940  │ 2     │
+│ 2    │ 4      │ 6       │ 35    │ 12      │ 12000    │ 2040  │ 2     │
+│ 3    │ 4      │ 7       │ 33    │ 12      │ 8000     │ 693   │ 1     │
+│ 4    │ 4      │ 173     │ 39    │ 10      │ 15000    │ 1904  │ 2     │
+│ 5    │ 5      │ 2       │ 47    │ 9       │ 6500     │ 1683  │ 5     │
+│ 6    │ 6      │ 4       │ 44    │ 12      │ 6500     │ 2024  │ 2     │
+│ 7    │ 6      │ 172     │ 38    │ 16      │ 7000     │ 1144  │ 3     │
+⋮
+│ 3645 │ 9284   │ 1       │ 34    │ 12      │ 300      │ 357   │ 2     │
+│ 3646 │ 9285   │ 4       │ 41    │ 8       │ 1800     │ 410   │ 98    │
+│ 3647 │ 9286   │ 2       │ 45    │ 12      │ 20080    │ 2040  │ 2     │
+│ 3648 │ 9292   │ 2       │ 41    │ 6       │ 13000    │ 2448  │ 5     │
+│ 3649 │ 9297   │ 2       │ 42    │ 2       │ 3000     │ 1040  │ 4     │
+│ 3650 │ 9302   │ 1       │ 37    │ 8       │ 22045    │ 2793  │ 98    │
+│ 3651 │ 9305   │ 2       │ 40    │ 6       │ 134      │ 30    │ 3     │
+│ 3652 │ 9306   │ 2       │ 37    │ 17      │ 33000    │ 2423  │ 4     │</code></pre><p>Baseline model</p><pre><code class="language-julia">model = fit(EconometricModel, # Indicates the default model
+            @formula(log(Earnings) ~ Educatn + Age + Age^2), # formula
+            data)</code></pre><pre><code class="language-none">Continuous Response Model
+Number of observations: 3652
+Null Loglikelihood: -5696.23
+Loglikelihood: -5672.24
+R-squared: 0.0130
+LR Test: 47.97 ∼ χ²(2) ⟹  Pr &gt; χ² = 0.0000
+Formula: log(Earnings) ~ 1 + Educatn + Age + (Age ^ 2)
+Variance Covariance Estimator: OIM
+───────────────────────────────────────────────────────────────────────────────
+                  PE          SE      t-value  Pr &gt; |t|       2.50%      97.50%
+───────────────────────────────────────────────────────────────────────────────
+(Intercept)  8.5336      0.135874    62.8054     &lt;1e-99  8.2672      8.79999   
+Educatn      0.00364919  0.00111831   3.26313    0.0011  0.00145661  0.00584177
+Age          0.0214198   0.00345149   6.20595    &lt;1e-9   0.0146528   0.0281869 
+───────────────────────────────────────────────────────────────────────────────</code></pre><h3><a class="nav-anchor" id="Frequency-weights-1" href="#Frequency-weights-1">Frequency weights</a></h3><p>We can also specify observation weights,</p><pre><code class="language-julia">model = fit(EconometricModel,
+            @formula(log(Earnings) ~ Educatn + Age + Age^2),
+            data,
+            wts = :PersNum) # frequency weights</code></pre><pre><code class="language-none">Continuous Response Model
+Number of observations: 223174
+Null Loglikelihood: -6746726.41
+Loglikelihood: -349855.61
+R-squared: 0.0064
+LR Test: 12793741.60 ∼ χ²(2) ⟹  Pr &gt; χ² = 0.0000
+Formula: log(Earnings) ~ 1 + Educatn + Age + (Age ^ 2)
+Variance Covariance Estimator: OIM
+──────────────────────────────────────────────────────────────────────────────────
+                  PE           SE       t-value  Pr &gt; |t|        2.50%      97.50%
+──────────────────────────────────────────────────────────────────────────────────
+(Intercept)  8.75582     0.018314     478.095      &lt;1e-99  8.71993      8.79172   
+Educatn      0.00115669  0.000139815    8.27306    &lt;1e-15  0.000882661  0.00143073
+Age          0.0175896   0.000475299   37.0075     &lt;1e-99  0.016658     0.0185212 
+──────────────────────────────────────────────────────────────────────────────────</code></pre><h3><a class="nav-anchor" id="Categorical-variables-1" href="#Categorical-variables-1">Categorical variables</a></h3><p>Categorical variables can be passed through a contrast or if the feature is coded as a categorical variables it will be handled as categorical.</p><pre><code class="language-julia">model = fit(EconometricModel,
+            @formula(log(Earnings) ~ Educatn + Age + Age^2 + Kids),
+            data,
+            wts = :PersNum,
+            contrasts = Dict(:Kids =&gt; DummyCoding()))</code></pre><pre><code class="language-none">Continuous Response Model
+Number of observations: 223174
+Null Loglikelihood: -6746726.41
+Loglikelihood: -345255.51
+R-squared: 0.0466
+LR Test: 12802941.81 ∼ χ²(14) ⟹  Pr &gt; χ² = 0.0000
+Formula: log(Earnings) ~ 1 + Educatn + Age + (Age ^ 2) + Kids
+Variance Covariance Estimator: OIM
+────────────────────────────────────────────────────────────────────────────────────────
+                    PE           SE        t-value  Pr &gt; |t|         2.50%        97.50%
+────────────────────────────────────────────────────────────────────────────────────────
+(Intercept)   8.83101      0.0189278    466.563       &lt;1e-99   8.79392       8.86811    
+Educatn       0.000527666  0.000138647    3.80581     0.0001   0.000255921   0.000799411
+Age           0.0241226    0.000477043   50.5669      &lt;1e-99   0.0231876     0.0250576  
+Kids: 1      -0.132737     0.00828005   -16.031       &lt;1e-57  -0.148966     -0.116508   
+Kids: 2      -0.289845     0.00727288   -39.8528      &lt;1e-99  -0.3041       -0.27559    
+Kids: 3      -0.529532     0.00820387   -64.5466      &lt;1e-99  -0.545611     -0.513452   
+Kids: 4      -0.709826     0.0111938    -63.4122      &lt;1e-99  -0.731765     -0.687886   
+Kids: 5      -0.491939     0.0180202    -27.2994      &lt;1e-99  -0.527258     -0.45662    
+Kids: 6      -1.47304      0.0380566    -38.7064      &lt;1e-99  -1.54763      -1.39845    
+Kids: 7      -0.239153     0.0609054     -3.92662     &lt;1e-4   -0.358526     -0.119779   
+Kids: 8      -1.53553      0.328193      -4.67875     &lt;1e-5   -2.17878      -0.892281   
+Kids: 9      -0.22882      1.13672       -0.201298    0.8405  -2.45676       1.99912    
+Kids: 10      0.632714     0.508379       1.24457     0.2133  -0.363696      1.62912    
+Kids: 98     -0.71467      0.0186009    -38.4212      &lt;1e-99  -0.751127     -0.678213   
+Kids: 99     -1.03022      0.0249025    -41.3703      &lt;1e-99  -1.07903      -0.981416   
+────────────────────────────────────────────────────────────────────────────────────────</code></pre><h3><a class="nav-anchor" id="Absorbing-features-1" href="#Absorbing-features-1">Absorbing features</a></h3><p>If one only care about the estimates of a subset of features and controls such as number of kids (as categorical), one can absorb those features,</p><pre><code class="language-julia">model = fit(EconometricModel,
+            @formula(log(Earnings) ~ Educatn + Age + Age^2 + absorb(Kids)),
+            data,
+            wts = :PersNum)</code></pre><pre><code class="language-none">Continuous Response Model
+Number of observations: 223174
+Null Loglikelihood: -6746726.41
+Loglikelihood: -345255.51
+R-squared: 0.0466
+Wald: 1288.35 ∼ F(2, 223159) ⟹ Pr &gt; F = 0.0000
+Formula: log(Earnings) ~ 1 + Educatn + Age + (Age ^ 2) + absorb(Kids)
+Variance Covariance Estimator: OIM
+────────────────────────────────────────────────────────────────────────────────────
+                   PE           SE       t-value  Pr &gt; |t|        2.50%       97.50%
+────────────────────────────────────────────────────────────────────────────────────
+(Intercept)  8.5189       0.0183648    463.871      &lt;1e-99  8.48291      8.55489    
+Educatn      0.000527666  0.000138647    3.80581    0.0001  0.000255921  0.000799411
+Age          0.0241226    0.000477043   50.5669     &lt;1e-99  0.0231876    0.0250576  
+────────────────────────────────────────────────────────────────────────────────────</code></pre><h3><a class="nav-anchor" id="Variance-Covariance-Estimators-1" href="#Variance-Covariance-Estimators-1">Variance Covariance Estimators</a></h3><p>Various variance-covariance estimators are available for continous response models.</p><p>For example,</p><pre><code class="language-julia">vcov(model, HC0)</code></pre><pre><code class="language-none">3×3 LinearAlgebra.Hermitian{Float64,Array{Float64,2}}:
+  5.85098e-6  -4.04187e-9   -1.49992e-7 
+ -4.04187e-9   2.51271e-10  -1.65994e-11
+ -1.49992e-7  -1.65994e-11   3.96517e-9</code></pre><pre><code class="language-julia">vcov(model, HC1)</code></pre><pre><code class="language-none">3×3 LinearAlgebra.Hermitian{Float64,Array{Float64,2}}:
+  5.85137e-6  -4.04214e-9   -1.50002e-7 
+ -4.04214e-9   2.51288e-10  -1.66005e-11
+ -1.50002e-7  -1.66005e-11   3.96544e-9</code></pre><pre><code class="language-julia">vcov(model, HC2)</code></pre><pre><code class="language-none">3×3 LinearAlgebra.Hermitian{Float64,Array{Float64,2}}:
+  5.85808e-6  -4.07891e-9   -1.50167e-7 
+ -4.07891e-9   2.53125e-10  -1.62927e-11
+ -1.50167e-7  -1.62927e-11   3.96972e-9</code></pre><pre><code class="language-julia">vcov(model, HC3)</code></pre><pre><code class="language-none">3×3 LinearAlgebra.Hermitian{Float64,Array{Float64,2}}:
+  5.86524e-6  -4.11666e-9   -1.50343e-7 
+ -4.11666e-9   2.55012e-10  -1.59789e-11
+ -1.50343e-7  -1.59789e-11   3.97431e-9</code></pre><pre><code class="language-julia">vcov(model, HC4)</code></pre><pre><code class="language-none">3×3 LinearAlgebra.Hermitian{Float64,Array{Float64,2}}:
+  5.87918e-6  -4.19395e-9   -1.50684e-7 
+ -4.19395e-9   2.5888e-10   -1.53343e-11
+ -1.50684e-7  -1.53343e-11   3.9832e-9</code></pre><h2><a class="nav-anchor" id="Longitudinal-Data-1" href="#Longitudinal-Data-1">Longitudinal Data</a></h2><p>Longitudinal data is when a sample contains repeated measurements of the unit of observation. This kind of data allows for various estimators that make use of such a structure.</p><p>Example,</p><pre><code class="language-julia">data = RDatasets.dataset(&quot;Ecdat&quot;, &quot;Crime&quot;) |&gt;
+  (data -&gt; select(data, [:County, :Year, :CRMRTE, :PrbConv, :AvgSen, :PrbPris]))</code></pre><pre><code class="language-none">630×6 DataFrame
+│ Row │ County │ Year  │ CRMRTE    │ PrbConv  │ AvgSen  │ PrbPris  │
+│     │ Int32  │ Int32 │ Float64   │ Float64  │ Float64 │ Float64  │
+├─────┼────────┼───────┼───────────┼──────────┼─────────┼──────────┤
+│ 1   │ 1      │ 81    │ 0.0398849 │ 0.402062 │ 5.61    │ 0.472222 │
+│ 2   │ 1      │ 82    │ 0.0383449 │ 0.433005 │ 5.59    │ 0.506993 │
+│ 3   │ 1      │ 83    │ 0.0303048 │ 0.525703 │ 5.8     │ 0.479705 │
+│ 4   │ 1      │ 84    │ 0.0347259 │ 0.604706 │ 6.89    │ 0.520104 │
+│ 5   │ 1      │ 85    │ 0.036573  │ 0.578723 │ 6.55    │ 0.497059 │
+│ 6   │ 1      │ 86    │ 0.0347524 │ 0.512324 │ 6.9     │ 0.439863 │
+│ 7   │ 1      │ 87    │ 0.0356036 │ 0.527596 │ 6.71    │ 0.43617  │
+⋮
+│ 623 │ 195    │ 87    │ 0.0313973 │ 1.67052  │ 13.02   │ 0.470588 │
+│ 624 │ 197    │ 81    │ 0.0178621 │ 1.06098  │ 11.35   │ 0.356322 │
+│ 625 │ 197    │ 82    │ 0.0180711 │ 0.545455 │ 6.64    │ 0.363636 │
+│ 626 │ 197    │ 83    │ 0.0155747 │ 0.480392 │ 7.77    │ 0.428571 │
+│ 627 │ 197    │ 84    │ 0.0136619 │ 1.41026  │ 10.11   │ 0.372727 │
+│ 628 │ 197    │ 85    │ 0.0130857 │ 0.830769 │ 5.96    │ 0.333333 │
+│ 629 │ 197    │ 86    │ 0.012874  │ 2.25     │ 7.68    │ 0.244444 │
+│ 630 │ 197    │ 87    │ 0.0141928 │ 1.18293  │ 12.23   │ 0.360825 │</code></pre><h3><a class="nav-anchor" id="The-Between-estimator-1" href="#The-Between-estimator-1">The Between estimator</a></h3><pre><code class="language-julia">model = fit(BetweenEstimator, # Indicates the between estimator
+            @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris),
+            data,
+            panel = :County)</code></pre><pre><code class="language-none">Between Estimator
+County with 630 groups
+Balanced groups with size 7
+Number of observations: 90
+Null Loglikelihood: 239.56
+Loglikelihood: 244.40
+R-squared: 0.1029
+Wald: 3.29 ∼ F(3, 86) ⟹ Pr &gt; F = 0.0246
+Formula: CRMRTE ~ 1 + PrbConv + AvgSen + PrbPris
+Variance Covariance Estimator: OIM
+───────────────────────────────────────────────────────────────────────────────────
+                    PE          SE       t-value  Pr &gt; |t|        2.50%      97.50%
+───────────────────────────────────────────────────────────────────────────────────
+(Intercept)  -0.00464339   0.0186571   -0.24888     0.8040  -0.0417325   0.0324457 
+PrbConv      -0.00354113   0.0018904   -1.87322     0.0644  -0.00729911  0.00021685
+AvgSen        0.000848049  0.00116477   0.728086    0.4685  -0.00146743  0.00316353
+PrbPris       0.0730299    0.0332057    2.19932     0.0305   0.0070191   0.139041  
+───────────────────────────────────────────────────────────────────────────────────</code></pre><h3><a class="nav-anchor" id="The-Within-estimator-(Fixed-Effects)-1" href="#The-Within-estimator-(Fixed-Effects)-1">The Within estimator (Fixed Effects)</a></h3><pre><code class="language-julia">model = fit(EconometricModel,
+            @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + absorb(County)),
+            data)</code></pre><pre><code class="language-none">Continuous Response Model
+Number of observations: 630
+Null Loglikelihood: 1633.30
+Loglikelihood: 2273.95
+R-squared: 0.8707
+Wald: 0.16 ∼ F(3, 537) ⟹ Pr &gt; F = 0.9258
+Formula: CRMRTE ~ 1 + PrbConv + AvgSen + PrbPris + absorb(County)
+Variance Covariance Estimator: OIM
+──────────────────────────────────────────────────────────────────────────────────────
+                   PE           SE        t-value  Pr &gt; |t|         2.50%       97.50%
+──────────────────────────────────────────────────────────────────────────────────────
+(Intercept)   0.0314527   0.00204638   15.3699       &lt;1e-43   0.0274328    0.0354726  
+PrbConv       6.65981e-6  0.0001985     0.0335507    0.9732  -0.000383272  0.000396592
+AvgSen        7.83181e-5  0.000127904   0.612318     0.5406  -0.000172936  0.000329572
+PrbPris      -0.0013419   0.00405182   -0.331185     0.7406  -0.00930126   0.00661746 
+──────────────────────────────────────────────────────────────────────────────────────</code></pre><p>Absorbing the panel and temporal indicators</p><pre><code class="language-julia">model = fit(EconometricModel,
+            @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + absorb(County + Year)),
+            data)</code></pre><pre><code class="language-none">Continuous Response Model
+Number of observations: 630
+Null Loglikelihood: 1633.30
+Loglikelihood: 2290.25
+R-squared: 0.8775
+Wald: 0.23 ∼ F(3, 531) ⟹ Pr &gt; F = 0.8767
+Formula: CRMRTE ~ 1 + PrbConv + AvgSen + PrbPris + absorb(County + Year)
+Variance Covariance Estimator: OIM
+──────────────────────────────────────────────────────────────────────────────────────
+                    PE           SE       t-value  Pr &gt; |t|         2.50%       97.50%
+──────────────────────────────────────────────────────────────────────────────────────
+(Intercept)   0.0319651    0.00206378   15.4886      &lt;1e-44   0.027911     0.0360193  
+PrbConv       7.90362e-5   0.000196089   0.403062    0.6871  -0.00030617   0.000464242
+AvgSen       -9.4788e-5    0.000134924  -0.702531    0.4827  -0.000359838  0.000170262
+PrbPris       0.000979533  0.0040432     0.242267    0.8087  -0.00696309   0.00892216 
+──────────────────────────────────────────────────────────────────────────────────────</code></pre><h3><a class="nav-anchor" id="The-random-effects-model-à-la-Swamy-Arora-1" href="#The-random-effects-model-à-la-Swamy-Arora-1">The random effects model à la Swamy-Arora</a></h3><pre><code class="language-julia">model = fit(RandomEffectsEstimator, # Indicates the random effects estimator
+            @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris),
+            data,
+            panel = :County,
+            time = :Year)</code></pre><pre><code class="language-none">One-way Random Effect Model
+Longitudinal dataset: County, Year
+Balanced dataset with 90 panels of length 7
+individual error component: 0.0162
+idiosyncratic error component: 0.0071
+ρ: 0.8399
+Number of observations: 630
+Null Loglikelihood: 2225.79
+Loglikelihood: 2226.01
+R-squared: 0.0007
+Wald: 0.15 ∼ F(3, 626) ⟹ Pr &gt; F = 0.9291
+Formula: CRMRTE ~ PrbConv + AvgSen + PrbPris
+Variance Covariance Estimator: OIM
+──────────────────────────────────────────────────────────────────────────────────────
+                    PE           SE       t-value  Pr &gt; |t|         2.50%       97.50%
+──────────────────────────────────────────────────────────────────────────────────────
+(Intercept)   0.0309293    0.00266706   11.5968      &lt;1e-27   0.0256918    0.0361668  
+PrbConv      -3.96634e-5   0.000198471  -0.199845    0.8417  -0.000429413  0.000350086
+AvgSen        8.2428e-5    0.000127818   0.644887    0.5192  -0.000168575  0.000333431
+PrbPris      -0.000123327  0.00404272   -0.030506    0.9757  -0.00806226   0.00781561 
+──────────────────────────────────────────────────────────────────────────────────────</code></pre><h2><a class="nav-anchor" id="Instrumental-Variables-1" href="#Instrumental-Variables-1">Instrumental Variables</a></h2><p>Instrumental variables models are estimated using the 2SLS estimator.</p><pre><code class="language-julia">model = fit(RandomEffectsEstimator,
+            @formula(CRMRTE ~ PrbConv + (AvgSen ~ PrbPris)),
+            data,
+            panel = :County,
+            time = :Year)</code></pre><pre><code class="language-none">One-way Random Effect Model
+Longitudinal dataset: County, Year
+Balanced dataset with 90 panels of length 7
+individual error component: 0.0413
+idiosyncratic error component: 0.0074
+ρ: 0.9691
+Number of observations: 630
+Null Loglikelihood: 2268.01
+Loglikelihood: 2248.34
+R-squared: NaN
+Wald: 0.03 ∼ F(2, 626) ⟹ Pr &gt; F = 0.9671
+Formula: CRMRTE ~ PrbConv + (AvgSen ~ PrbPris)
+Variance Covariance Estimator: OIM
+───────────────────────────────────────────────────────────────────────────────────────
+                    PE           SE        t-value  Pr &gt; |t|         2.50%       97.50%
+───────────────────────────────────────────────────────────────────────────────────────
+(Intercept)   0.037747     0.0241684     1.56183      0.1188  -0.00971405   0.085208   
+PrbConv       1.39581e-5   0.000200244   0.0697054    0.9445  -0.000379273  0.000407189
+AvgSen       -0.000688924  0.00266514   -0.258494     0.7961  -0.00592262   0.00454478 
+───────────────────────────────────────────────────────────────────────────────────────</code></pre><h2><a class="nav-anchor" id="Nominal-Response-Models-1" href="#Nominal-Response-Models-1">Nominal Response Models</a></h2><pre><code class="language-julia">data = joinpath(dirname(pathof(Econometrics)), &quot;..&quot;, &quot;data&quot;, &quot;insure.csv&quot;) |&gt;
+   CSV.read |&gt;
+   (data -&gt; select(data, [:insure, :age, :male, :nonwhite, :site])) |&gt;
+   dropmissing |&gt;
+   (data -&gt; categorical!(data, [:insure, :site]))</code></pre><pre><code class="language-none">615×5 DataFrame
+│ Row │ insure       │ age     │ male  │ nonwhite │ site         │
+│     │ Categorical… │ Float64 │ Int64 │ Int64    │ Categorical… │
+├─────┼──────────────┼─────────┼───────┼──────────┼──────────────┤
+│ 1   │ Indemnity    │ 73.7221 │ 0     │ 0        │ 2            │
+│ 2   │ Prepaid      │ 27.8959 │ 0     │ 0        │ 2            │
+│ 3   │ Indemnity    │ 37.5414 │ 0     │ 0        │ 1            │
+│ 4   │ Prepaid      │ 23.6413 │ 0     │ 1        │ 3            │
+│ 5   │ Prepaid      │ 29.6838 │ 0     │ 0        │ 2            │
+│ 6   │ Prepaid      │ 39.4689 │ 0     │ 0        │ 2            │
+│ 7   │ Uninsure     │ 63.102  │ 0     │ 1        │ 3            │
+⋮
+│ 608 │ Prepaid      │ 64.4216 │ 0     │ 1        │ 3            │
+│ 609 │ Prepaid      │ 69.9877 │ 0     │ 0        │ 1            │
+│ 610 │ Prepaid      │ 71.5209 │ 0     │ 0        │ 3            │
+│ 611 │ Prepaid      │ 63.4168 │ 0     │ 0        │ 2            │
+│ 612 │ Prepaid      │ 40.3532 │ 0     │ 1        │ 1            │
+│ 613 │ Prepaid      │ 55.3237 │ 1     │ 0        │ 3            │
+│ 614 │ Prepaid      │ 27.9836 │ 1     │ 0        │ 3            │
+│ 615 │ Prepaid      │ 30.59   │ 1     │ 0        │ 3            │</code></pre><p>The model automatically detects that the response is nominal and uses the correct model.</p><pre><code class="language-julia">model = fit(EconometricModel,
+            @formula(insure ~ age + male + nonwhite + site),
+            data,
+            contrasts = Dict(:insure =&gt; DummyCoding(base = &quot;Uninsure&quot;)))</code></pre><pre><code class="language-none">Probability Model for Nominal Response
+Categories: Uninsure, Indemnity, Prepaid
+Number of observations: 615
+Null Loglikelihood: -555.85
+Loglikelihood: -534.36
+R-squared: 0.0387
+LR Test: 42.99 ∼ χ²(10) ⟹ Pr &gt; χ² = 0.0000
+Formula: insure ~ 1 + age + male + nonwhite + site
+───────────────────────────────────────────────────────────────────────────────────────────────────
+                                       PE         SE       t-value  Pr &gt; |t|       2.50%     97.50%
+───────────────────────────────────────────────────────────────────────────────────────────────────
+insure: Indemnity ~ (Intercept)   1.28694     0.59232     2.17271     0.0302   0.123689   2.4502   
+insure: Indemnity ~ age           0.00779612  0.0114418   0.681372    0.4959  -0.0146743  0.0302666
+insure: Indemnity ~ male         -0.451848    0.367486   -1.22957     0.2193  -1.17355    0.269855 
+insure: Indemnity ~ nonwhite     -0.217059    0.425636   -0.509965    0.6103  -1.05296    0.618843 
+insure: Indemnity ~ site: 2       1.21152     0.470506    2.57493     0.0103   0.287497   2.13554  
+insure: Indemnity ~ site: 3       0.207813    0.366293    0.56734     0.5707  -0.511547   0.927172 
+insure: Prepaid ~ (Intercept)     1.55666     0.596327    2.61041     0.0093   0.385533   2.72778  
+insure: Prepaid ~ age            -0.00394887  0.0115993  -0.340439    0.7336  -0.0267287  0.018831 
+insure: Prepaid ~ male            0.109846    0.365187    0.300793    0.7637  -0.607343   0.827035 
+insure: Prepaid ~ nonwhite        0.757718    0.419575    1.80592     0.0714  -0.0662835  1.58172  
+insure: Prepaid ~ site: 2         1.32456     0.469789    2.81947     0.0050   0.401941   2.24717  
+insure: Prepaid ~ site: 3        -0.380175    0.372819   -1.01973     0.3083  -1.11235    0.352001 
+───────────────────────────────────────────────────────────────────────────────────────────────────</code></pre><h2><a class="nav-anchor" id="Ordinal-Response-Models-1" href="#Ordinal-Response-Models-1">Ordinal Response Models</a></h2><pre><code class="language-julia">data = RDatasets.dataset(&quot;Ecdat&quot;, &quot;Kakadu&quot;) |&gt;
+       (data -&gt; select(data, [:RecParks, :Sex, :Age, :Schooling]))
+data.RecParks = convert(Vector{Int}, data.RecParks)
+data.RecParks = levels!(categorical(data.RecParks, ordered = true), collect(1:5))
+data</code></pre><pre><code class="language-none">1827×4 DataFrame
+│ Row  │ RecParks     │ Sex          │ Age   │ Schooling │
+│      │ Categorical… │ Categorical… │ Int32 │ Int32     │
+├──────┼──────────────┼──────────────┼───────┼───────────┤
+│ 1    │ 3            │ male         │ 27    │ 3         │
+│ 2    │ 5            │ female       │ 32    │ 4         │
+│ 3    │ 4            │ male         │ 32    │ 4         │
+│ 4    │ 1            │ female       │ 70    │ 6         │
+│ 5    │ 2            │ male         │ 32    │ 5         │
+│ 6    │ 3            │ male         │ 47    │ 6         │
+│ 7    │ 1            │ male         │ 42    │ 5         │
+⋮
+│ 1820 │ 3            │ female       │ 32    │ 4         │
+│ 1821 │ 4            │ male         │ 21    │ 5         │
+│ 1822 │ 3            │ male         │ 21    │ 3         │
+│ 1823 │ 3            │ male         │ 52    │ 4         │
+│ 1824 │ 2            │ female       │ 21    │ 3         │
+│ 1825 │ 5            │ female       │ 21    │ 2         │
+│ 1826 │ 1            │ female       │ 21    │ 4         │
+│ 1827 │ 4            │ male         │ 21    │ 5         │</code></pre><p>The model automatically detects that the response is ordinal and uses the correct model.</p><pre><code class="language-julia">model = fit(EconometricModel,
+            @formula(RecParks ~ Age + Sex + Schooling),
+            data)</code></pre><pre><code class="language-none">Probability Model for Ordinal Response
+Categories: 1 &lt; 2 &lt; 3 &lt; 4 &lt; 5
+Number of observations: 1827
+Null Loglikelihood: -2677.60
+Loglikelihood: -2657.40
+R-squared: 0.0075
+LR Test: 40.42 ∼ χ²(3) ⟹ Pr &gt; χ² = 0.0000
+Formula: RecParks ~ Age + Sex + Schooling
+──────────────────────────────────────────────────────────────────────────────────────────
+                          PE          SE        t-value  Pr &gt; |t|        2.50%      97.50%
+──────────────────────────────────────────────────────────────────────────────────────────
+Age                  0.00943647  0.00254031    3.71469     0.0002   0.00445424   0.0144187
+Sex: male           -0.0151659   0.0846365    -0.179188    0.8578  -0.181161     0.150829 
+Schooling           -0.103902    0.0248742    -4.17711     &lt;1e-4   -0.152687    -0.0551174
+(Intercept): 1 | 2  -2.92405     0.191927    -15.2352      &lt;1e-48  -3.30047     -2.54763  
+(Intercept): 2 | 3  -1.54922     0.171444     -9.03632     &lt;1e-18  -1.88547     -1.21297  
+(Intercept): 3 | 4  -0.298938    0.166904     -1.79108     0.0734  -0.626281     0.0284051
+(Intercept): 4 | 5   0.669835    0.167622      3.9961      &lt;1e-4    0.341083     0.998587 
+──────────────────────────────────────────────────────────────────────────────────────────</code></pre><footer><hr/><a class="previous" href="../getting_started/"><span class="direction">Previous</span><span class="title">Getting Started</span></a></footer></article></body></html>
