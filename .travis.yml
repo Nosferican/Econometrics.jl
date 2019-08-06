@@ -1,20 +1,21 @@
 language: julia
 matrix:
+  fast_finish: true
   include:
-    - name: linux
-      os: linux
+    - os: linux
       julia: 1.3
-    - name: osx
-      os: osx
+      name: "linux"
+    - os: osx
       julia: 1.3
-    - name: win64
-      os: windows
+      name: "osx"
+    - os: windows
       arch: x64
       julia: 1.3
-    - name: win32
-      os: windows
+      name: "win64"
+    - os: windows
       arch: x86
       julia: 1.3
+      name: "win32"
 codecov: true
 notifications:
   email: false
