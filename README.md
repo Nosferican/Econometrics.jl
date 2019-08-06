@@ -8,6 +8,8 @@
 [![Code Coverage](https://codecov.io/gh/Nosferican/Econometrics.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/Nosferican/Econometrics.jl)
 [![JuliaCon](https://submissions.juliacon.org/papers/446fde271579d85e0d4c691d54093dbb/status.svg)](https://submissions.juliacon.org/papers/446fde271579d85e0d4c691d54093dbb)
 
+This package uses continuous integration on Linux, OSX, and Windows (x64/x86).
+
 This package provides the functionality to estimate the following regression models:
 
 - Continuous Response Models
