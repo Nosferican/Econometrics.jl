@@ -1,5 +1,5 @@
 using Documenter, Weave, Econometrics
-using StatsBase
+using CSV, RDatasets, StatsBase
 
 for file ∈ readdir(joinpath(dirname(pathof(Econometrics)), "..", "docs", "jmd"))
       weave(joinpath(dirname(pathof(Econometrics)), "..", "docs", "jmd", file),
@@ -8,7 +8,7 @@ for file ∈ readdir(joinpath(dirname(pathof(Econometrics)), "..", "docs", "jmd"
 end
 
 makedocs(format = Documenter.HTML(assets = ["assets/custom.css"]),
-         modules = [Econometrics, StatsBase],
+         modules = [Econometrics, StatsBase, CSV, RDatasets],
          sitename = "Econometrics.jl",
          pages = ["Introduction" => "index.md",
                   "Getting Started" => "getting_started.md",
