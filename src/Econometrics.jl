@@ -38,10 +38,11 @@ module Econometrics
             ["structs", "transformations", "formula", "main", "solvers", "statsbase", "wald"])
     export @formula, DummyCoding, aic, aicc, bic, coef, coefnames,
            coeftable, confint, deviance, islinear, nulldeviance, loglikelihood,
-           nullloglikelihood, score, nobs, dof, mss, rss, informationmatrix, vcov, stderror,
+           nullloglikelihood, nobs, dof, mss, rss, informationmatrix, vcov, stderror,
            weights, isfitted, fit, fit!, r2, adjr2, fitted, response, meanresponse,
-           modelmatrix, leverage, residuals, predict, predict!, dof_residual,
+           modelmatrix, leverage, residuals, predict, dof_residual,
            params,
+           hasintercept,
            EconometricModel, absorb, BetweenEstimator, RandomEffectsEstimator,
            ContinuousResponse,
            OIM, HC0, HC1, HC2, HC3, HC4

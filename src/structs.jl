@@ -147,6 +147,9 @@ end
     VCE
 
 Variance-covariance estimators.
+
+- Observed Information Matrix (OIM)
+- Heteroscedasticity Consistent: HC0, HC1, HC2, HC3, HC4
 """
 @enum VCE begin
     OIM = -1

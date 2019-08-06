@@ -285,6 +285,10 @@ end
 	model = fit(EconometricModel, f, data)
 	@test Econometrics.clean_fm(model) ==
 		"Formula: CRMRTE ~ -1 + PrbConv + absorb(County + Year) + PrbConv & (PrbPris ^ 2)"
+	f = @formula(log(CRMRTE) ~ 1)
+	model = fit(EconometricModel, f, data)
+	@test Econometrics.clean_fm(model) ==
+		"Formula: log(CRMRTE) ~ 1"
 	# Random Effects Model
 	f = @formula(CRMRTE ~ 1 + PrbConv)
 	model = fit(RandomEffectsEstimator, f, data, panel = :County, time = :Year)
