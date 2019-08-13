@@ -6,11 +6,21 @@
                      time::Union{Nothing,Symbol} = nothing,
                      estimator::ModelEstimator = ModelEstimator)
 
-    Use fit(EconometricModel, f, data, contrasts = contrasts)
-    Formula has syntax: @formula(response ~ exogenous + (endogenous ~ instruments))
-    For absorbing categorical features use the term `absorb(features)`
-    For the between estimator use the term `between(features)`
-    For the one-way random effects model use the terms `PID(pid) + TID(tid)`
+Formula has syntax:
+
+    @formula(response ~ exogenous + (endogenous ~ instruments) + absorb(highdimscontrols))
+
+Data must implement the Tables.jl API and use CategoricalArrays (CategoricalVector)
+
+Weights are taken as `StatsBase.FrequencyWeights`
+
+Panel and time indicators are used for longitudinal estimators
+
+# Examples
+
+    model = fit(EconometricModel, formula, data, kwargs...)
+    model = fit(BetweenEstimator, formula, data, panel = :panel, kwargs...)
+    model = fit(RandomEffectsEstimator, formula, data, panel = :panel, time = :time, kwargs...)
 """
 mutable struct EconometricModel{E<:ModelEstimator,
                                 F<:FormulaTerm,
