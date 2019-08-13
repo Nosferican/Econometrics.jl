@@ -238,7 +238,7 @@ This section will showcase some examples of using the package for various estima
 
 For linear models, the examples use a crime dataset \cite{Crime}. The data set is a balanced longitudinal data set with 90 counties in North Carolina from 1981 to 1987. The outcome variable is the crime rate and the explanatory variables include the probability of conviction, average sentence, and probability of prison sentence. Estimating the pooling estimator or the between estimator can be accomplished as in figure \vref{estimator_pooling} and \vref{estimator_between}. Table \vref{poberes} shows the estimated 95\% confidence intervals using Econometrics.jl, Stata, and R's plm package.
 
-
+The syntax to estimate a model follows the StatsBase API which provides two methods for building and estimating models (i.e., \textit{fit} and \textit{fit!}). The \textit{fit} approach takes (1) an estimator, (2) a model formula, (3) data, and additional arguments depending on the model. \textit{EconometricModel} is the generic estimator which dispatches to continuous, nominal or ordinal response models automatically based on the type of the response. Other estimators are available and the following figures illustrate some of the use cases.
 
 \begin{figure}[hbpt]
     \includegraphics[max width=\linewidth,center]{estimator_pooling}
@@ -304,7 +304,7 @@ Econometrics.jl adopts the best practices standards for open-source statistical 
 
 Econometrics.jl is a new addition to the Julia ecosystem that brings highly demanded functionality concerning longitudinal estimators and discrete choice models. This study serves as a complement to the software documentation providing context to the development, design considerations, and roadmap of the project. A philosophical motivation for the project is to make econometrics accessible to practitioners not only through functionality, but transparency in the code readability, replicability, and correctness. For example, transparent well-written code is easier to maintain, inspect / audit, and can be useful for learning and teaching.
 
-Community contributions and feedback are highly encouraged in order to best continue developing the project. Some features I would like the project to support in the future include more advanced estimators such as: (1) choice-variant categorical response models, (2) count/rate models such as zero-inflated, and (3) censored/truncated response models. Econometrics.jl is ISC licensed and available at the GitHub repository.
+Community contributions and feedback are highly encouraged in order to best continue developing the project. Some features I would like the project to support in the future include more advanced estimators such as: (1) choice-variant categorical response models, (2) count/rate models such as zero-inflated, and (3) censored/truncated response models. Econometrics.jl is ISC licensed and available at the GitHub repository. The package is registered in the official Julia registry (General); as such it can be installed using the Julia package manager.
 
 \section{Acknowledgement}
 
