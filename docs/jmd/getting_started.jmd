@@ -13,7 +13,7 @@ using Pkg; Pkg.add("Econometrics") # one alternative
 
 The package manager will automatically resolve which release version for Econometrics.jl is compatible with the environment in use.
 
-The package manager allows for other experiences such as downloading the development version of the package through
+The package manager allows for other experiences such as using the development version of the package through
 
 ```
 ]add Econometrics#master
@@ -55,16 +55,17 @@ Econometrics.jl implements a subset of the abstraction for statistical models pr
 model = fit(ModelType, # package specific type
             formula, # @formula(lhs ~ rhs)
             data, # a table
-            args, # model or fitting specific arguments
-            kw... # model or fitting specific keyword arguments
+            args..., # model or fitting specific arguments
+            kwargs... # model or fitting specific keyword arguments
             )
 ```
 
 or
 
 ```
-model = ModelType(formula, data, args; kw...)
-fit!(model, kw...)
+model = ModelType(formula, data, args...; kwargs...)
+fit!(model, args..., kwargs...)
+coeftable(model, args..., kwargs...)
 ```
 
 ### Querying a model

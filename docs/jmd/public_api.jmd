@@ -1,0 +1,9 @@
+# Public API
+
+```@docs
+absorb
+EconometricModel
+BetweenEstimator
+RandomEffectsEstimator
+Econometrics.VCE
+```

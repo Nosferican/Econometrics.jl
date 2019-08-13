@@ -1,7 +1,7 @@
 """
     absorb
 
-Dummy function for constructing the FunctionTerm{typeof(absorb)} used in decompose.
+Function for constructing the `FunctionTerm{typeof(absorb)}` used in decompose.
 """
 function absorb end
 """
