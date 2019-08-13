@@ -1,6 +1,7 @@
 \begin{table}[hbpt]
     \caption{Random Effects and Instrumental Variables}
     \label{xtregres}
+    \begin{threeparttable}
     \begin{tabularx}{\textwidth}{Y Y c c c c c c}
     \toprule
     Model & Parameter & \multicolumn{2}{c}{Econometrics.jl} & \multicolumn{2}{c}{Stata} & \multicolumn{2}{c}{R (plm)} \\
@@ -14,5 +15,10 @@
     & PrbConv & -0.0004 & 0.0004 & -0.0004 & 0.0004 & -0.0004 & 0.0004 \\
     & AvgSen & -0.0059 & 0.0045 & -0.0059 & 0.0045 & -0.0059 & 0.0045 \\
     \bottomrule
-\end{tabularx}
+    \end{tabularx}
+    \begin{tablenotes}
+        \footnotesize
+        \item Confidence intervals at the 95\% level using the observed information matrix variance covariance estimator.
+    \end{tablenotes}
+    \end{threeparttable}
 \end{table}

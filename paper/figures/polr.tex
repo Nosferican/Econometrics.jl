@@ -1,6 +1,7 @@
 \begin{table}[hbpt]
     \caption{Parallel Ordinal Logistic Regression}
     \label{ologitres}
+    \begin{threeparttable}
     \begin{tabularx}{\textwidth}{Y c c c c c c}
     \toprule
     Parameter & \multicolumn{2}{c}{Econometrics.jl} & \multicolumn{2}{c}{Stata} & \multicolumn{2}{c}{R’s MASS} \\
@@ -13,5 +14,10 @@
     (Intercept): Average | Good & 10.6949 & 33.5117 & 10.9140 & 33.2926 &  &  \\
     (Intercept): Good | Excellent & 12.9204 & 36.4639 & 13.1465 & 36.2378 &  & \\
     \bottomrule
-\end{tabularx}
+    \end{tabularx}
+    \begin{tablenotes}
+        \footnotesize
+        \item Confidence intervals at the 95\% level using the observed information matrix variance covariance estimator.
+    \end{tablenotes}
+    \end{threeparttable}
 \end{table}

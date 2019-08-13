@@ -1,6 +1,7 @@
 \begin{table}[hbpt]
     \caption{Multinomial Logistic Regression}
     \label{mlogitres}
+    \begin{threeparttable}
     \begin{tabularx}{\textwidth}{Y Y c c c c}
     \toprule
     Response & Parameter & \multicolumn{2}{l}{Econometrics.jl} & \multicolumn{2}{c}{Stata} \\
@@ -20,4 +21,9 @@
     & Site: 3 & -0.9272 & 0.5115 & -0.9257 & 0.5101 \\
     \bottomrule
     \end{tabularx}
+    \begin{tablenotes}
+        \footnotesize
+        \item Confidence intervals at the 95\% level using the observed information matrix variance covariance estimator.
+    \end{tablenotes}
+    \end{threeparttable}
 \end{table}

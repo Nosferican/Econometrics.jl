@@ -1,6 +1,7 @@
 \begin{table}[hbpt]
     \caption{Pooling and Between Estimators}
     \label{poberes}
+    \begin{threeparttable}
     \begin{tabularx}{\textwidth}{Y Y c c c c c c}
     \toprule
     Model & Parameter & \multicolumn{2}{c}{Econometrics.jl} & \multicolumn{2}{c}{Stata} & \multicolumn{2}{c}{R (plm)} \\
@@ -15,5 +16,10 @@
     & AvgSen & -0.0015 & 0.0032 & -0.0015 & 0.0032 & -0.0014 & 0.0031 \\
     & PrbPris & 0.0070 & 0.1390 & 0.0070 & 0.1390 & 0.0079 & 0.1381 \\
     \bottomrule
-\end{tabularx}
+    \end{tabularx}
+    \begin{tablenotes}
+        \footnotesize
+        \item Confidence intervals at the 95\% level using the observed information matrix variance covariance estimator.
+    \end{tablenotes}
+    \end{threeparttable}
 \end{table}
