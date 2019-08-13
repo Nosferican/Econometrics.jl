@@ -13,7 +13,7 @@ Regression analysis assumes a model for the data generation process of some outc
 \end{equation}
 ```
 
-The response variable, earnings, is usually log-normal distributed ([Clementi and Gallegati 2005](https://doi.org/10.1007/88-470-0389-X_1)). In addition, earnings are non-negative and assuming the sample has positive earnings a useful transformation is to take the natural log-normal distributed response. Schooling is commonly measured in years of schooling and experience as the number of years in the labor market. The model assumes a polynomial relationship between years of experience and the log of earnings of degree two.
+The response variable, earnings, is usually log-normal distributed (Clementi and Gallegati [2005](https://doi.org/10.1007/88-470-0389-X_1)). In addition, earnings are non-negative and assuming the sample has positive earnings a useful transformation is to take the natural log-normal distributed response. Schooling is commonly measured in years of schooling and experience as the number of years in the labor market. The model assumes a polynomial relationship between years of experience and the log of earnings of degree two.
 
 How could we use Econometrics.jl to analyze such a model?
 
@@ -49,7 +49,8 @@ We can also specify observation weights,
 model = fit(EconometricModel,
             @formula(log(Earnings) ~ Educatn + Age + Age^2),
             data,
-            wts = :PersNum) # frequency weights
+            wts = :PersNum, # frequency weights
+            )
 ```
 
 ### Categorical variables
