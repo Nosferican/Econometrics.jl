@@ -1,10 +1,12 @@
 """
-    EconometricModel(f::FormulaTerm, data;
-                     contrasts::Dict{Symbol} = Dict{Symbol,Union{<:AbstractContrasts,<:AbstractTerm}},
-                     weights::Union{Nothing,Symbol} = nothing,
+    EconometricModel(estimator::Type{<:Union{EconometricModel,ModelEstimator}},
+                     f::FormulaTerm,
+                     data;
+                     contrasts::Dict{Symbol} = Dict{Symbol,Union{<:AbstractContrasts,<:AbstractTerm}}(),
+                     wts::Union{Nothing,Symbol} = nothing,
                      panel::Union{Nothing,Symbol} = nothing,
                      time::Union{Nothing,Symbol} = nothing,
-                     estimator::ModelEstimator = ModelEstimator)
+                     vce::VCE = OIM)
 
 Formula has syntax:
 
