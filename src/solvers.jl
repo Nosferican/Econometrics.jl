@@ -261,7 +261,7 @@ Solves a proportional odds logistic regression.
     m, n = size(X)
     xs = 1:n
     ks = length(categories) - 1
-    ζs = ks:(ks + n)
+    ζs = n + 1:(n + ks)
     δ₀ = mapreduce(x -> (1:ks .== x - 1)', vcat, y)
     δ₁ = mapreduce(x -> (1:ks .== x)', vcat, y)
     η = Vector{Union{Float64,Dual}}(undef, m)
@@ -277,7 +277,7 @@ Solves a proportional odds logistic regression.
     θ₁ = ones(ks)
     function f(β)
       η .= X * β[xs]
-      ζ[2:end - 1] .= cumsum(vcat(β[size(X, 2) + 1], exp.(β[size(X, 2) + 2:end])))
+      ζ[2:end - 1] .= cumsum(vcat(β[n + 1], exp.(β[n + 2:end])))
       Y₀ .= max.(-100, ζ[y] - η)
       Y₁ .= min.(100, ζ[y₁] - η)
       F₀ .= cdf.(Logistic(), Y₀)
@@ -286,8 +286,7 @@ Solves a proportional odds logistic regression.
       -sum(w * log(p) for (w, p) ∈ zip(wts, pr))
     end
     function g!(G, β)
-      θ = β[size(X, 2) + 1:end]
-      ζ[2:end - 1] .= cumsum(vcat(θ[1], exp.(θ[2:end])))
+      ζ[2:end - 1] .= cumsum(vcat(β[n + 1], exp.(β[n + 2:end])))
       η .= X * β[xs]
       Y₀ .= max.(-100, ζ[y] - η)
       Y₁ .= min.(100, ζ[y₁] - η)
@@ -298,7 +297,7 @@ Solves a proportional odds logistic regression.
       f₁ .= pdf.(Logistic(), Y₁)
       G[xs] .= X' * (wts .* (f₁ .- f₀) ./ pr)
       g2 = - (δ₁ .* f₁ .- δ₀ .* f₀)' * (wts ./ pr)
-      θ₁[2:end] .= exp.(θ[2:end])
+      θ₁[2:end] .= exp.(β[ζs[2:end]])
       G[ζs] .= diagm((d => θ₁[1:ks - d] for d ∈ 0:ks - 1)...) * g2
     end
     β₀ = vcat(zero(xs), log.(1:ks))
@@ -310,9 +309,8 @@ Solves a proportional odds logistic regression.
     A[ζs, ζs] .= diagm((d => θ₁[1:ks + d] for d ∈ 0:-1:1 - ks)...)
     Ψ = Hermitian(A * Ψ * A')
     ŷ = X * β[1:size(X, 2)]
-    β[ks:end] .= cumsum(vcat(β[ks], exp.(β[ks + 1:end])))
+    β[n + 1:end] .= cumsum(vcat(β[n + 1], exp.(β[n + 2:end])))
 	@pack! obj = X, y, β, Ψ, ŷ
-	# Fix the rank-deficient here
-	obj.vars = (obj.vars[1], obj.vars[2][collect(2:size(X, 2) + 1)])
+	obj.vars = (obj.vars[1], obj.vars[2][lin_ind .+ 1])
 	obj
 end
