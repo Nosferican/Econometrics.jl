@@ -59,7 +59,7 @@ mutable struct EconometricModel{E<:ModelEstimator,
         if isa(estimator, Union{NominalResponse, OrdinalResponse})
             @unpack categories = estimator
             y = [ findfirst(isequal(x), categories) for x ∈ y ]
-            @assert length(categories) > 2
+            @assert length(categories) > 1
         end
         if isa(estimator, NominalResponse)
             ŷ = zeros(0, 0)
