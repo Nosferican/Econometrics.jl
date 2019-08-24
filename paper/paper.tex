@@ -53,6 +53,8 @@
 }
 \urlstyle{same}
 
+\DeclareMathOperator{\HadamardProduct}{.*}
+
 \begin{document}
 
 \input{header}
@@ -91,15 +93,15 @@ with information matrix
 \Psi = \left(X^{\top} W X\right)^{-1}
 \end{equation}
 
-where $X$ is the full rank version of a model matrix, $W$ a diagonal matrix with positive values (e.g., frequency), and $y$ the response. The common solution method is to factorize $X$ as either its QR decomposition or Cholesky decomposition. Singular value decomposition may also be used, but it is rare as the computational complexity is significantly higher. In the case of the QR decomposition the solution method comes down to, transforming the model matrix and the response by row-wise multiplying them by the square root of the weights. Afterwards, the factorization is used to solve the system of equations using the appropriate method. In the case of a QR decomposition, $R$ is an upper triangular matrix which enables back substitution to obtain the solution efficiently without matrix inversion. However, a Cholesky decomposition would still be required if the information matrix is desired. The solution method with QR decomposition is delineated in equation \ref{QR}.\footnote{The (\textbackslash)\ refers to multiplication of $b$ by the inverse of $A$ on the left.}
+where $X$ is the full rank version of a model matrix, $W$ a diagonal matrix with positive values (e.g., frequency), and $y$ the response. The common solution method is to factorize $X$ as either its QR decomposition or Cholesky decomposition. Singular value decomposition may also be used, but it is rare as the computational complexity is significantly higher. In the case of the QR decomposition the solution method comes down to, transforming the model matrix and the response by row-wise multiplying them by the square root of the weights.\footnote{The row-wise Hadamard product is used in equation \ref{QR} as ($\HadamardProduct$).} Afterwards, the factorization is used to solve the system of equations using the appropriate method. In the case of a QR decomposition, $R$ is an upper triangular matrix which enables back substitution to obtain the solution efficiently without matrix inversion. However, a Cholesky decomposition would still be required if the information matrix is desired. The solution method with QR decomposition is delineated in equation \ref{QR}.\footnote{The (\textbackslash)\ is a linear solver operator, such that $x = A \backslash b => Ax = b$.}
 
 The case for the Cholesky decomposition follows closely and without loss of generality other variants could be used such as Bunch-Kaufman decomposition or the upper triangular form ($U^{\top}U$). The QR decomposition is more numerically stable, but more expensive than Cholesky.\footnote{$\mathcal{O}\left(n^{3}\right) > \mathcal{O}\left(2mn^{2}-\frac{2}{3}2n^{3}\right)$ where the matrix has $m$ rows and $n$ columns.} Equation \ref{Cholesky} delineates the solution method with Cholesky decomposition. Since the information matrix is an important component, Bunch-Kaufman decomposition, a Cholesky variant, is the preferred method used in Econometrics.jl.
 
 \begin{equation}
 \label{QR}
 \begin{split}
-	\tilde{X} = X .* \sqrt{w} \\
-	\tilde{y} = y .* \sqrt{w} \\
+	\tilde{X} = X \HadamardProduct \sqrt{w} \\
+	\tilde{y} = y \HadamardProduct \sqrt{w} \\
 	QR = \tilde{X} \\
 	\beta = R \ \backslash \ \left( Q^{\top} \tilde{y} \right)
 \end{split}
@@ -128,7 +130,7 @@ where $y$ is the response, $\beta$ the parameters of interest, $X$ the features 
 \begin{equation}
 	\tilde{y} = \tilde{X} \beta + e
 \end{equation}
-where $\tilde{X}$ and $\tilde{y}$ are obtained by using projections, such as the annihilator matrix (i.e., $I - X \left(X^{\top}W X\right)^{-1} X^{\top})$. There are several methods to obtain a suitable alternative regression and these are not unique. Stata's module reghdfe \cite{reghdfe} presents several approaches to solving these problem including specialized methods in certain applications. Some implementations include Stata module reghdfe and the FixedEffects.jl package. The two most common approaches are solving for the residuals through a sparse least-squares problems such as with LSMR \cite{LSMR} or using some variant for the method of alternating projections. The residuals approach tends to be more efficient, but degrades certain aspects of the model (e.g., no longer able to obtain the mean response). The method of alternating projections is able to preserve under certain conditions artifacts of the original regression such as obtaining the same estimate for the intercept even though it is not particularly meaningful. Using the original response and the invariant residuals allows to recover the fitted values of the original model.
+where $\tilde{X}$ and $\tilde{y}$ are obtained by using projections, such as the annihilator matrix (i.e., $I - X \left(X^{\top}W X\right)^{-1} X^{\top})$. There are several methods to obtain a suitable alternative regression and these are not unique. Stata's module reghdfe \cite{reghdfe} presents several approaches to solving these problems including specialized methods in certain applications. Some implementations include Stata module reghdfe and the FixedEffectsModels.jl \cite{FixedEffectModels.jl} package. The two most common approaches are solving for the residuals through a sparse least-squares problems such as with LSMR \cite{LSMR} or using some variant for the method of alternating projections. The residuals approach tends to be more efficient, but degrades certain aspects of the model (e.g., no longer able to obtain the mean response). The method of alternating projections is able to preserve under certain conditions artifacts of the original regression such as obtaining the same estimate for the intercept even though it is not particularly meaningful. Using the original response and the invariant residuals allows to recover the fitted values of the original model.
 
 \subsection{Between Estimator}
 
@@ -162,7 +164,7 @@ The model terms are then transformed by partial demeaning
 
 and these are used in the standard regression setting.
 
-\subsection{First-Difference}
+\subsection{First-Difference Estimator}
 
 The first-difference estimator is a special case that use time / panel context for feature designs. The most common transformations include contrasts such as treatment coding (dummy coding), sum coding (effects coding) or Helmert coding which apply to categorical variables. Other common feature engineering techniques include log-transform and polynomial terms. However, certain transformations require a context such as a time dimension. Some examples include shift operations (lag, lead) and differentiating (e.g., first-difference). These operations may optionally require a group context such that the operations are performed group wise. Time-context operations have important concepts such as frequency and gaps. The frequency describes the difference between periods/observations and gaps describe observations that are skipped and should be understood as missing.
 
@@ -190,9 +192,9 @@ Multinomial logistic regression is a probability model for estimating probabilit
 
 Ordinal logistic regression is a probability model for estimating probabilities across multiple ordered categories. Similarly to its nominal counterpart, it has a pool of alternatives, and observed outcome, unit of observation covariates, and outcome-specific covariates. A common assumption is the proportional odds assumption which may be relaxed in other models.
 
-The log-likelihood function has the same form as the general form for computing the cost associated with a categorical distribution and predicted probability for realization. More specific,
+The log-likelihood ($\ell$) function has the same form as the general form for computing the cost associated with a categorical distribution and predicted probability for realization. More specific,
 \begin{equation}
-	\ell \ell = \sum_{i = 1}^{m} \sum_{k}^{K} \mathbbm{1}\left(y_{i} = k\right) \ln\left[F\left(\alpha_{k + 1} - \eta\right) - F\left(\alpha_{k} - \eta\right)\right]
+	\ell = \sum_{i = 1}^{m} \sum_{k}^{K} \mathbbm{1}\left(y_{i} = k\right) \ln\left[F\left(\alpha_{k + 1} - \eta\right) - F\left(\alpha_{k} - \eta\right)\right]
 \end{equation}
 
 where $F$ is the cumulative distribution function of the logistic distribution with zero location and unit scale, $\eta$ is the linear projection, and $\alpha_{k}$ is the threshold for lower threshold \cite{ologit}. The log-likelihood function and the gradient are passed to the Optim.jl framework \cite{Optim} using ForwardDiff.jl \cite{ForwardDiff} forward mode automatic differentiation (AD) for the Newtonian solver.
@@ -213,19 +215,19 @@ Note that Cholesky, QR, and Bunch-Kaufman decomposition allow to identify which 
 
 \section{Julia Ecosystem}
 
-The usual pipeline for regression analysis involves (1) accessing data (I/O), (2) obtaining a tabular data representation, (3) data wrangling, and (4) employing regression analysis tools. The Julia ecosystem follows this canonical pipeline. The following sections provides an overview of the pipeline available in Julia.
+The usual pipeline for regression analysis involves (1) accessing data (I/O), (2) obtaining a tabular data representation, (3) data wrangling, and (4) employing regression analysis tools. The following sections provides an overview of the pipeline available in Julia provided by the Julia statistics and data ecosystems.
 
 \subsection{Data to Modeling}
 
-StatsBase.jl builds on top of Statistics.jl (standard library) to provide additional statistical functionality. One which includes the abstraction for Statistical Models (and Regression models which inherits from the former). It provides a simple and powerful API for the whole Julia ecosystem to use. It allows packages to implement the API and easily support a common functionality users can expect and interact with in a familiar manner. For example, \textit{coef} will extract the parameter estimates from any object that implements the API. The full API include model statistics such as: coefficient of determination (or adjusted), information criteria statistics such as AIC/BIC (and corrected), statistics about the model fitness such as deviance, log-likelihood, and usual queries such as point estimates, variance covariance estimates, standard errors, confidence intervals, degrees of freedom (or residual degrees of freedom). Lastly, several accessors are available for fitted values, response, model matrix, information matrix, leverage values, error components, etc. Lastly, it also provides an abstraction for weights including frequency weights and analytical weights.
+StatsBase.jl \cite{StatsBase.jl} builds on top of Statistics.jl (standard library) to provide additional statistical functionality. One which includes the abstraction for Statistical Models (and Regression models which inherits from the former). It provides a simple and powerful API for the whole Julia ecosystem to use. It allows packages to implement the API and easily support a common functionality users can expect and interact with in a familiar manner. For example, \textit{coef} will extract the parameter estimates from any object that implements the API. The full API include model statistics such as: coefficient of determination (or adjusted), information criteria statistics such as AIC/BIC (and corrected), statistics about the model fitness such as deviance, log-likelihood, and usual queries such as point estimates, variance covariance estimates, standard errors, confidence intervals, degrees of freedom (or residual degrees of freedom). Lastly, several accessors are available for fitted values, response, model matrix, information matrix, leverage values, error components, etc. Lastly, it also provides an abstraction for weights including frequency weights and analytical weights.
 
-Tables.jl provide an interface for tabular data. This API allows users to choose from various solutions the tabular data implementation of their choosing without having to worry that their choice will limit potential functionality. Many tabular implementations such as DataFrames.jl provide robust functionality to many routines such as handling categorical features, dates/time, missing values, reshaping data, split/apply operations, and others. Users need not to worry about any I/O issues as a rich array of options exist for importing and exporting across different file formats such as delimiter-separated values, JSON, Feather, HDF5, MATLAB, Stata, SPSS, SAS, and R.
+Tables.jl \cite{Tables.jl} provide an interface for tabular data. This API allows users to choose from various solutions the tabular data implementation of their choosing without having to worry that their choice will limit potential functionality. Many tabular implementations such as DataFrames.jl \cite{DataFrames.jl} provide robust functionality to many routines such as handling categorical features, dates/time, missing values, reshaping data, split/apply operations, and others. Users need not to worry about any I/O issues as a rich array of options exist for importing and exporting across different file formats such as delimiter-separated values, JSON, Feather, HDF5, MATLAB, Stata, SPSS, SAS, and R.
 
-StatsModels.jl is a package that provides the means to go from data to model terms. It provides the formulae language (e.g., similar to R's formulae syntax). A model is then build using a formula, data, and additional model specific arguments. The process can be summarized as (1) collecting the information in the formula, (2) parsing its meaning by applying a schema based on the data, user-specified contrasts or other arguments, and (3) generating the model terms such as a response, model matrices, etc. Lastly, a package fits said model and implements the API.
+StatsModels.jl \cite{StatsModels.jl} is a package that provides the means to go from data to model terms. It provides the formulae language (e.g., similar to R's formulae syntax). A model is then build using a formula, data, and additional model specific arguments. The process can be summarized as (1) collecting the information in the formula, (2) parsing its meaning by applying a schema based on the data, user-specified contrasts or other arguments, and (3) generating the model terms such as a response, model matrices, etc. Lastly, a package fits said model and implements the API.
 
 \subsection{Regression Analysis}
 
-The regression analysis ecosystem in Julia has GLM.jl as its flagship. GLM.jl provides the typical functionality for fitting generalized linear models through Fisher scoring. This includes linear models, Poisson/Negative Binomial, Logit/Probit, and other non-canonical link models. CovarianceMatrices.jl provides various variance covariance estimators for GLM.jl models à la R's
+The regression analysis ecosystem in Julia has GLM.jl \cite{GLM.jl} as its flagship. GLM.jl provides the typical functionality for fitting generalized linear models through Fisher scoring. This includes linear models, Poisson/Negative Binomial, Logit/Probit, and other non-canonical link models. CovarianceMatrices.jl \cite{CovarianceMatrices.jl} provides various variance covariance estimators for GLM.jl models à la R's
 sandwich package. LinearMixedModels.jl \cite{LinearMixedModels} extends GLM.jl for mixed-effects models. FixedEffectModels.jl provides fast estimation of linear models with instrumental variables and high dimensional categorical variables à la reghdfe. Survival.jl provides a series of estimators for duration models. Two major gaps in the ecosystem include estimating nominal and ordinal response models (i.e., discrete choice) with more than two alternatives and support for longitudinal estimators.
 
 \section{Econometrics.jl}
@@ -286,7 +288,7 @@ The fullauto Stata example automobile models data set is used to illustrate the 
 	\label{ologit}
 \end{figure}
 
-\subsection{Design Decisions}
+\subsection{Should Software be Dummy-Proof?}
 
 Statistical software developers play a very powerful role in shaping culture and norms. For example, whether to default to maximum likelihood estimation (MLE) or restricted maximum likelihood estimation (REML), can shape not only choices by practitioners, but by stakeholders, regulatory agencies, and expected components for reports. These changes may be good or bad depending on the case. For example, advances in econometrics are rarely widely adopted without buy-in from software developers. The following discussions will survey some of the decisions relevant to Econometrics.jl.
 
@@ -298,7 +300,7 @@ Econometrics.jl has as a goal to make opinionated decisions after careful consid
 
 \subsection{Best Practices}
 
-Econometrics.jl adopts the best practices standards for open-source statistical software. These include adhering to semantic versioning (semver) for descriptive versioning, continuous integration for development, software validation through a comprehensive code coverage and test suite, and lastly online hosted documentation for the public API.
+Econometrics.jl adopts the best practices standards for open-source statistical software. These include adhering to semantic versioning (semver) for descriptive versioning, continuous integration for development, software validation through a comprehensive code coverage and test suite, and lastly online hosted documentation for the public API.\footnote{\href{https://nosferican.github.io/Econometrics.jl/stable}{https://nosferican.github.io/Econometrics.jl/stable}}
 
 \section{Conclusion}
 
