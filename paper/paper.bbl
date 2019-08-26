@@ -1,17 +1,31 @@
 \begin{thebibliography}{10}
 
+\bibitem{Survival.jl}
+Alex Arslan, Dave~F. Kleinschmidt, and Pietro Vertechi.
+{Survival.jl}, 2017.
+
 \bibitem{BV_1987}
 Pietro Balestra and Jayalakshmi Varadharajan-Krishnakumar.
 Full information estimations of a system of simultaneous equations with error
   component structure.
 {\em Econometric Theory}, 3(2):223–246, 1987.
 
+\bibitem{GLM.jl}
+Douglas Bates, Simon Kornblith, Andreas Noack, Michael~Krabbe Borregaard, Milan
+  Bouchet-Valat, John~Myles White, Alex Arslan, Dave Kleinschmidt, Sam Lendle,
+  Patrick~Kofod Mogensen, Iain Dunning, Dilum Aluthge, Paul Bastide,
+  José~Bayoán Santiago~Calderón, Jacob Quinn, Galen Lynch, Chris DuBois,
+  Bradley Setzler, Benjamin Born, Yichao Yu, Tony Kelman, Thibaut Lienart,
+  Roger Herikstad, Maxim Grechkin, Lewis Hein, Jacob Adenbaum, Hung~Q. Ngo, and
+  Dahua Lin.
+{GLM.jl}, 2012.
+
 \bibitem{LinearMixedModels}
 Douglas Bates, José~Bayoán Santiago~Calderón, Dave Kleinschmidt, Tony
   Kelman, Simon Babayan, Patrick~Kofod Mogensen, Morten Piibeleht, Milan
   Bouchet-Valat, Michael Hatherly, Elliot Saba, Antoine Baldassari, and Andreas
   Noack.
-Mixedmodels.jl, 2019.
+{MixedModels.jl}, 2019.
 
 \bibitem{Bezanson_Edelman_Karpinski_Shah_2017}
 Jeff Bezanson, Alan Edelman, Stefan Karpinski, and Viral~B. Shah.
@@ -54,16 +68,39 @@ Ragnar Frisch and Frederick~V. Waugh.
 Partial time regressions as compared with individual trends.
 {\em Econometrica}, 1(4):387, 1933.
 
+\bibitem{FixedEffectModels.jl}
+Matthieu Gomez.
+{FixedEffectModels.jl}, 2015.
+
 \bibitem{Optim}
 Patrick K~Mogensen and Asbjørn N~Riseth.
 Optim: A mathematical optimization package for julia.
 {\em Journal of Open Source Software}, 3(24):615, 2018.
+
+\bibitem{StatsModels.jl}
+Dave~F. Kleinschmidt, John~Myles White, Milan Bouchet-Valat, Douglas Bates,
+  Sean Garborg, Chris DuBois, Andreas Noack, Simon Kornblith, Alex Arslan, Tom
+  Short, Harlan Harris, Lyndon White, José~Bayoán Santiago~Calderón,
+  Matthieu Gomez, Gord Stephen, Jacob Quinn, Michael~Krabbe Borregaard, Asaf
+  Manela, Simon Byrne, Pietro Vertechi, Luca Bittarello, Fredrik Ekre, Elliot
+  Saba, Dilum Aluthge, David Anthoff, Andy Hayden, and Adam Labadorf.
+{StatsModels.jl}, 2016.
 
 \bibitem{Konis_2007}
 Kjell Konis.
 {\em Linear Programming Algorithms for Detecting Separated Data in Binary
   Logistic Regression Models}.
 PhD thesis, Worcester College, University of Oxford, 2007.
+
+\bibitem{StatsBase.jl}
+Dahua Lin, Andreas Noack, John~Myles White, Alex Arslan, Milan Bouchet-Valat,
+  Rory Finnegan, Simon Kornblith, Simon Byrne, Douglas Bates, José~Bayoán
+  Santiago~Calderón, Yichao Yu, Jacob Quinn, Alexander Fabisch, Oliver Schulz,
+  Iain Dunning, David Widmann, Mike~J Innes, Martin Holters, Moritz Schauer,
+  Matthieu Gomez, Sean Garborg, Mathieu Besançon, Fredrik Ekre, Jonas Rauber,
+  Jeff Bezanson, Jack Peterson, Bogumił Kamiński, Ben Arthur, and Andy
+  Hayden.
+{StatsBase.jl}, 2012.
 
 \bibitem{FWLProof}
 Michael~C. Lovell.
@@ -84,10 +121,20 @@ Robust regression computation using iteratively reweighted least squares.
 {Python Software Foundation}.
 {\em Python Software}, 2018.
 
+\bibitem{Tables.jl}
+Jacob Quinn, David Anthoff, Milan Bouchet-Valat, Tamas~K. Papp, Pietro
+  Vertechi, José~Bayoán Santiago~Calderón, Josh Day, Jack Dunn, Iblis Lin,
+  Erjan Kalybek, Eric Davies, Bogumił Kamiński, and Andy Ferris.
+{Tables.jl}, 2018.
+
 \bibitem{R}
 {R Core Team}.
 {\em R: A Language and Environment for Statistical Computing}.
 R Foundation for Statistical Computing, Vienna, Austria, 2018.
+
+\bibitem{CovarianceMatrices.jl}
+Giuseppe Ragusa.
+{CovarianceMatrices.jl}, 2014.
 
 \bibitem{Renfro_2009}
 Charles~G. Renfro.
@@ -99,6 +146,11 @@ Springer Berlin Heidelberg, 2009.
 Jarrett Revels, Miles Lubin, and Theodore Papamarkou.
 Forward-mode automatic differentiation in julia.
 {\em CoRR}, abs/1607.07892, 2016.
+
+\bibitem{JBSC2019}
+José~Bayoán Santiago~Calderón.
+{\em On Cluster Robust Models}.
+PhD thesis, Claremont Graduate University, 2019.
 
 \bibitem{Stata}
 StataCorp.
@@ -115,6 +167,14 @@ W.~N. Venables and B.~D. Ripley.
 {\em Modern Applied Statistics with S}.
 Springer, New York, fourth edition, 2002.
 ISBN 0-387-95457-0.
+
+\bibitem{DataFrames.jl}
+John~Myles White, Milan Bouchet-Valat, Sean Garborg, Bogumił Kamiński, Simon
+  Kornblith, Jacob Quinn, Alexey Stukalov, Douglas Bates, Tom Short, Harlan
+  Harris, Chris DuBois, Kevin Squire, Alex Arslan, Dave Kleinschmidt, David
+  Anthoff, Andreas Noack, Viral~B. Shah, Alex Mellnik, Tanmay Mohapatra, Stefan
+  Karpinski, Dahua Lin, Rory Finnegan, Florian Oswald, and Daniel~C. Jones.
+{DataFrames.jl}, 2012.
 
 \bibitem{sandwich}
 Achim Zeileis.
