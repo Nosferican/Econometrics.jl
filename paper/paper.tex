@@ -242,6 +242,14 @@ For linear models, the examples use a crime dataset \cite{Crime}. The data set i
 
 The syntax to estimate a model follows the StatsBase API which provides two methods for building and estimating models (i.e., \textit{fit} and \textit{fit!}). The \textit{fit} approach takes (1) an estimator, (2) a model formula, (3) data, and additional arguments depending on the model. \textit{EconometricModel} is the generic estimator which dispatches to continuous, nominal or ordinal response models automatically based on the type of the response. Other estimators are available and the following figures illustrate some of the use cases.
 
+The fixed effects model or within estimator can be estimated as in figure \vref{withinmodel} which a two-ways fixed effects model (i.e., fixed effects for panel and time dimensions). Table \vref{withinres} shows the estimated 95\% confidence intervals using Econometrics.jl, Stata, and R's plm package.
+
+The random effects model can be estimated as in figure \vref{random} which shows estimating a random effects model with instrumental variables. Table \vref{xtregres} shows the estimated 95\% confidence intervals using Econometrics.jl, Stata's reghdfe module, and R's plm package.
+
+The sysdsn1 Stata example health insurance data set is used to illustrate the multinominal logistic regression when the response is nominal as seen in figure \vref{mlogit}. A comparison with the estimates for the 95\% confidence intervals between Econometrics.jl and Stata is shown in table \vref{mlogitres}.
+
+The fullauto Stata example automobile models data set is used to illustrate the proportional ordinal logistic regression when the response is ordinal as seen in figure \vref{ologit}. A comparison with the estimates for the 95\% confidence intervals between Econometrics.jl, Stata, and R's MASS is shown in table \vref{ologitres}.
+
 \begin{figure}[hbpt]
     \includegraphics[max width=\linewidth,center]{estimator_pooling}
 	\caption{Estimation of the pooling estimator}
@@ -254,17 +262,11 @@ The syntax to estimate a model follows the StatsBase API which provides two meth
 	\label{estimator_between}
 \end{figure}
 
-The fixed effects model or within estimator can be estimated as in figure \vref{withinmodel} which a two-ways fixed effects model (i.e., fixed effects for panel and time dimensions). Table \vref{withinres} shows the estimated 95\% confidence intervals using Econometrics.jl, Stata, and R's plm package.
-
 \begin{figure}[hbpt]
 	\includegraphics[max width=\linewidth,center]{estimator_fe}
 	\caption{Estimation of the within estimator with multiple fixed effects}
 	\label{withinmodel}
 \end{figure}
-
-\newpage
-
-The random effects model can be estimated as in figure \vref{random} which shows estimating a random effects model with instrumental variables. Table \vref{xtregres} shows the estimated 95\% confidence intervals using Econometrics.jl, Stata's reghdfe module, and R's plm package.
 
 \begin{figure}[hbpt]
 	\includegraphics[max width=\linewidth,center]{estimator_ivre}
@@ -272,15 +274,11 @@ The random effects model can be estimated as in figure \vref{random} which shows
 	\label{random}
 \end{figure}
 
-The sysdsn1 Stata example health insurance data set is used to illustrate the multinominal logistic regression when the response is nominal as seen in figure \vref{mlogit}. A comparison with the estimates for the 95\% confidence intervals between Econometrics.jl and Stata is shown in table \vref{mlogitres}.
-
 \begin{figure}[hbpt]
 	\includegraphics[max width=\linewidth,center]{estimator_mlogit}
 	\caption{Estimation of the multinomial logistic regression}
 	\label{mlogit}
 \end{figure}
-
-The fullauto Stata example automobile models data set is used to illustrate the proportional ordinal logistic regression when the response is ordinal as seen in figure \vref{ologit}. A comparison with the estimates for the 95\% confidence intervals between Econometrics.jl, Stata, and R's MASS is shown in table \vref{ologitres}.
 
 \begin{figure}[hbpt]
 	\includegraphics[max width=\linewidth,center]{estimator_ologit}
