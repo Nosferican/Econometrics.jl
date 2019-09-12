@@ -1,0 +1,12 @@
+# Public API
+
+```@autodocs
+Modules = [Econometrics]
+Private = false
+```
+
+# Private API
+```@autodocs
+Modules = [Econometrics]
+Private = true
+```
