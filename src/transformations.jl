@@ -3,8 +3,7 @@
            D::AbstractVector{<:AbstracVector{<:AbstracVector{<:Integer}}},
            wts::AbstractVector)
 
-    This function performs the within transformation given a model matrix and
-    fixed effects using the method of alternating projections.
+This function performs the within transformation given a model matrix and fixed effects using the method of alternating projections.
 """
 @views within(obj::AbstractMatrix{<:Real},
               D::AbstractVector{<:AbstractVector{<:AbstractVector{<:Integer}}},
@@ -34,8 +33,7 @@ end
                   D::AbstractVector{<:AbstractVector{<:Integer}},
                   θ::AbstractVector{<:Real})
 
-    This function performs the partial within transformation given a model matrix
-    subgroups and subgroup specific error components.
+This function performs the partial within transformation given a model matrix subgroups and subgroup specific error components.
 """
 @views function partialwithin(obj::AbstractVecOrMat{<:Real},
                               panel::AbstractVector{<:AbstractVector{<:Integer}},

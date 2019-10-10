@@ -1,3 +1,26 @@
+# v0.2.3
+
+## Features
+
+## Bug fixes
+
+- Special terms in functions like `poly` were not handled properly
+
+## Miscellaneous
+
+- Updated compat for deps
+
+# v0.2.2
+
+## Features
+
+## Bug fixes
+
+## Miscellaneous
+
+- Now supports Julia LTS release.
+- Added Zenodo.
+
 # v0.2.0
 
 ## Features

@@ -83,7 +83,7 @@ function decompose(f::FormulaTerm,
     else
         throw(ArgumentError("There can only be at most one absorb term"))
     end
-    exo_rhs = filter(t -> !(isa(t, FormulaTerm) || isa(t, FunctionTerm)), rhs)
+    exo_rhs = filter(t -> !(isa(t, FormulaTerm) || isa(t, FunctionTerm{typeof(absorb)})), rhs)
     exogenous = FormulaTerm(f.lhs,
                             isempty(exo_rhs) ? Tuple([ConstantTerm(1)]) : Tuple(exo_rhs))
     @assert length(terms(exogenous.lhs)) == 1 "Response should be a single variable"
