@@ -2,37 +2,65 @@
 
 The API allows for:
 
-- build/estimate
+- build/estimate models
 - query models for statistics (e.g., goodness-of-fit statistics), components (parameter estimates)
 - export model estimates
 
-## Public API
+## Core Functionality
 
-```@autodocs
-Modules = [Econometrics]
-Pages = ["Econometrics.jl", "main.jl", "solvers.jl"]
-Private = false
+```@docs
+Econometrics
+EconometricModel
 ```
 
 ## Statistical/Regression Model Abstraction
 
-```@autodocs
-Modules = [Econometrics, StatsBase]
-Pages = ["statsbase.jl", "statmodels.jl"]
-Filter = obj -> !isa(obj, Type) && Base.isexported(Econometrics, Symbol(obj)) && hasmethod(obj, (EconometricModel,))
+```@docs
+aic
+aicc
+bic
+r2
+adjr2
+mss
+rss
+deviance
+nulldeviance
+loglikelihood
+nullloglikelihood
+coef
+dof
+dof_residual
+coefnames(::EconometricModel)
+coeftable(::EconometricModel)
+islinear
+informationmatrix
+vcov(::EconometricModel)
+stderror(::EconometricModel, ::Econometrics.VCE)
+confint(::EconometricModel)
+hasintercept
+isfitted
+fit(::EconometricModel)
+fit!(::EconometricModel)
+response
+meanresponse
+fitted
+predict
+modelmatrix
+residuals
+leverage
+nobs
+weights(::EconometricModel)
 ```
 
 ## Estimators
 
-```@autodocs
-Modules = [Econometrics]
-Pages = ["structs.jl"]
-Filter = obj -> isa(obj, Type)
+```@docs
+BetweenEstimator
+RandomEffectsEstimator
+Econometrics.VCE
 ```
 
-## Private API
-
-```@autodocs
-Modules = [Econometrics]
-Private = true
+## Formula Components
+```@docs
+absorb
 ```
