@@ -72,9 +72,9 @@ struct RandomEffectsEstimator <: LinearModelEstimators
             (tid, Vector{Vector{Int}}()), NaN, NaN, zeros(0))
     function RandomEffectsEstimator(pid, tid, X, y, z, Z, wts)
         Xbe, ybe, βbe, Ψbe, ŷbe, wtsbe, pivbe =
-            solve(BetweenEstimator(pid[1], pid[2]), X, y, z, Z, wts)
+            fit(BetweenEstimator(pid[1], pid[2]), X, y, z, Z, wts)
         Xfe, yfe, βfe, Ψfe, ŷfe, wtsfe, pivfe =
-            solve(ContinuousResponse([pid[2]]), X, y, z, Z, wts)
+            fit(ContinuousResponse([pid[2]]), X, y, z, Z, wts)
         ivk = size(Z, 2)
         T = length.(pid[2])
         T̄ = harmmean(T)

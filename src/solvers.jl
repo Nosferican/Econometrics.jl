@@ -1,20 +1,9 @@
-"""
-    solve(estimator::LinearModelEstimators,
-          X::AbstractMatrix{<:Number},
-          y::AbstractVector{<:Number},
-          z::AbstractVecOrMat{<:Number},
-          Z::AbstractMatrix{<:Number},
-          wts::AbstractVector)
-
-Solves models continous response models without features absorption.
-For example, Swamy-Arora random effects model for longitudinal data.
-"""
-@views function solve(estimator::LinearModelEstimators,
-                      X::AbstractMatrix{<:Number},
-                      y::AbstractVector{<:Number},
-                      z::AbstractVecOrMat{<:Number},
-                      Z::AbstractMatrix{<:Number},
-                      wts::AbstractVector)
+@views function fit(estimator::LinearModelEstimators,
+					X::AbstractMatrix,
+					y::AbstractVector,
+					z::AbstractMatrix,
+					Z::AbstractMatrix,
+					wts::AbstractVector)
 	if !isa(wts, Weights)
         wts = FrequencyWeights(wts)
     else
@@ -236,16 +225,6 @@ end
 	obj.vars = (obj.vars[1], obj.vars[2][lin_ind])
 	obj
 end
-"""
-    solve(estimator::OrdinalResponse,
-          X::AbstractMatrix{<:Number},
-          y::AbstractVector,
-          z::AbstractVecOrMat{<:Number},
-          Z::AbstractMatrix{<:Number},
-          wts::AbstractVector)
-
-Solves a proportional odds logistic regression.
-"""
 @views function fit!(obj::EconometricModel{<:OrdinalResponse})
 	@unpack estimator, X, y, z, Z, wts = obj
 	@unpack categories = estimator

@@ -1,11 +1,37 @@
-# Public API
+# Interacting with a model
+
+The API allows for:
+
+- build/estimate
+- query models for statistics (e.g., goodness-of-fit statistics), components (parameter estimates)
+- export model estimates
+
+## Public API
 
 ```@autodocs
 Modules = [Econometrics]
+Pages = ["Econometrics.jl", "main.jl", "solvers.jl"]
 Private = false
 ```
 
-# Private API
+## Statistical/Regression Model Abstraction
+
+```@autodocs
+Modules = [Econometrics, StatsBase]
+Pages = ["statsbase.jl", "statmodels.jl"]
+Filter = obj -> !isa(obj, Type) && Base.isexported(Econometrics, Symbol(obj)) && hasmethod(obj, (EconometricModel,))
+```
+
+## Estimators
+
+```@autodocs
+Modules = [Econometrics]
+Pages = ["structs.jl"]
+Filter = obj -> isa(obj, Type)
+```
+
+## Private API
+
 ```@autodocs
 Modules = [Econometrics]
 Private = true

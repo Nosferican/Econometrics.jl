@@ -13,7 +13,7 @@ makedocs(format = Documenter.HTML(assets = ["assets/custom.css"]),
          pages = ["Introduction" => "index.md",
                   "Getting Started" => "getting_started.md",
                   "Estimators" => "estimators.md",
-                  "Public API" => "public_api.md"]
+                  "API" => "api.md"]
     )
 
 deploydocs(repo = "github.com/Nosferican/Econometrics.jl.git")
