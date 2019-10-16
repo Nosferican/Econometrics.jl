@@ -12,7 +12,7 @@
 [![Build Status](https://travis-ci.com/Nosferican/Econometrics.jl.svg?branch=master)](https://travis-ci.com/Nosferican/Econometrics.jl)
 [![Code Coverage](https://codecov.io/gh/Nosferican/Econometrics.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/Nosferican/Econometrics.jl)
 
-![GitHub commits since latest release](https://img.shields.io/github/commits-since/Nosferican/Econometrics.jl/v0.2.2)
+![GitHub commits since latest release](https://img.shields.io/github/commits-since/Nosferican/Econometrics.jl/v0.2.3)
 
 
 This package uses continuous integration on Linux, OSX, and Windows (x64/x86).
