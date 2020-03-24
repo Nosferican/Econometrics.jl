@@ -1,0 +1,54 @@
+name: CI
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'LICENSE.md'
+      - 'README.md'
+      - '.github/ISSUE_TEMPLATE'
+      - '.github/CODE_OF_CONDUCT.md'
+      - '.github/CONTRIBUTING.md'
+      - '.github/pull_request_template.md'
+      - '.github/SECURITY.md'
+      - '.github/SUPPORT.md'
+      - '.github/CompatHelper.yml'
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - 'LICENSE.md'
+      - 'README.md'
+      - '.github/ISSUE_TEMPLATE'
+      - '.github/CODE_OF_CONDUCT.md'
+      - '.github/CONTRIBUTING.md'
+      - '.github/pull_request_template.md'
+      - '.github/SECURITY.md'
+      - '.github/SUPPORT.md'
+      - '.github/CompatHelper.yml'
+  release:
+    types:
+      - created
+
+jobs:
+  ci:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        julia-version: [1.4.0]
+        julia-arch: [x64]
+        os: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v1.0.0
+      - uses: julia-actions/setup-julia@latest
+        with:
+          version: ${{ matrix.julia-version }}
+      - uses: julia-actions/julia-buildpkg@v0.1.0
+      - uses: julia-actions/julia-runtest@v0.1.0
+      - uses: julia-actions/julia-uploadcodecov@v0.1.0
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      - uses: julia-actions/julia-docdeploy@releases/v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
