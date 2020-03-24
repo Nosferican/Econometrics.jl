@@ -68,8 +68,7 @@ struct RandomEffectsEstimator <: LinearModelEstimators
     individual::Float64
     θ::Vector{Float64}
     RandomEffectsEstimator(pid, tid) =
-        new((pid, Vector{Vector{Int}}()),
-            (tid, Vector{Vector{Int}}()), NaN, NaN, zeros(0))
+        new((pid, Vector{Vector{Int}}()), (tid, Vector{Vector{Int}}()), NaN, NaN, zeros(0))
     function RandomEffectsEstimator(pid, tid, X, y, z, Z, wts)
         Xbe, ybe, βbe, Ψbe, ŷbe, wtsbe, pivbe =
             fit(BetweenEstimator(pid[1], pid[2]), X, y, z, Z, wts)
@@ -78,10 +77,14 @@ struct RandomEffectsEstimator <: LinearModelEstimators
         ivk = size(Z, 2)
         T = length.(pid[2])
         T̄ = harmmean(T)
-        σₑ² = sum(wᵢ * (yᵢ - ŷᵢ)^2 for (wᵢ, yᵢ, ŷᵢ) ∈ zip(wtsfe, yfe, ŷfe)) /
-        	(sum(wtsfe) - length(βfe) - ivk - length(pid[2]) + 1)
-        σᵤ² = max(0, sum((yᵢ - ŷᵢ)^2 for (yᵢ, ŷᵢ) ∈ zip(ybe, ŷbe)) /
-                     (length(ybe) - length(βbe) - ivk) - σₑ² / T̄)
+        σₑ² =
+            sum(wᵢ * (yᵢ - ŷᵢ)^2 for (wᵢ, yᵢ, ŷᵢ) in zip(wtsfe, yfe, ŷfe)) /
+            (sum(wtsfe) - length(βfe) - ivk - length(pid[2]) + 1)
+        σᵤ² = max(
+            0,
+            sum((yᵢ - ŷᵢ)^2 for (yᵢ, ŷᵢ) in zip(ybe, ŷbe)) /
+            (length(ybe) - length(βbe) - ivk) - σₑ² / T̄,
+        )
         θ = 1 .- sqrt.(σₑ² ./ (T .* σᵤ² .+ σₑ²))
         new(pid, tid, √σₑ², √σᵤ², θ)
     end
@@ -115,8 +118,7 @@ Multinomial logistic regression.
 struct NominalResponse{T} <: ModelEstimator
     categories::Vector{T}
     function NominalResponse(obj::ContrastsMatrix)
-        categories = isnothing(obj.contrasts.base) ?
-            obj.levels :
+        categories = isnothing(obj.contrasts.base) ? obj.levels :
             union(vcat(obj.contrasts.base, obj.levels))
         new{eltype(categories)}(categories)
     end
@@ -133,9 +135,7 @@ Proportional odds logistic regression.
 struct OrdinalResponse{T} <: ModelEstimator
     categories::Vector{T}
     function OrdinalResponse(obj::ContrastsMatrix)
-        categories = isnothing(obj.contrasts.levels) ?
-            obj.levels :
-            obj.contrasts.levels
+        categories = isnothing(obj.contrasts.levels) ? obj.levels : obj.contrasts.levels
         new{eltype(categories)}(categories)
     end
 end
