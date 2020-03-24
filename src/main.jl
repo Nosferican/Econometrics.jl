@@ -24,16 +24,19 @@ Panel and time indicators are used for longitudinal estimators
     model = fit(BetweenEstimator, formula, data, panel = :panel, kwargs...)
     model = fit(RandomEffectsEstimator, formula, data, panel = :panel, time = :time, kwargs...)
 """
-mutable struct EconometricModel{E<:ModelEstimator,
-                                F<:FormulaTerm,
-                                T<:Any,
-                                Y<:AbstractVecOrMat{<:Number},
-                                W<:FrequencyWeights,
-                                Ŷ<:AbstractVecOrMat{<:Float64},
-                                N<:Tuple{<:Union{<:AbstractVector{<:AbstractString},
-                                                 <:AbstractString},
-                                         <:AbstractVector{<:AbstractString}},
-                                VC<:Union{<:Type{<:VCE},<:VCE}} <: EconometricsModel
+mutable struct EconometricModel{
+    E<:ModelEstimator,
+    F<:FormulaTerm,
+    T<:Any,
+    Y<:AbstractVecOrMat{<:Number},
+    W<:FrequencyWeights,
+    Ŷ<:AbstractVecOrMat{<:Float64},
+    N<:Tuple{
+        <:Union{<:AbstractVector{<:AbstractString},<:AbstractString},
+        <:AbstractVector{<:AbstractString},
+    },
+    VC<:Union{<:Type{<:VCE},<:VCE},
+} <: EconometricsModel
     estimator::E
     f::F
     data::T
@@ -48,19 +51,21 @@ mutable struct EconometricModel{E<:ModelEstimator,
     vars::N
     iv::Int
     vce::VC
-    function EconometricModel(estimator::Type{<:Union{EconometricModel,ModelEstimator}},
-                              f::FormulaTerm,
-                              data;
-                              contrasts::Dict{Symbol} = Dict{Symbol,Union{<:AbstractContrasts,<:AbstractTerm}}(),
-                              wts::Union{Nothing,Symbol} = nothing,
-                              panel::Union{Nothing,Symbol} = nothing,
-                              time::Union{Nothing,Symbol} = nothing,
-                              vce::VCE = OIM)
+    function EconometricModel(
+        estimator::Type{<:Union{EconometricModel,ModelEstimator}},
+        f::FormulaTerm,
+        data;
+        contrasts::Dict{Symbol} = Dict{Symbol,Union{<:AbstractContrasts,<:AbstractTerm}}(),
+        wts::Union{Nothing,Symbol} = nothing,
+        panel::Union{Nothing,Symbol} = nothing,
+        time::Union{Nothing,Symbol} = nothing,
+        vce::VCE = OIM,
+    )
         data, exogenous, iv, estimator, X, y, z, Z, wts =
             decompose(deepcopy(f), data, contrasts, wts, panel, time, estimator, vce)
-        if isa(estimator, Union{NominalResponse, OrdinalResponse})
+        if isa(estimator, Union{NominalResponse,OrdinalResponse})
             @unpack categories = estimator
-            y = [ findfirst(isequal(x), categories) for x ∈ y ]
+            y = [findfirst(isequal(x), categories) for x in y]
             @assert length(categories) > 1
         end
         if isa(estimator, NominalResponse)
@@ -69,11 +74,35 @@ mutable struct EconometricModel{E<:ModelEstimator,
             ŷ = zeros(0)
         end
         wts = FrequencyWeights(collect(wts))
-        vars = (coefnames(exogenous.lhs),
-                convert(Vector{String}, vcat(coefnames(exogenous.rhs), coefnames(iv.lhs))))
-        new{typeof(estimator), typeof(f), typeof(data), typeof(y), typeof(wts), typeof(ŷ), typeof(vars), typeof(vce)}(
-            estimator, f, data, X, y, wts, zeros(0), Hermitian(zeros(0, 0)), ŷ,
-            z, Z, vars, size(Z, 2), vce)
+        vars = (
+            coefnames(exogenous.lhs),
+            convert(Vector{String}, vcat(coefnames(exogenous.rhs), coefnames(iv.lhs))),
+        )
+        new{
+            typeof(estimator),
+            typeof(f),
+            typeof(data),
+            typeof(y),
+            typeof(wts),
+            typeof(ŷ),
+            typeof(vars),
+            typeof(vce),
+        }(
+            estimator,
+            f,
+            data,
+            X,
+            y,
+            wts,
+            zeros(0),
+            Hermitian(zeros(0, 0)),
+            ŷ,
+            z,
+            Z,
+            vars,
+            size(Z, 2),
+            vce,
+        )
     end
 end
 function show(io::IO, obj::EconometricModel{<:LinearModelEstimators})
@@ -108,7 +137,7 @@ function show(io::IO, obj::EconometricModel{<:ContinuousResponse})
     println(io, @sprintf("Loglikelihood: %.2f", ℓℓ))
     println(io, @sprintf("R-squared: %.4f", r2(obj)))
     if !absorbed
-        lr = 2(ℓℓ - ℓℓ₀)
+        lr = 2 * (ℓℓ - ℓℓ₀)
         vars = coefnames(obj)
         k = count(x -> !occursin("(Intercept)", x), vars[2])
         if k > zero(k)
@@ -119,7 +148,10 @@ function show(io::IO, obj::EconometricModel{<:ContinuousResponse})
     else
         W, F, p = wald(obj)
         if !isnan(p)
-            println(io, @sprintf("Wald: %.2f ∼ F(%i, %i) ⟹ Pr > F = %.4f", W, params(F)..., p))
+            println(
+                io,
+                @sprintf("Wald: %.2f ∼ F(%i, %i) ⟹ Pr > F = %.4f", W, params(F)..., p)
+            )
         end
     end
     println(io, clean_fm(obj))
@@ -138,7 +170,7 @@ function show(io::IO, obj::EconometricModel{<:NominalResponse})
     println(io, @sprintf("Null Loglikelihood: %.2f", ℓℓ₀))
     println(io, @sprintf("Loglikelihood: %.2f", ℓℓ))
     println(io, @sprintf("R-squared: %.4f", r2(obj)))
-    lr = 2(ℓℓ - ℓℓ₀)
+    lr = 2 * (ℓℓ - ℓℓ₀)
     vars = coefnames(obj)
     k = length(vars[1]) * count(x -> !occursin("(Intercept)", x), vars[2])
     if k > zero(k)
@@ -161,7 +193,7 @@ function show(io::IO, obj::EconometricModel{<:OrdinalResponse})
     println(io, @sprintf("Null Loglikelihood: %.2f", ℓℓ₀))
     println(io, @sprintf("Loglikelihood: %.2f", ℓℓ))
     println(io, @sprintf("R-squared: %.4f", r2(obj)))
-    lr = 2(ℓℓ - ℓℓ₀)
+    lr = 2 * (ℓℓ - ℓℓ₀)
     vars = coefnames(obj)
     k = length(vars[2])
     if k > zero(k)
@@ -172,17 +204,27 @@ function show(io::IO, obj::EconometricModel{<:OrdinalResponse})
     println(io, clean_fm(obj))
     show(io, coeftable(obj))
 end
-function fit(estimator::Type{<:Union{EconometricModel,ModelEstimator}},
-             f::FormulaTerm,
-             data;
-             fit = true,
-             kw...)
-    model = EconometricModel(estimator, f, data;
-                             contrasts = get(kw, :contrasts, Dict{Symbol,Union{<:AbstractContrasts,<:AbstractTerm}}()),
-                             wts = get(kw, :wts, nothing),
-                             panel = get(kw, :panel, nothing),
-                             time = get(kw, :time, nothing),
-                             vce = get(kw, :vce, OIM))
+function fit(
+    estimator::Type{<:Union{EconometricModel,ModelEstimator}},
+    f::FormulaTerm,
+    data;
+    fit = true,
+    kw...,
+)
+    model = EconometricModel(
+        estimator,
+        f,
+        data;
+        contrasts = get(
+            kw,
+            :contrasts,
+            Dict{Symbol,Union{<:AbstractContrasts,<:AbstractTerm}}(),
+        ),
+        wts = get(kw, :wts, nothing),
+        panel = get(kw, :panel, nothing),
+        time = get(kw, :time, nothing),
+        vce = get(kw, :vce, OIM),
+    )
     fit && fit!(model)
     model
 end
