@@ -1,21 +1,25 @@
 # Econometrics.jl
 
-[![License: ISC - Permissive License](https://img.shields.io/badge/License-ISC-green.svg)](https://img.shields.io/github/license/Nosferican/Econometrics.jl)
-[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+| **Documentation** | **Continous Integration** | **Metadata** | **Reference** |
+|:-----------------:|:-------------------------:|:-----------------:|:-------------------------:|
+| [![][dsi]][dsu]   | [![][bsi]][bsu]           | [![][li]][lu]     | [![][pubi]][pubu]         |
+| [![][ddi]][ddu]   | [![][cci]][ccu]           | [![][csi]][lu]     | [![][doii]][doiu]         |
 
-[![JuliaCon](https://submissions.juliacon.org/papers/446fde271579d85e0d4c691d54093dbb/status.svg)](https://submissions.juliacon.org/papers/446fde271579d85e0d4c691d54093dbb)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3379185.svg)](https://doi.org/10.5281/zenodo.3379185)
-
-[![Documentation: stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://nosferican.github.io/Econometrics.jl/stable)
-[![Documentation: dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://nosferican.github.io/Econometrics.jl/dev)
-
-[![Build Status](https://travis-ci.com/Nosferican/Econometrics.jl.svg?branch=master)](https://travis-ci.com/Nosferican/Econometrics.jl)
-[![Code Coverage](https://codecov.io/gh/Nosferican/Econometrics.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/Nosferican/Econometrics.jl)
-
-![GitHub commits since latest release](https://img.shields.io/github/commits-since/Nosferican/Econometrics.jl/v0.2.3)
-
-
-This package uses continuous integration on Linux, OSX, and Windows (x64/x86).
+[bsi]: https://github.com/Nosferican/Econometrics.jl/workflows/CI/badge.svg
+[bsu]: https://github.com/Nosferican/Econometrics.jl/actions?workflow=CI
+[cci]: https://codecov.io/gh/Nosferican/Econometrics.jl/branch/master/graph/badge.svg
+[ccu]: https://codecov.io/gh/Nosferican/Econometrics.jl
+[dsi]: https://img.shields.io/badge/docs-stable-blue?style=plastic
+[dsu]: https://Nosferican.github.io/Econometrics.jl/stable/
+[ddi]: https://img.shields.io/badge/docs-dev-blue?style=plastic
+[ddu]: https://Nosferican.github.io/Econometrics.jl/dev/
+[li]: https://img.shields.io/github/license/Nosferican/Econometrics.jl?style=plastic
+[lu]: https://tldrlegal.com/license/-isc-license
+[pubu]: https://submissions.juliacon.org/papers/446fde271579d85e0d4c691d54093dbb
+[pubi]: https://submissions.juliacon.org/papers/446fde271579d85e0d4c691d54093dbb/status.svg
+[doiu]: https://doi.org/10.5281/zenodo.3379185
+[doii]: https://zenodo.org/badge/DOI/10.5281/zenodo.3379185.svg
+[csi]: https://img.shields.io/github/commits-since/Nosferican/Econometrics.jl/v0.2.4
 
 This package provides the functionality to estimate the following regression models:
 
