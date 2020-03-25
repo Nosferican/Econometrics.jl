@@ -1,9 +1,9 @@
 # Econometrics.jl
 
-| **Documentation** | **Continous Integration** | **Metadata** | **Reference** |
-|:-----------------:|:-------------------------:|:-----------------:|:-------------------------:|
-| [![][dsi]][dsu]   | [![][bsi]][bsu]           | [![][li]][lu]     | [![][pubi]][pubu]         |
-| [![][ddi]][ddu]   | [![][cci]][ccu]           | [![][csi]][lu]     | [![][doii]][doiu]         |
+| **Documentation** | **Continous Integration** | **Metadata** | **Reference**      |
+|:-----------------:|:-------------------------:|:------------:|:------------------:|
+| [![][dsi]][dsu]   | [![][bsi]][bsu]           | [![][li]][lu]| [![][pubi]][pubu]  |
+| [![][ddi]][ddu]   | [![][cci]][ccu]           | ![csi]       | [![][doii]][doiu]  |
 
 [bsi]: https://github.com/Nosferican/Econometrics.jl/workflows/CI/badge.svg
 [bsu]: https://github.com/Nosferican/Econometrics.jl/actions?workflow=CI
