@@ -1,3 +1,26 @@
+# v0.2.5
+
+## Features
+
+- Using TableOperations.jl
+
+## Bug fixes
+
+## Miscellaneous
+
+- Updated compat for deps
+- Updated C.I.
+
+# v0.2.4
+
+## Features
+
+## Bug fixes
+
+## Miscellaneous
+
+- Updated compat for deps
+
 # v0.2.3
 
 ## Features
