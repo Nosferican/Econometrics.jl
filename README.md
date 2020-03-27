@@ -19,7 +19,7 @@
 [pubi]: https://submissions.juliacon.org/papers/446fde271579d85e0d4c691d54093dbb/status.svg
 [doiu]: https://doi.org/10.5281/zenodo.3379185
 [doii]: https://zenodo.org/badge/DOI/10.5281/zenodo.3379185.svg
-[csi]: https://img.shields.io/github/commits-since/Nosferican/Econometrics.jl/v0.2.4
+[csi]: https://img.shields.io/github/commits-since/Nosferican/Econometrics.jl/v0.2.6
 
 This package provides the functionality to estimate the following regression models:
 
