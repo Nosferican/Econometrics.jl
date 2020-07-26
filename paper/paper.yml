@@ -12,7 +12,9 @@ keywords:
 authors:
   - name: José Bayoán Santiago Calderón
     orcid: 0000-0002-8406-6175
+    affiliation: 1
 affiliations:
   - name: Social and Decision Analytics Division, Biocomplexity Institute and Initiative, University of Virginia
+    index: 1
 date: 1 July 2019
 bibliography: ref.bib
