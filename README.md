@@ -15,8 +15,8 @@
 [ddu]: https://Nosferican.github.io/Econometrics.jl/dev/
 [li]: https://img.shields.io/github/license/Nosferican/Econometrics.jl?style=plastic
 [lu]: https://tldrlegal.com/license/-isc-license
-[pubu]: https://submissions.juliacon.org/papers/446fde271579d85e0d4c691d54093dbb
-[pubi]: https://submissions.juliacon.org/papers/446fde271579d85e0d4c691d54093dbb/status.svg
+[pubu]: https://doi.org/10.21105/jcon.00038
+[pubi]: https://proceedings.juliacon.org/papers/10.21105/jcon.00038/status.svg
 [doiu]: https://doi.org/10.5281/zenodo.3379185
 [doii]: https://zenodo.org/badge/DOI/10.5281/zenodo.3379185.svg
 [csi]: https://img.shields.io/github/commits-since/Nosferican/Econometrics.jl/v0.2.6
