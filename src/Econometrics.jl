@@ -117,7 +117,7 @@ if !@isdefined(ismissing)
 end
 foreach(
     file -> include(joinpath(dirname(@__DIR__), "src", "$file.jl")),
-    ["structs", "transformations", "formula", "main", "solvers", "statsbase", "wald"],
+    ["structs", "transformations", "formula", "main", "mlj-model-interface", "solvers", "statsbase", "wald"],
 )
 export @formula,
     DummyCoding,
@@ -157,6 +157,7 @@ export @formula,
     params,
     hasintercept,
     EconometricModel,
+    EconometricsMLJModel,
     absorb,
     BetweenEstimator,
     RandomEffectsEstimator,

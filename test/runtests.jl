@@ -446,3 +446,5 @@ end
     model = fit(EconometricModel, @formula(RecParks ~ Age * Age + Sex), data)
     @test Econometrics.clean_fm(model) == "Formula: RecParks ~ Age + Sex + Age & Age"
 end
+
+include("mlj.jl")
