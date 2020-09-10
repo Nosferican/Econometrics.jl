@@ -1,23 +1,20 @@
-import MLJModelInterface
-import Tables
-
-mutable struct EconometricsMLJModel{M, C, F, L} <: MLJModelInterface.Probabilistic
+mutable struct EconometricsMLJModel{M, C, F, L} <: Probabilistic
     contrasts::C
     formula::F
     label::L
 end
 
-function EconometricsMLJModel(; model::Type{M},
-                                contrasts::C = nothing,
-                                formula::F,
-                                label::L) where M where C where F where L
+function EconometricsMLJModel(;model::Type{M},
+                               contrasts::C = nothing,
+                               formula::F,
+                               label::L) where M where C where F where L
     return EconometricsMLJModel{M, C, F, L}(contrasts, formula, label)
 end
 
 function _merge_X_and_y(X, # X must be a table
                         y::AbstractVector,
                         label)
-    return merge(Tables.columntable(X), NamedTuple{(label,)}((y,)))
+    return merge(columntable(X), NamedTuple{(label,)}((y,)))
 end
 
 function MLJModelInterface.fit(model::EconometricsMLJModel{M},
@@ -40,7 +37,7 @@ function MLJModelInterface.fit(model::EconometricsMLJModel{M},
     return (fitresult, cache, report)
 end
 
-function MLJModelInterface.clean!(model::EconometricsMLJModel)
+function clean!(model::EconometricsMLJModel)
     warning = ""
     return warning
 end

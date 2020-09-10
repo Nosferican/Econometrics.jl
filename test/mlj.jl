@@ -1,10 +1,8 @@
-using Econometrics, Test
-
-using CSV, RDatasets
-using MLJBase: MLJBase
-using MLJModelInterface: MLJModelInterface
-
 @testset "MLJ model interface" begin
+    data = data = CSV.File(joinpath(Econometrics.DATAPATH, "insure.csv"), select = [:insure, :age, :male, :nonwhite, :site]) |>
+        DataFrame |>
+        dropmissing |>
+        (data -> categorical!(data, [:insure, :site]))
     @testset "Econometrics.jl + MLJModelInterface.jl" begin
         @testset "specify contrasts" begin
             contrasts = Dict(:insure => DummyCoding(base = "Uninsure"))
@@ -15,13 +13,7 @@ using MLJModelInterface: MLJModelInterface
                 contrasts = contrasts,
                 formula = formula,
                 label = label,
-            )
-
-            data = joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |>
-                CSV.File |>
-                (data -> CSV.select(data, [:insure, :age, :male, :nonwhite, :site])) |>
-                CSV.dropmissing |>
-                (data -> CSV.categorical!(data, [:insure, :site]))
+                )
             X = data[!, [:age, :male, :nonwhite, :site]]
             y = data[!, :insure]
             verbosity = 1
@@ -30,7 +22,7 @@ using MLJModelInterface: MLJModelInterface
             Xnew = deepcopy(X)
             @test_broken ynew = MLJModelInterface.predict(model, fitresult, Xnew)
         end
-        @testset "don't specify contrasts" begin
+        @testset "w/o specifying contrasts" begin
             formula = @formula(insure ~ age + male + nonwhite + site)
             label = :insure
             model = EconometricsMLJModel(;
@@ -38,12 +30,6 @@ using MLJModelInterface: MLJModelInterface
                 formula = formula,
                 label = label,
                 )
-
-            data = joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |>
-                CSV.File |>
-                (data -> CSV.select(data, [:insure, :age, :male, :nonwhite, :site])) |>
-                CSV.dropmissing |>
-                (data -> CSV.categorical!(data, [:insure, :site]))
             X = data[!, [:age, :male, :nonwhite, :site]]
             y = data[!, :insure]
             verbosity = 1
@@ -63,12 +49,6 @@ using MLJModelInterface: MLJModelInterface
             formula = formula,
             label = label,
             )
-
-        data = joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |>
-                CSV.File |>
-                (data -> CSV.select(data, [:insure, :age, :male, :nonwhite, :site])) |>
-                CSV.dropmissing |>
-                (data -> CSV.categorical!(data, [:insure, :site]))
         X = data[!, [:age, :male, :nonwhite, :site]]
         y = data[!, :insure]
         mach = MLJBase.machine(model, X, y)

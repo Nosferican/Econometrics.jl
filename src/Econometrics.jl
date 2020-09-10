@@ -35,6 +35,7 @@ using LinearAlgebra:
     LowerTriangular,
     qr,
     UpperTriangular
+using MLJModelInterface: MLJModelInterface, Probabilistic
 using Optim: hessian!, optimize, minimizer, TwiceDifferentiable
 using Parameters: @unpack, @pack!
 using Printf: @sprintf
@@ -106,19 +107,17 @@ import StatsBase:
     RegressionModel,
     params
 import StatsModels: hasintercept, implicit_intercept
-# Compat
-if !@isdefined(isnothing)
-    isnothing(::Any) = false
-    isnothing(::Nothing) = true
-end
-if !@isdefined(ismissing)
-    isnothing(::Any) = false
-    isnothing(::Missing) = true
-end
+import MLJModelInterface: clean!
+
+"""
+    const DATAPATH::String = realpath(joinpath(dirname(pathof(Econometrics)), "..", "data"))
+Return the path to the data directory for the Econometrics.jl module.
+"""
+const DATAPATH = realpath(joinpath(dirname(@__FILE__), "..", "data"))
 foreach(
     file -> include(joinpath(dirname(@__DIR__), "src", "$file.jl")),
     ["structs", "transformations", "formula", "main", "mlj-model-interface", "solvers", "statsbase", "wald"],
-)
+    )
 export @formula,
     DummyCoding,
     aic,
