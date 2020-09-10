@@ -35,20 +35,23 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        julia-version: [1.4.0]
+        julia-version: ['^1.6.0-rc1']
         julia-arch: [x64]
-        os: [ubuntu-latest]
+        os: [ubuntu-20.04]
+      matrix:
+        arch: ${{ matrix.julia-arch }}
+        version: ${{ matrix.julia-version }}
     steps:
-      - uses: actions/checkout@v1.0.0
-      - uses: julia-actions/setup-julia@latest
+      - uses: actions/checkout@v2
+      - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.julia-version }}
-      - uses: julia-actions/julia-buildpkg@v0.1.0
-      - uses: julia-actions/julia-runtest@v0.1.0
-      - uses: julia-actions/julia-uploadcodecov@v0.1.0
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      - uses: julia-actions/julia-buildpkg@v0.1
+      - uses: julia-actions/julia-runtest@v0.1
+      - uses: julia-actions/julia-processcoverage@v1
+      - uses: codecov/codecov-action@v1
+        with:
+          file: lcov.info
       - uses: julia-actions/julia-docdeploy@releases/v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
