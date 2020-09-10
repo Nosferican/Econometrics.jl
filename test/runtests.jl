@@ -256,7 +256,7 @@ end
 # Nominal Models
 @testset "Nominal Models" begin
     data =
-        joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |> CSV.read |>
+        joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |> CSV.File |> DataFrame |>
         (data -> select(data, [:insure, :age, :male, :nonwhite, :site])) |> dropmissing |>
         (data -> categorical!(data, [:insure, :site]))
     model = fit(
@@ -367,7 +367,7 @@ end
     ] rtol = 1e-3
     @test σ ≈ [0.0032917, 0.1060675, 0.0300878, 0.2289892, 0.2121925, 0.2105408] rtol = 1e-4
     data =
-        joinpath(dirname(pathof(Econometrics)), "..", "data", "auto.csv") |> CSV.read |>
+        joinpath(dirname(pathof(Econometrics)), "..", "data", "auto.csv") |> CSV.File |> DataFrame |>
         (data -> select(data, [:rep77, :foreign, :length, :mpg])) |> dropmissing |>
         categorical!
     data.rep77 = levels!(
@@ -425,7 +425,7 @@ end
     @test Econometrics.clean_fm(model) == "Formula: CRMRTE ~ PrbConv"
     # Nominal Response Model
     data =
-        joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |> CSV.read |>
+        joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |> CSV.File |> DataFrame |>
         (data -> select(data, [:insure, :age, :male, :nonwhite, :site])) |> dropmissing |>
         (data -> categorical!(data, [:insure, :site]))
     f = @formula(insure ~ 0 + age^2 + male + nonwhite + site)
