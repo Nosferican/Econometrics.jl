@@ -1,10 +1,8 @@
-using Econometrics
-using Test
+using Econometrics, Test
 
-import CSV
-# import DataFrames
-import MLJBase
-import MLJModelInterface
+using CSV, RDatasets
+using MLJBase: MLJBase
+using MLJModelInterface: MLJModelInterface
 
 @testset "MLJ model interface" begin
     @testset "Econometrics.jl + MLJModelInterface.jl" begin
@@ -19,7 +17,11 @@ import MLJModelInterface
                 label = label,
             )
 
-            data = joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |> CSV.read |> (data -> CSV.select(data, [:insure, :age, :male, :nonwhite, :site])) |> CSV.dropmissing |> (data -> CSV.categorical!(data, [:insure, :site]))
+            data = joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |>
+                CSV.File |>
+                (data -> CSV.select(data, [:insure, :age, :male, :nonwhite, :site])) |>
+                CSV.dropmissing |>
+                (data -> CSV.categorical!(data, [:insure, :site]))
             X = data[!, [:age, :male, :nonwhite, :site]]
             y = data[!, :insure]
             verbosity = 1
@@ -35,9 +37,13 @@ import MLJModelInterface
                 model = EconometricModel,
                 formula = formula,
                 label = label,
-            )
+                )
 
-            data = joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |> CSV.read |> (data -> CSV.select(data, [:insure, :age, :male, :nonwhite, :site])) |> CSV.dropmissing |> (data -> CSV.categorical!(data, [:insure, :site]))
+            data = joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |>
+                CSV.File |>
+                (data -> CSV.select(data, [:insure, :age, :male, :nonwhite, :site])) |>
+                CSV.dropmissing |>
+                (data -> CSV.categorical!(data, [:insure, :site]))
             X = data[!, [:age, :male, :nonwhite, :site]]
             y = data[!, :insure]
             verbosity = 1
@@ -56,9 +62,13 @@ import MLJModelInterface
             contrasts = contrasts,
             formula = formula,
             label = label,
-        )
+            )
 
-        data = joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |> CSV.read |> (data -> CSV.select(data, [:insure, :age, :male, :nonwhite, :site])) |> CSV.dropmissing |> (data -> CSV.categorical!(data, [:insure, :site]))
+        data = joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |>
+                CSV.File |>
+                (data -> CSV.select(data, [:insure, :age, :male, :nonwhite, :site])) |>
+                CSV.dropmissing |>
+                (data -> CSV.categorical!(data, [:insure, :site]))
         X = data[!, [:age, :male, :nonwhite, :site]]
         y = data[!, :insure]
         mach = MLJBase.machine(model, X, y)
