@@ -1,11 +1,5 @@
 [deps]
-CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-RDatasets = "ce6b1742-4840-55fa-b093-852dadbb1d8b"
-StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
-Weave = "44d3d7a6-8a23-5bf8-98c5-b353f8df5ec9"
 
 [compat]
-RDatasets = "0.6"
 Documenter = "0.25"
-Weave = "0.10"

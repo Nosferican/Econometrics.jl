@@ -446,3 +446,37 @@ end
     model = fit(EconometricModel, @formula(RecParks ~ Age * Age + Sex), data)
     @test Econometrics.clean_fm(model) == "Formula: RecParks ~ Age + Sex + Age & Age"
 end
+# Documentation
+@testset "Documentation" begin
+    using Documenter, Econometrics, Weave, StatsBase
+
+    prefix = parse(Bool, get(ENV, "CI", "false")) ? "" : ".."
+
+    for file in filter!(file -> endswith(file, ".jmd"), readdir(joinpath(prefix, "docs", "jmd"), join = true))
+        weave(file,
+              out_path = joinpath(prefix, "docs", "src"),
+              doctype = "github",
+              )
+    end
+
+    DocMeta.setdocmeta!(Econometrics,
+                       :DocTestSetup,
+                       :(using Econometrics, Documenter, CSV, RDatasets, StatsBase;
+                         ENV["COLUMNS"] = 120;
+                         ENV["LINES"] = 30;),
+                       recursive = true)
+    # doctest(Econometrics, fix = true)
+    makedocs(sitename = "Econometrics",
+             format = Documenter.HTML(assets = [joinpath("assets", "custom.css")]),
+             modules = [Econometrics, StatsBase],
+             pages = [
+                 "Introduction" => "index.md",
+                 "Getting Started" => "getting_started.md",
+                 "Estimators" => "estimators.md",
+                 "API" => "api.md",
+                 ],
+             source = joinpath(prefix, "docs", "src"),
+             build = joinpath(prefix, "docs", "build"),
+             )
+    @test true
+end

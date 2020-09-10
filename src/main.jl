@@ -211,7 +211,7 @@ function fit(
     data;
     fit = true,
     kw...,
-)
+    )
     model = EconometricModel(
         estimator,
         f,
@@ -225,7 +225,7 @@ function fit(
         panel = get(kw, :panel, nothing),
         time = get(kw, :time, nothing),
         vce = get(kw, :vce, OIM),
-    )
+        )
     fit && fit!(model)
     model
 end

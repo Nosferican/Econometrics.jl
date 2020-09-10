@@ -1,24 +1,3 @@
-using Documenter, Weave, Econometrics
-using CSV, RDatasets, StatsBase
-
-for file in readdir(joinpath(dirname(pathof(Econometrics)), "..", "docs", "jmd"))
-    weave(
-        joinpath(dirname(pathof(Econometrics)), "..", "docs", "jmd", file),
-        out_path = joinpath(dirname(pathof(Econometrics)), "..", "docs", "src"),
-        doctype = "github",
-    )
-end
-
-makedocs(
-    format = Documenter.HTML(assets = ["assets/custom.css"]),
-    modules = [Econometrics, StatsBase, CSV, RDatasets],
-    sitename = "Econometrics.jl",
-    pages = [
-        "Introduction" => "index.md",
-        "Getting Started" => "getting_started.md",
-        "Estimators" => "estimators.md",
-        "API" => "api.md",
-    ],
-)
+using Documenter
 
 deploydocs(repo = "github.com/Nosferican/Econometrics.jl.git")
