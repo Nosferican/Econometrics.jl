@@ -450,7 +450,7 @@ end
 @testset "Documentation" begin
     using Documenter, Econometrics, Weave, StatsBase
 
-    prefix = parse(Bool, get(ENV, "CI", "false")) ? "" : ".."
+    prefix = ".."
 
     for file in filter!(file -> endswith(file, ".jmd"), readdir(joinpath(prefix, "docs", "jmd"), join = true))
         weave(file,
