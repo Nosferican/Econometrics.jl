@@ -18,3 +18,23 @@ In addition, models incorporate the following features:
   - Robust Variance Covariance Estimators (e.g., heteroscedasticity consistent)
   - Instrumental Variables Model through Two-Stage Least Squares (2SLS)
   - Feature absorption for estimating a subset of parameters with high dimensional fixed effects as controls efficiently
+
+**Citation**
+
+Please use the following reference when citing this package:
+
+[![Publication](https://proceedings.juliacon.org/papers/10.21105/jcon.00038/status.svg)](https://doi.org/10.21105/jcon.00038)
+
+```
+@article{SantiagoCalderón2020,
+  author = {Santiago Calderón, José Bayoán},
+  title = {Econometrics.jl},
+  journal = {Proceedings of the JuliaCon Conferences},
+  publisher = {The Open Journal},
+  year = {2020},
+  volume = {1},
+  number = {1},
+  pages = {38},
+  doi = {10.21105/jcon.00038}
+}
+```

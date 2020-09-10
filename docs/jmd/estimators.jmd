@@ -35,7 +35,7 @@ data = data[data.Earnings .> 0 .&
 
 Baseline model
 
-```julia; line_width = 90
+```julia; line_width = 90;
 model = fit(EconometricModel, # Indicates the default model
             @formula(log(Earnings) ~ Educatn + Age + Age^2), # formula
             data)
@@ -45,7 +45,7 @@ model = fit(EconometricModel, # Indicates the default model
 
 We can also specify observation weights,
 
-```julia; line_width = 90
+```julia; line_width = 90;
 model = fit(EconometricModel,
             @formula(log(Earnings) ~ Educatn + Age + Age^2),
             data,
@@ -57,7 +57,7 @@ model = fit(EconometricModel,
 
 Categorical variables can be passed through a contrast or if the feature is coded as a categorical variables it will be handled as categorical.
 
-```julia; line_width = 90
+```julia; line_width = 90;
 model = fit(EconometricModel,
             @formula(log(Earnings) ~ Educatn + Age + Age^2 + Kids),
             data,
@@ -69,7 +69,7 @@ model = fit(EconometricModel,
 
 If one only care about the estimates of a subset of features and controls such as number of kids (as categorical), one can absorb those features,
 
-```julia; line_width = 90
+```julia; line_width = 90;
 model = fit(EconometricModel,
             @formula(log(Earnings) ~ Educatn + Age + Age^2 + absorb(Kids)),
             data,
@@ -82,23 +82,23 @@ Various variance-covariance estimators are available for continous response mode
 
 For example,
 
-```julia; line_width = 90
+```julia; line_width = 90;
 vcov(model, HC0)
 ```
 
-```julia; line_width = 90
+```julia; line_width = 90;
 vcov(model, HC1)
 ```
 
-```julia; line_width = 90
+```julia; line_width = 90;
 vcov(model, HC2)
 ```
 
-```julia; line_width = 90
+```julia; line_width = 90;
 vcov(model, HC3)
 ```
 
-```julia; line_width = 90
+```julia; line_width = 90;
 vcov(model, HC4)
 ```
 
@@ -108,14 +108,14 @@ Longitudinal data is when a sample contains repeated measurements of the unit of
 
 Example,
 
-```julia; line_width = 90
+```julia; line_width = 90;
 data = RDatasets.dataset("Ecdat", "Crime") |>
   (data -> select(data, [:County, :Year, :CRMRTE, :PrbConv, :AvgSen, :PrbPris]))
 ```
 
 ### The Between estimator
 
-```julia; line_width = 90
+```julia; line_width = 90;
 model = fit(BetweenEstimator, # Indicates the between estimator
             @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris),
             data,
@@ -124,7 +124,7 @@ model = fit(BetweenEstimator, # Indicates the between estimator
 
 ### The Within estimator (Fixed Effects)
 
-```julia; line_width = 90
+```julia; line_width = 90;
 model = fit(EconometricModel,
             @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + absorb(County)),
             data)
@@ -132,7 +132,7 @@ model = fit(EconometricModel,
 
 Absorbing the panel and temporal indicators
 
-```julia; line_width = 90
+```julia; line_width = 90;
 model = fit(EconometricModel,
             @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris + absorb(County + Year)),
             data)
@@ -140,7 +140,7 @@ model = fit(EconometricModel,
 
 ### The random effects model à la Swamy-Arora
 
-```julia; line_width = 90
+```julia; line_width = 90;
 model = fit(RandomEffectsEstimator, # Indicates the random effects estimator
             @formula(CRMRTE ~ PrbConv + AvgSen + PrbPris),
             data,
@@ -152,7 +152,7 @@ model = fit(RandomEffectsEstimator, # Indicates the random effects estimator
 
 Instrumental variables models are estimated using the 2SLS estimator.
 
-```julia; line_width = 90
+```julia; line_width = 90;
 model = fit(RandomEffectsEstimator,
             @formula(CRMRTE ~ PrbConv + (AvgSen ~ PrbPris)),
             data,
@@ -162,9 +162,9 @@ model = fit(RandomEffectsEstimator,
 
 ## Nominal Response Models
 
-```julia; line_width = 90
+```julia; line_width = 90;
 data = joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |>
-   CSV.read |>
+   CSV.File |> DataFrame |>
    (data -> select(data, [:insure, :age, :male, :nonwhite, :site])) |>
    dropmissing |>
    (data -> categorical!(data, [:insure, :site]))
@@ -172,7 +172,7 @@ data = joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |>
 
 The model automatically detects that the response is nominal and uses the correct model.
 
-```julia; line_width = 120
+```julia; line_width = 120;
 model = fit(EconometricModel,
             @formula(insure ~ age + male + nonwhite + site),
             data,
@@ -181,7 +181,7 @@ model = fit(EconometricModel,
 
 ## Ordinal Response Models
 
-```julia; line_width = 90
+```julia; line_width = 90;
 data = RDatasets.dataset("Ecdat", "Kakadu") |>
        (data -> select(data, [:RecParks, :Sex, :Age, :Schooling]))
 data.RecParks = convert(Vector{Int}, data.RecParks)
@@ -191,7 +191,7 @@ data
 
 The model automatically detects that the response is ordinal and uses the correct model.
 
-```julia; line_width = 90
+```julia; line_width = 90;
 model = fit(EconometricModel,
             @formula(RecParks ~ Age + Sex + Schooling),
             data)

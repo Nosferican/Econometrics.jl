@@ -1,0 +1,35 @@
+{
+    "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+    "@type": "SoftwareSourceCode",
+    "license": "https://spdx.org/licenses/ISC",
+    "codeRepository": "git+https://github.com/Nosferican/Econometrics.jl",
+    "dateCreated": "2018-01-01",
+    "datePublished": "2019-07-08",
+    "name": "Econometrics.jl",
+    "identifier": "10.21105/jcon.00038",
+    "description": "Econometrics in Julia.",
+    "applicationCategory": "Econometrics",
+    "funding": "NSF-1357478, NSF-1730651",
+    "developmentStatus": "active",
+    "referencePublication": "https://doi.org/10.21105/jcon.00038",
+    "keywords": [
+        "regression analysis",
+        "econometrics"
+    ],
+    "programmingLanguage": [
+        "Julia"
+    ],
+    "author": [
+        {
+            "@type": "Person",
+            "@id": "https://orcid.org/0000-0002-8406-6175",
+            "givenName": "José Bayoán",
+            "familyName": "Santiago Calderón",
+            "email": "naoyabpr@gmail.com",
+            "affiliation": {
+                "@type": "Organization",
+                "name": "Biocomplexity Institute & Initiative, University of Virginia"
+            }
+        }
+    ]
+}
