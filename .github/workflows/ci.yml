@@ -38,9 +38,6 @@ jobs:
         julia-version: ['^1.6.0-rc1']
         julia-arch: [x64]
         os: [ubuntu-20.04]
-      matrix:
-        arch: ${{ matrix.julia-arch }}
-        version: ${{ matrix.julia-version }}
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
