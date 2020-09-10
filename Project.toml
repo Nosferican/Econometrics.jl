@@ -47,4 +47,4 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Weave = "44d3d7a6-8a23-5bf8-98c5-b353f8df5ec9"
 
 [targets]
-test = ["CSV", "Documenter", "DataFrames", "MLJBase", "MLJModelInterface", "RDatasets", "Test", "Weave"]
+test = ["CSV", "Documenter", "MLJBase", "MLJModelInterface", "RDatasets", "Test", "Weave"]
