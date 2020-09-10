@@ -2,7 +2,7 @@ using Econometrics
 using Test
 
 import CSV
-import DataFrames
+# import DataFrames
 import MLJBase
 import MLJModelInterface
 
