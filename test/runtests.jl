@@ -256,7 +256,7 @@ end
 # Nominal Models
 @testset "Nominal Models" begin
     data =
-        joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |> CSV.read |>
+        joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |> CSV.File |> DataFrame |>
         (data -> select(data, [:insure, :age, :male, :nonwhite, :site])) |> dropmissing |>
         (data -> categorical!(data, [:insure, :site]))
     model = fit(
@@ -367,7 +367,7 @@ end
     ] rtol = 1e-3
     @test σ ≈ [0.0032917, 0.1060675, 0.0300878, 0.2289892, 0.2121925, 0.2105408] rtol = 1e-4
     data =
-        joinpath(dirname(pathof(Econometrics)), "..", "data", "auto.csv") |> CSV.read |>
+        joinpath(dirname(pathof(Econometrics)), "..", "data", "auto.csv") |> CSV.File |> DataFrame |>
         (data -> select(data, [:rep77, :foreign, :length, :mpg])) |> dropmissing |>
         categorical!
     data.rep77 = levels!(
@@ -425,7 +425,7 @@ end
     @test Econometrics.clean_fm(model) == "Formula: CRMRTE ~ PrbConv"
     # Nominal Response Model
     data =
-        joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |> CSV.read |>
+        joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |> CSV.File |> DataFrame |>
         (data -> select(data, [:insure, :age, :male, :nonwhite, :site])) |> dropmissing |>
         (data -> categorical!(data, [:insure, :site]))
     f = @formula(insure ~ 0 + age^2 + male + nonwhite + site)
@@ -445,4 +445,38 @@ end
     data.RecParks = levels!(categorical(data.RecParks, ordered = true), collect(1:5))
     model = fit(EconometricModel, @formula(RecParks ~ Age * Age + Sex), data)
     @test Econometrics.clean_fm(model) == "Formula: RecParks ~ Age + Sex + Age & Age"
+end
+# Documentation
+@testset "Documentation" begin
+    using Documenter, Econometrics, Weave, StatsBase
+
+    prefix = ".."
+
+    for file in filter!(file -> endswith(file, ".jmd"), readdir(joinpath(prefix, "docs", "jmd"), join = true))
+        weave(file,
+              out_path = joinpath(prefix, "docs", "src"),
+              doctype = "github",
+              )
+    end
+
+    DocMeta.setdocmeta!(Econometrics,
+                       :DocTestSetup,
+                       :(using Econometrics, Documenter, CSV, RDatasets, StatsBase;
+                         ENV["COLUMNS"] = 120;
+                         ENV["LINES"] = 30;),
+                       recursive = true)
+    # doctest(Econometrics, fix = true)
+    makedocs(sitename = "Econometrics",
+             format = Documenter.HTML(assets = [joinpath("assets", "custom.css")]),
+             modules = [Econometrics, StatsBase],
+             pages = [
+                 "Introduction" => "index.md",
+                 "Getting Started" => "getting_started.md",
+                 "Estimators" => "estimators.md",
+                 "API" => "api.md",
+                 ],
+             source = joinpath(prefix, "docs", "src"),
+             build = joinpath(prefix, "docs", "build"),
+             )
+    @test true
 end

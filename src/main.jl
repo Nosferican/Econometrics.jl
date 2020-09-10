@@ -34,9 +34,9 @@ mutable struct EconometricModel{
     N<:Tuple{
         <:Union{<:AbstractVector{<:AbstractString},<:AbstractString},
         <:AbstractVector{<:AbstractString},
-    },
+        },
     VC<:Union{<:Type{<:VCE},<:VCE},
-} <: EconometricsModel
+    } <: EconometricsModel
     estimator::E
     f::F
     data::T
@@ -60,9 +60,10 @@ mutable struct EconometricModel{
         panel::Union{Nothing,Symbol} = nothing,
         time::Union{Nothing,Symbol} = nothing,
         vce::VCE = OIM,
-    )
+        )
         data, exogenous, iv, estimator, X, y, z, Z, wts =
             decompose(deepcopy(f), data, contrasts, wts, panel, time, estimator, vce)
+        
         if isa(estimator, Union{NominalResponse,OrdinalResponse})
             @unpack categories = estimator
             y = [findfirst(isequal(x), categories) for x in y]
@@ -77,7 +78,7 @@ mutable struct EconometricModel{
         vars = (
             coefnames(exogenous.lhs),
             convert(Vector{String}, vcat(coefnames(exogenous.rhs), coefnames(iv.lhs))),
-        )
+            )
         new{
             typeof(estimator),
             typeof(f),
@@ -210,7 +211,7 @@ function fit(
     data;
     fit = true,
     kw...,
-)
+    )
     model = EconometricModel(
         estimator,
         f,
@@ -224,7 +225,7 @@ function fit(
         panel = get(kw, :panel, nothing),
         time = get(kw, :time, nothing),
         vce = get(kw, :vce, OIM),
-    )
+        )
     fit && fit!(model)
     model
 end
