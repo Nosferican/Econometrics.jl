@@ -33,7 +33,7 @@ Parameters = "0.12"
 StatsBase = "0.33"
 StatsFuns = "0.9"
 StatsModels = "0.6"
-TableOperations = "0.2"
+TableOperations = "0.2, 1.0"
 Tables = "1"
 julia = "1.4"
 
