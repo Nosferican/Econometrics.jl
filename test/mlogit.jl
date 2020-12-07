@@ -1,9 +1,8 @@
 # Nominal Models
 @testset "Nominal Models" begin
-    data = CSV.File(joinpath(Econometrics.DATAPATH, "insure.csv"), select = [:insure, :age, :male, :nonwhite, :site]) |>
-        DataFrame |>
+    data = CSV.read(joinpath(pkgdir(Econometrics), "data", "insure.csv"), DataFrame, select = [:insure, :age, :male, :nonwhite, :site]) |>
         dropmissing |>
-        (data -> categorical!(data, [:insure, :site]))
+        (data -> transform!(data, [:insure, :site] .=> categorical, renamecols = false))
     model = fit(
         EconometricModel,
         @formula(insure ~ age + male + nonwhite + site),

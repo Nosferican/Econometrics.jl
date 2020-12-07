@@ -166,5 +166,6 @@ export @formula,
     HC1,
     HC2,
     HC3,
-    HC4
+    HC4,
+    levels!
 end

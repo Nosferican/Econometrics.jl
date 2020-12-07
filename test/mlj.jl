@@ -1,8 +1,7 @@
 @testset "MLJ model interface" begin
-    data = data = CSV.File(joinpath(Econometrics.DATAPATH, "insure.csv"), select = [:insure, :age, :male, :nonwhite, :site]) |>
-        DataFrame |>
+    data = CSV.read(joinpath(pkgdir(Econometrics), "data", "insure.csv"), DataFrame, select = [:insure, :age, :male, :nonwhite, :site]) |>
         dropmissing |>
-        (data -> categorical!(data, [:insure, :site]))
+        (data -> transform!(data, [:insure, :site] .=> categorical, renamecols = false))
     @testset "Econometrics.jl + MLJModelInterface.jl" begin
         @testset "specify contrasts" begin
             contrasts = Dict(:insure => DummyCoding(base = "Uninsure"))
