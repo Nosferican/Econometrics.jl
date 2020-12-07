@@ -1,9 +1,8 @@
 # Nominal Models
 @testset "Nominal Models" begin
-    data = CSV.File(joinpath(Econometrics.DATAPATH, "insure.csv"), select = [:insure, :age, :male, :nonwhite, :site]) |>
-        DataFrame |>
+    data = CSV.read(joinpath(pkgdir(Econometrics), "data", "insure.csv"), DataFrame, select = [:insure, :age, :male, :nonwhite, :site]) |>
         dropmissing |>
-        (data -> categorical!(data, [:insure, :site]))
+        (data -> transform!(data, [:insure, :site] .=> categorical, renamecols = false))
     model = fit(
         EconometricModel,
         @formula(insure ~ age + male + nonwhite + site),
@@ -26,7 +25,7 @@
         0.7577178,
         1.324599,
         -0.3801756,
-    ] rtol = 1e-3
+        ] rtol = 1e-3
     @test V ≈
           [
         0.35084518 -0.00590456 -0.02519209 -0.01837512 -0.08995794 -0.08264268 0.29928937 -0.00510107 -0.02257270 -0.01585492 -0.07392512 -0.06808314
@@ -41,7 +40,8 @@
         -0.01585492 -0.00024122 0.01369872 0.15068111 0.01594691 -0.02353016 -0.02105510 -0.00028680 0.01625685 0.17604391 0.02099458 -0.03008391
         -0.07392512 0.00033847 0.00945927 0.01664999 0.19895500 0.05182727 -0.08991231 0.00039990 0.01101870 0.02099458 0.22070774 0.06273376
         -0.06808314 0.00035236 0.00802593 -0.02345786 0.05189742 0.11060487 -0.08165509 0.00041790 0.00922333 -0.03008391 0.06273376 0.13899387
-    ] |> Hermitian rtol = 1e-3
+        ] |>
+        Hermitian rtol = 1e-3
     @test σ ≈ [
         0.5923219,
         0.0114418,
@@ -55,5 +55,5 @@
         0.4195759,
         0.4697954,
         0.3728188,
-    ] rtol = 1e-4
+        ] rtol = 1e-4
 end

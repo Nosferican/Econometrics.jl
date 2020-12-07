@@ -163,11 +163,10 @@ model = fit(RandomEffectsEstimator,
 ## Nominal Response Models
 
 ```julia; line_width = 90;
-data = joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |>
-   CSV.File |> DataFrame |>
+data = CSV.read(joinpath(pkgdir(Econometrics), "data", "insure.csv"), DataFrame) |>
    (data -> select(data, [:insure, :age, :male, :nonwhite, :site])) |>
    dropmissing |>
-   (data -> categorical!(data, [:insure, :site]))
+   (data -> transform!(data, [:insure, :site] .=> categorical, renamecols = false))
 ```
 
 The model automatically detects that the response is nominal and uses the correct model.
@@ -185,7 +184,7 @@ model = fit(EconometricModel,
 data = RDatasets.dataset("Ecdat", "Kakadu") |>
        (data -> select(data, [:RecParks, :Sex, :Age, :Schooling]))
 data.RecParks = convert(Vector{Int}, data.RecParks)
-data.RecParks = levels!(categorical(data.RecParks, ordered = true), collect(1:5))
+data.RecParks = levels!(categorical(data.RecParks, ordered = true, compress = true), collect(1:5))
 data
 ```
 
