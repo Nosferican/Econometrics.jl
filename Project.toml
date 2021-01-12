@@ -26,7 +26,7 @@ Tables = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
 [compat]
 CategoricalArrays = "0.8, 0.9"
 Distributions = "0.23, 0.24"
-FillArrays = "0.9, 0.10"
+FillArrays = "0.9, 0.10, 0.11"
 ForwardDiff = "0.10"
 MLJBase = "0.15, 0.16"
 MLJModelInterface = "0.3"
