@@ -37,7 +37,7 @@ function decompose(
     time::Union{Nothing,Symbol},
     estimator::Type{<:Union{EconometricsModel,ModelEstimator}},
     vce::VCE,
-)
+    )
     rhs = isa(f.rhs, Tuple) ? collect(f.rhs) : [f.rhs]
     absorbed = findall(t -> isa(t, FunctionTerm{typeof(absorb)}), rhs)
     # Conditions based on panel and temporal indices and absorbed features
@@ -71,13 +71,13 @@ function decompose(
         zip(
             categorical_variables,
             (levels(col), isordered(col))
-            for col in (select(data, categorical_variables...) |> columntable)
+            for col in (TableOperations.select(data, categorical_variables...) |> columntable)
         ) |> Dict
     data = materializer(data)(
         row
         for
         row ∈ rows(data) if all(pn -> !ismissing(getproperty(row, pn)), propertynames(row))
-    )
+        )
     for cn in categorical_variables
         col = getproperty(data, cn)
         levels!(col, intersect(data_categorical[cn][1], unique(col)))
@@ -105,8 +105,12 @@ function decompose(
     end
     exo_rhs =
         filter(t -> !(isa(t, FormulaTerm) || isa(t, FunctionTerm{typeof(absorb)})), rhs)
-    exogenous =
-        FormulaTerm(f.lhs, isempty(exo_rhs) ? Tuple([ConstantTerm(1)]) : Tuple(exo_rhs))
+    exogenous = FormulaTerm(f.lhs,
+        if isempty(exo_rhs) | (length(exo_rhs) == 1 && only(exo_rhs) == ConstantTerm(1))
+            InterceptTerm{true}()
+        else
+            Tuple(exo_rhs)
+        end)
     @assert length(terms(exogenous.lhs)) == 1 "Response should be a single variable"
     iv = findall(t -> isa(t, FormulaTerm), rhs)
     if length(iv) == 0

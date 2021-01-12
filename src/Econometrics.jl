@@ -5,8 +5,9 @@
 """
 module Econometrics
 using Base.Iterators: flatten
-using CategoricalArrays: CategoricalValue, levels, levels!, isordered, ordered!
+using CategoricalArrays: CategoricalArrays, CategoricalValue, levels, levels!, isordered, ordered!
 using Distributions:
+    Distributions,
     cdf,
     ccdf,
     Categorical,
@@ -21,9 +22,10 @@ using Distributions:
     mean,
     quantile,
     var
-using FillArrays: Ones
-using ForwardDiff: Dual, value
+using FillArrays: FillArrays, Ones
+using ForwardDiff: ForwardDiff, Dual, value
 using LinearAlgebra:
+    LinearAlgebra,
     bunchkaufman,
     bunchkaufman!,
     cholesky!,
@@ -35,14 +37,15 @@ using LinearAlgebra:
     LowerTriangular,
     qr,
     UpperTriangular
-using MLJModelInterface: MLJModelInterface, Probabilistic
-using Optim: hessian!, optimize, minimizer, TwiceDifferentiable
-using Parameters: @unpack, @pack!
-using Printf: @sprintf
+using MLJModelInterface: MLJModelInterface, MLJModelInterface, Probabilistic
+using Optim: Optim, hessian!, optimize, minimizer, TwiceDifferentiable
+using Parameters: Parameters, @unpack, @pack!
+using Printf: Printf, @sprintf
 using StatsBase:
-    aic, aicc, bic, harmmean, FrequencyWeights, CoefTable, ConvergenceException, Weights
-using StatsFuns: softmax
+    StatsBase, aic, aicc, bic, harmmean, FrequencyWeights, CoefTable, ConvergenceException, Weights
+using StatsFuns: StatsFuns, softmax
 using StatsModels:
+    StatsModels,
     AbstractContrasts,
     AbstractTerm,
     apply_schema,
@@ -61,6 +64,7 @@ using StatsModels:
     terms,
     termvars
 using TableOperations:
+    TableOperations,
     select,
 # Tables
     Tables,
@@ -110,7 +114,7 @@ import StatsModels: hasintercept, implicit_intercept
 import MLJModelInterface: clean!
 
 """
-    const DATAPATH::String = realpath(joinpath(dirname(pathof(Econometrics)), "..", "data"))
+    const DATAPATH::String = realpath(joinpath(pkgdir(Econometrics), "data"))
 Return the path to the data directory for the Econometrics.jl module.
 """
 const DATAPATH = realpath(joinpath(dirname(@__FILE__), "..", "data"))

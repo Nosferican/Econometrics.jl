@@ -14,7 +14,7 @@
     f = @formula(CRMRTE ~ -1 + PrbConv + PrbConv & PrbPris^2 + absorb(County + Year))
     model = fit(EconometricModel, f, data)
     @test Econometrics.clean_fm(model) ==
-          "Formula: CRMRTE ~ -1 + PrbConv + absorb(County + Year) + PrbConv & (PrbPris ^ 2)"
+        "Formula: CRMRTE ~ -1 + PrbConv + absorb(County + Year) + PrbConv & (PrbPris ^ 2)"
     f = @formula(log(CRMRTE) ~ 1)
     model = fit(EconometricModel, f, data)
     @test Econometrics.clean_fm(model) == "Formula: log(CRMRTE) ~ 1"
@@ -24,18 +24,17 @@
     @test Econometrics.clean_fm(model) == "Formula: CRMRTE ~ PrbConv"
     # Nominal Response Model
     data =
-        joinpath(dirname(pathof(Econometrics)), "..", "data", "insure.csv") |> CSV.File |> DataFrame |>
+        CSV.read(joinpath(pkgdir(Econometrics), "data", "insure.csv"), DataFrame) |>
         (data -> select(data, [:insure, :age, :male, :nonwhite, :site])) |> dropmissing |>
-        (data -> categorical!(data, [:insure, :site]))
+        (data -> transform!(data, [:insure, :site] .=> categorical, renamecols = false))
     f = @formula(insure ~ 0 + age^2 + male + nonwhite + site)
     model = fit(
         EconometricModel,
         f,
         data,
         contrasts = Dict(:insure => DummyCoding(base = "Uninsure")),
-    )
-    @test Econometrics.clean_fm(model) ==
-          "Formula: insure ~ 0 + (age ^ 2) + male + nonwhite + site"
+        )
+    @test Econometrics.clean_fm(model) == "Formula: insure ~ 0 + (age ^ 2) + male + nonwhite + site"
     # Ordinal Response Model
     data =
         dataset("Ecdat", "Kakadu") |>
