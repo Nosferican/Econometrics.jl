@@ -169,10 +169,11 @@ Obtain Ω for a multinomial regression by building the matrix by blocks.
   end
   Hermitian(Σ)
 end
-@views function fit!(obj::EconometricModel{<:NominalResponse})
+@views function fit!(obj::EconometricModel{<:NominalResponse}, maxiter::Integer=250, atol::Real=1e-9, rtol::Real=1e-9, start=nothing)
 	@unpack estimator, X, y, z, Z, wts = obj
 	@unpack categories = estimator
     @assert isempty(z) && isempty(Z) "Nominal response models can only contain exogenous features"
+    @assert maxiter >= 1 "maxiter must be positive"
     b = mapreduce(elem -> (eachindex(categories) .== elem)', vcat, y)
     F = qr(X, Val(true))
     qrr = count(x -> abs(x) ≥ √eps(), diag(F.R))
@@ -191,10 +192,10 @@ end
     μ, μ′, w = zero(η), zero(η), zero(η)
     β = zeros(p, k)
     ℓℓ = [Inf, Inf, Inf]
-    max_iteration = 250
+    maxiter = 250
     tol = 1e-9
     converged = false
-    for iteration ∈ 1:max_iteration
+    for iteration ∈ 1:maxiter
       converged && break
       for row ∈ 1:m
         μ[row,:] .= softmax(η[row,:])
@@ -202,7 +203,7 @@ end
       μ′ .= max.(μ .* (one(Float64) .- μ), √eps())
       w .= wts .* μ′
       ℓℓ[1] = ℓℓ[2]
-      ℓℓ[2] = sum(wts[idx[1]] * logpdf(Categorical(collect(μ[idx[1],:])), idx[2]) for idx in findall(b))
+      ℓℓ[2] = sum(wts[idx[1]] * logpdf(Categorical(collect(μ[idx[1],:])), idx[2]) for idx in findall(b)) # Total deviance
       if isone(iteration)
           ℓℓ₀ = ℓℓ[2]
       end
@@ -214,9 +215,9 @@ end
       end
       η .= Q * β
       ℓℓ[3] = abs(ℓℓ[2] - ℓℓ[1])
-      converged = ℓℓ[3] < 1e-9 || iszero(ℓℓ[1])
+      converged = ℓℓ[3] < max(rtol*ℓℓ[2], atol) || iszero(ℓℓ[1])
     end
-    converged || throw(ConvergenceException(max_iteration, ℓℓ[3], tol))
+    converged || throw(ConvergenceException(maxiter, ℓℓ[3], tol))
     β .= F \ η
     Ψ = Hermitian(inv(bunchkaufman!(obtain_Ω(X, μ, wts))))
     ŷ = X * β
