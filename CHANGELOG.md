@@ -1,3 +1,13 @@
+# v0.2.8
+
+## Features
+
+## Bug fixes
+
+## Miscellaneous
+
+- Updated compat for deps
+
 # v0.2.6
 
 ## Features

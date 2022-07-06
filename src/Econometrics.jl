@@ -36,6 +36,7 @@ using LinearAlgebra:
     I,
     LowerTriangular,
     qr,
+    ColumnNorm,
     UpperTriangular
 using MLJModelInterface: MLJModelInterface, MLJModelInterface, Probabilistic
 using Optim: Optim, hessian!, optimize, minimizer, TwiceDifferentiable

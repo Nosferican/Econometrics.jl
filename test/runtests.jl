@@ -1,6 +1,6 @@
 using Econometrics, Test
 using Econometrics: ConvergenceException, Hermitian
-using CSV, RDatasets
+using CSV, RDatasets, CategoricalArrays
 using MLJBase: MLJBase
 using MLJModelInterface: MLJModelInterface
 
