@@ -1,5 +1,5 @@
 using Econometrics, Test
-using Econometrics: ConvergenceException, Hermitian
+using Econometrics: ConvergenceException
 using CSV, RDatasets, CategoricalArrays
 using MLJBase: MLJBase
 using MLJModelInterface: MLJModelInterface

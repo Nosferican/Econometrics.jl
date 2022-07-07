@@ -26,7 +26,7 @@ Continuous response estimator with potential features absorption.
 struct ContinuousResponse <: LinearModelEstimators
     groups::Vector{Vector{Vector{Int}}}
 end
-show(io::IO, ::MIME"text/plain", estimator::ContinuousResponse) = println(io, "Continuous Response Model")
+show(io::IO, estimator::ContinuousResponse) = println(io, "Continuous Response Model")
 """
     BetweenEstimator(effect::Symbol,
                      groups::Vector{Vector{Int}}) <: LinearModelEstimators
@@ -37,7 +37,7 @@ struct BetweenEstimator <: LinearModelEstimators
     effect::Symbol
     groups::Vector{Vector{Int}}
 end
-function show(io::IO, ::MIME"text/plain", estimator::BetweenEstimator)
+function show(io::IO, estimator::BetweenEstimator)
     @unpack effect, groups = estimator
     println(io, "Between Estimator")
     println(io, "$effect with $(sum(length, groups)) groups")
@@ -89,7 +89,7 @@ struct RandomEffectsEstimator <: LinearModelEstimators
         new(pid, tid, √σₑ², √σᵤ², θ)
     end
 end
-function show(io::IO, ::MIME"text/plain", estimator::RandomEffectsEstimator)
+function show(io::IO, estimator::RandomEffectsEstimator)
     pid, D = estimator.pid
     tid, T = estimator.tid
     @unpack idiosyncratic, individual = estimator
@@ -123,7 +123,7 @@ struct NominalResponse{T} <: ModelEstimator
         new{eltype(categories)}(categories)
     end
 end
-function show(io::IO, ::MIME"text/plain", estimator::NominalResponse)
+function show(io::IO, estimator::NominalResponse)
     println(io, "Probability Model for Nominal Response")
     println(io, "Categories: $(join(estimator.categories, ", "))")
 end
@@ -139,7 +139,7 @@ struct OrdinalResponse{T} <: ModelEstimator
         new{eltype(categories)}(categories)
     end
 end
-function show(io::IO, ::MIME"text/plain", estimator::OrdinalResponse)
+function show(io::IO, estimator::OrdinalResponse)
     println(io, "Probability Model for Ordinal Response")
     println(io, "Categories: $(join(estimator.categories, " < "))")
 end

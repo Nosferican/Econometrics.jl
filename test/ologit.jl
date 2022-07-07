@@ -3,8 +3,7 @@
     data =
         dataset("Ecdat", "Kakadu") |>
         (data -> select(data, [:RecParks, :Sex, :Age, :Schooling]))
-    data.RecParks = convert(Vector{Int}, data.RecParks)
-    data.RecParks = levels!(categorical(data.RecParks, ordered = true, compress = true), collect(1:5))
+    data[!,:RecParks] .= levels!(categorical(convert(Vector{Int}, data.RecParks), ordered = true, compress = true), collect(1:5))
     model = fit(EconometricModel, @formula(RecParks ~ Age + Sex + Schooling), data)
     @test sprint(show, model) ==
         "Probability Model for Ordinal Response\nCategories: 1 < 2 < 3 < 4 < 5\nNumber of observations: 1827\nNull Loglikelihood: -2677.60\nLoglikelihood: -2657.40\nR-squared: 0.0075\nLR Test: 40.42 ∼ χ²(3) ⟹ Pr > χ² = 0.0000\nFormula: RecParks ~ Age + Sex + Schooling\n──────────────────────────────────────────────────────────────────────────────────────────\n                          PE          SE        t-value  Pr > |t|        2.50%      97.50%\n──────────────────────────────────────────────────────────────────────────────────────────\nAge                  0.00943647  0.00254031    3.71469     0.0002   0.00445424   0.0144187\nSex: male           -0.0151659   0.0846365    -0.179188    0.8578  -0.181161     0.150829\nSchooling           -0.103902    0.0248742    -4.17711     <1e-04  -0.152687    -0.0551174\n(Intercept): 1 | 2  -2.92405     0.191927    -15.2352      <1e-48  -3.30047     -2.54763\n(Intercept): 2 | 3  -1.54922     0.171444     -9.03632     <1e-18  -1.88547     -1.21297\n(Intercept): 3 | 4  -0.298938    0.166904     -1.79108     0.0734  -0.626281     0.0284051\n(Intercept): 4 | 5   0.669835    0.167622      3.9961      <1e-04   0.341083     0.998587\n──────────────────────────────────────────────────────────────────────────────────────────"
@@ -53,11 +52,15 @@
     @test σ ≈ [0.0032917, 0.1060675, 0.0300878, 0.2289892, 0.2121925, 0.2105408] rtol = 1e-4
     data = CSV.read(joinpath(pkgdir(Econometrics), "data", "auto.csv"), DataFrame) |>
         (data -> select(data, [:rep77, :foreign, :length, :mpg])) |>
-        dropmissing
-    data.foreign = categorical(data.foreign, compress = true)
-    data.rep77 = levels!(categorical(data.rep77; ordered = true, compress = true),
-        ["Poor", "Fair", "Average", "Good", "Excellent"],
-        )
+        dropmissing |>
+        (df -> transform!(
+            df,
+            :foreign => (x -> categorical(x, compress = true)),
+            :rep77 => (x -> levels!(
+                categorical(x, ordered = true, compress = true),
+                ["Poor", "Fair", "Average", "Good", "Excellent"],
+                )),
+            renamecols = false))
     model = fit(EconometricModel, @formula(rep77 ~ foreign + length + mpg), data)
     @test sprint(show, model) ==
         "Probability Model for Ordinal Response\nCategories: Poor < Fair < Average < Good < Excellent\nNumber of observations: 66\nNull Loglikelihood: -89.90\nLoglikelihood: -78.25\nR-squared: 0.1295\nLR Test: 23.29 ∼ χ²(3) ⟹ Pr > χ² = 0.0000\nFormula: rep77 ~ foreign + length + mpg\n─────────────────────────────────────────────────────────────────────────────────────────────\n                                    PE         SE     t-value  Pr > |t|       2.50%    97.50%\n─────────────────────────────────────────────────────────────────────────────────────────────\nforeign: Foreign                2.89681    0.790641   3.66387    0.0005   1.31684     4.47678\nlength                          0.0828275  0.02272    3.64558    0.0005   0.0374253   0.12823\nmpg                             0.230768   0.0704548  3.2754     0.0017   0.0899749   0.37156\n(Intercept): Poor | Fair       17.9275     5.55119    3.22948    0.0020   6.83431    29.0206\n(Intercept): Fair | Average    19.8651     5.59648    3.54956    0.0007   8.68139    31.0487\n(Intercept): Average | Good    22.1033     5.70894    3.8717     0.0003  10.6949     33.5117\n(Intercept): Good | Excellent  24.6921     5.89075    4.19168    <1e-04  12.9204     36.4639\n─────────────────────────────────────────────────────────────────────────────────────────────"

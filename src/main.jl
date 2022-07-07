@@ -106,7 +106,7 @@ mutable struct EconometricModel{
         )
     end
 end
-function show(io::IO, ::MIME"text/plain", obj::EconometricModel{<:LinearModelEstimators})
+function show(io::IO, obj::EconometricModel{<:LinearModelEstimators})
     if !isfitted(obj)
         println(io, "Model has not been fitted.")
         return obj
@@ -124,7 +124,7 @@ function show(io::IO, ::MIME"text/plain", obj::EconometricModel{<:LinearModelEst
     println(io, "Variance Covariance Estimator: $(obj.vce)")
     show(io, coeftable(obj))
 end
-function show(io::IO, ::MIME"text/plain", obj::EconometricModel{<:ContinuousResponse})
+function show(io::IO, obj::EconometricModel{<:ContinuousResponse})
     if !isfitted(obj)
         println(io, "Model has not been fitted.")
         return obj
@@ -140,7 +140,7 @@ function show(io::IO, ::MIME"text/plain", obj::EconometricModel{<:ContinuousResp
     if !absorbed
         lr = 2 * (ℓℓ - ℓℓ₀)
         vars = coefnames(obj)
-        k = count(x -> !occursin("(Intercept)", x), vars[2])
+        k = count(x -> !occursin("(Intercept)", x), vars)
         if k > zero(k)
             χ² = Chisq(k)
             p = ccdf(χ², lr)
@@ -159,7 +159,7 @@ function show(io::IO, ::MIME"text/plain", obj::EconometricModel{<:ContinuousResp
     println(io, "Variance Covariance Estimator: $(obj.vce)")
     show(io, coeftable(obj))
 end
-function show(io::IO, ::MIME"text/plain", obj::EconometricModel{<:NominalResponse})
+function show(io::IO, obj::EconometricModel{<:NominalResponse})
     if !isfitted(obj)
         println(io, "Model has not been fitted.")
         return obj
@@ -173,7 +173,8 @@ function show(io::IO, ::MIME"text/plain", obj::EconometricModel{<:NominalRespons
     println(io, @sprintf("R-squared: %.4f", r2(obj)))
     lr = 2 * (ℓℓ - ℓℓ₀)
     vars = coefnames(obj)
-    k = length(vars[1]) * count(x -> !occursin("(Intercept)", x), vars[2])
+    lhs = responsename(obj)
+    k = dof(obj) - length(responsename(obj))
     if k > zero(k)
         χ² = Chisq(k)
         p = ccdf(χ², lr)
@@ -182,7 +183,7 @@ function show(io::IO, ::MIME"text/plain", obj::EconometricModel{<:NominalRespons
     println(io, clean_fm(obj))
     show(io, coeftable(obj))
 end
-function show(io::IO, ::MIME"text/plain", obj::EconometricModel{<:OrdinalResponse})
+function show(io::IO, obj::EconometricModel{<:OrdinalResponse})
     if !isfitted(obj)
         println(io, "Model has not been fitted.")
         return obj
@@ -196,7 +197,7 @@ function show(io::IO, ::MIME"text/plain", obj::EconometricModel{<:OrdinalRespons
     println(io, @sprintf("R-squared: %.4f", r2(obj)))
     lr = 2 * (ℓℓ - ℓℓ₀)
     vars = coefnames(obj)
-    k = length(vars[2])
+    k = dof(obj) - length(responsename(obj))
     if k > zero(k)
         χ² = Chisq(k)
         p = ccdf(χ², lr)
