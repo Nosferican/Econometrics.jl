@@ -256,28 +256,94 @@ AvgSen       -0.000688924  0.00266514   -0.258494     0.7961  -0.00592262   0.00
 ───────────────────────────────────────────────────────────────────────────────────────</code></pre><h2 id="Nominal-Response-Models"><a class="docs-heading-anchor" href="#Nominal-Response-Models">Nominal Response Models</a><a id="Nominal-Response-Models-1"></a><a class="docs-heading-anchor-permalink" href="#Nominal-Response-Models" title="Permalink"></a></h2><pre><code class="language-julia hljs">data = CSV.read(joinpath(pkgdir(Econometrics), &quot;data&quot;, &quot;insure.csv&quot;), DataFrame) |&gt;
    (data -&gt; select(data, [:insure, :age, :male, :nonwhite, :site])) |&gt;
    dropmissing |&gt;
-   (data -&gt; transform!(data, [:insure, :site] .=&gt; categorical, renamecols = false))</code></pre><pre><code class="nohighlight hljs">Error: UndefVarError: categorical not defined</code></pre><p>The model automatically detects that the response is nominal and uses the correct model.</p><pre><code class="language-julia hljs">model = fit(EconometricModel,
+   (data -&gt; transform!(data, [:insure, :site] .=&gt; categorical, renamecols = false))</code></pre><pre><code class="nohighlight hljs">615×5 DataFrame
+ Row │ insure     age      male   nonwhite  site
+     │ Cat…       Float64  Int64  Int64     Cat…
+─────┼───────────────────────────────────────────
+   1 │ Indemnity  73.7221      0         0  2
+   2 │ Prepaid    27.8959      0         0  2
+   3 │ Indemnity  37.5414      0         0  1
+   4 │ Prepaid    23.6413      0         1  3
+   5 │ Prepaid    29.6838      0         0  2
+   6 │ Prepaid    39.4689      0         0  2
+   7 │ Uninsure   63.102       0         1  3
+   8 │ Prepaid    69.8398      0         0  1
+  ⋮  │     ⋮         ⋮       ⋮       ⋮       ⋮
+ 609 │ Prepaid    69.9877      0         0  1
+ 610 │ Prepaid    71.5209      0         0  3
+ 611 │ Prepaid    63.4168      0         0  2
+ 612 │ Prepaid    40.3532      0         1  1
+ 613 │ Prepaid    55.3237      1         0  3
+ 614 │ Prepaid    27.9836      1         0  3
+ 615 │ Prepaid    30.59        1         0  3
+                                 600 rows omitted</code></pre><p>The model automatically detects that the response is nominal and uses the correct model.</p><pre><code class="language-julia hljs">model = fit(EconometricModel,
             @formula(insure ~ age + male + nonwhite + site),
             data,
-            contrasts = Dict(:insure =&gt; DummyCoding(base = &quot;Uninsure&quot;)))</code></pre><pre><code class="nohighlight hljs">Error: ArgumentError: column name :insure not found in the data frame</code></pre><h2 id="Ordinal-Response-Models"><a class="docs-heading-anchor" href="#Ordinal-Response-Models">Ordinal Response Models</a><a id="Ordinal-Response-Models-1"></a><a class="docs-heading-anchor-permalink" href="#Ordinal-Response-Models" title="Permalink"></a></h2><pre><code class="language-julia hljs">data = RDatasets.dataset(&quot;Ecdat&quot;, &quot;Kakadu&quot;) |&gt;
+            contrasts = Dict(:insure =&gt; DummyCoding(base = &quot;Uninsure&quot;)))</code></pre><pre><code class="nohighlight hljs">Probability Model for Nominal Response
+Categories: Uninsure, Indemnity, Prepaid
+Number of observations: 615
+Null Loglikelihood: -555.85
+Loglikelihood: -534.36
+R-squared: 0.0387
+LR Test: 42.99 ∼ χ²(10) ⟹ Pr &gt; χ² = 0.0000
+Formula: insure ~ 1 + age + male + nonwhite + site
+───────────────────────────────────────────────────────────────────────────────────────────────────
+                                       PE         SE       t-value  Pr &gt; |t|       2.50%     97.50%
+───────────────────────────────────────────────────────────────────────────────────────────────────
+insure: Indemnity ~ (Intercept)   1.28694     0.59232     2.17271     0.0302   0.123689   2.4502
+insure: Indemnity ~ age           0.00779612  0.0114418   0.681372    0.4959  -0.0146743  0.0302666
+insure: Indemnity ~ male         -0.451848    0.367486   -1.22957     0.2193  -1.17355    0.269855
+insure: Indemnity ~ nonwhite     -0.217059    0.425636   -0.509965    0.6103  -1.05296    0.618843
+insure: Indemnity ~ site: 2       1.21152     0.470506    2.57493     0.0103   0.287497   2.13554
+insure: Indemnity ~ site: 3       0.207813    0.366293    0.56734     0.5707  -0.511547   0.927172
+insure: Prepaid ~ (Intercept)     1.55666     0.596327    2.61041     0.0093   0.385533   2.72778
+insure: Prepaid ~ age            -0.00394887  0.0115993  -0.340439    0.7336  -0.0267287  0.018831
+insure: Prepaid ~ male            0.109846    0.365187    0.300793    0.7637  -0.607343   0.827035
+insure: Prepaid ~ nonwhite        0.757718    0.419575    1.80592     0.0714  -0.0662835  1.58172
+insure: Prepaid ~ site: 2         1.32456     0.469789    2.81947     0.0050   0.401941   2.24717
+insure: Prepaid ~ site: 3        -0.380175    0.372819   -1.01973     0.3083  -1.11235    0.352001
+───────────────────────────────────────────────────────────────────────────────────────────────────</code></pre><h2 id="Ordinal-Response-Models"><a class="docs-heading-anchor" href="#Ordinal-Response-Models">Ordinal Response Models</a><a id="Ordinal-Response-Models-1"></a><a class="docs-heading-anchor-permalink" href="#Ordinal-Response-Models" title="Permalink"></a></h2><pre><code class="language-julia hljs">data = RDatasets.dataset(&quot;Ecdat&quot;, &quot;Kakadu&quot;) |&gt;
        (data -&gt; select(data, [:RecParks, :Sex, :Age, :Schooling]))
 data.RecParks = convert(Vector{Int}, data.RecParks)
 data.RecParks = levels!(categorical(data.RecParks, ordered = true, compress = true), collect(1:5))
-data</code></pre><pre><code class="nohighlight hljs">Error: UndefVarError: categorical not defined</code></pre><p>The model automatically detects that the response is ordinal and uses the correct model.</p><pre><code class="language-julia hljs">model = fit(EconometricModel,
+data</code></pre><pre><code class="nohighlight hljs">1827×4 DataFrame
+  Row │ RecParks  Sex     Age    Schooling
+      │ Cat…      Cat…    Int32  Int32
+──────┼────────────────────────────────────
+    1 │ 3         male       27          3
+    2 │ 5         female     32          4
+    3 │ 4         male       32          4
+    4 │ 1         female     70          6
+    5 │ 2         male       32          5
+    6 │ 3         male       47          6
+    7 │ 1         male       42          5
+    8 │ 5         female     70          3
+  ⋮   │    ⋮        ⋮       ⋮        ⋮
+ 1821 │ 4         male       21          5
+ 1822 │ 3         male       21          3
+ 1823 │ 3         male       52          4
+ 1824 │ 2         female     21          3
+ 1825 │ 5         female     21          2
+ 1826 │ 1         female     21          4
+ 1827 │ 4         male       21          5
+                          1812 rows omitted</code></pre><p>The model automatically detects that the response is ordinal and uses the correct model.</p><pre><code class="language-julia hljs">model = fit(EconometricModel,
             @formula(RecParks ~ Age + Sex + Schooling),
-            data)</code></pre><pre><code class="nohighlight hljs">Continuous Response Model
+            data)</code></pre><pre><code class="nohighlight hljs">Probability Model for Ordinal Response
+Categories: 1 &lt; 2 &lt; 3 &lt; 4 &lt; 5
 Number of observations: 1827
-Null Loglikelihood: -2940.28
-Loglikelihood: -2922.89
-R-squared: 0.0189
-LR Test: 34.78 ∼ χ²(3) ⟹  Pr &gt; χ² = 0.0000
-Formula: RecParks ~ 1 + Age + Sex + Schooling
-Variance Covariance Estimator: OIM
-───────────────────────────────────────────────────────────────────────────────────
-                   PE          SE       t-value  Pr &gt; |t|        2.50%       97.50%
-───────────────────────────────────────────────────────────────────────────────────
-(Intercept)   3.70831     0.10909     33.9932      &lt;1e-99   3.49436      3.92226
-Age           0.00548689  0.00167442   3.27689     0.0011   0.00220291   0.00877088
-Sex: male    -0.0106275   0.0563087   -0.188737    0.8503  -0.121064     0.0998089
-Schooling    -0.0678826   0.0163798   -4.1443      &lt;1e-04  -0.100008    -0.0357576
-───────────────────────────────────────────────────────────────────────────────────</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../getting_started/">« Getting Started</a><a class="docs-footer-nextpage" href="../api/">API »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.19 on <span class="colophon-date" title="Wednesday 6 July 2022 23:10">Wednesday 6 July 2022</span>. Using Julia version 1.7.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+Null Loglikelihood: -2677.60
+Loglikelihood: -2657.40
+R-squared: 0.0075
+LR Test: 40.42 ∼ χ²(3) ⟹ Pr &gt; χ² = 0.0000
+Formula: RecParks ~ Age + Sex + Schooling
+──────────────────────────────────────────────────────────────────────────────────────────
+                          PE          SE        t-value  Pr &gt; |t|        2.50%      97.50%
+──────────────────────────────────────────────────────────────────────────────────────────
+Age                  0.00943647  0.00254031    3.71469     0.0002   0.00445424   0.0144187
+Sex: male           -0.0151659   0.0846365    -0.179188    0.8578  -0.181161     0.150829
+Schooling           -0.103902    0.0248742    -4.17711     &lt;1e-04  -0.152687    -0.0551174
+(Intercept): 1 | 2  -2.92405     0.191927    -15.2352      &lt;1e-48  -3.30047     -2.54763
+(Intercept): 2 | 3  -1.54922     0.171444     -9.03632     &lt;1e-18  -1.88547     -1.21297
+(Intercept): 3 | 4  -0.298938    0.166904     -1.79108     0.0734  -0.626281     0.0284051
+(Intercept): 4 | 5   0.669835    0.167622      3.9961      &lt;1e-04   0.341083     0.998587
+──────────────────────────────────────────────────────────────────────────────────────────</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../getting_started/">« Getting Started</a><a class="docs-footer-nextpage" href="../api/">API »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.19 on <span class="colophon-date" title="Thursday 7 July 2022 20:23">Thursday 7 July 2022</span>. Using Julia version 1.7.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
