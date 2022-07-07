@@ -2,7 +2,8 @@ dispersion(obj::EconometricModel{<:LinearModelEstimators}) = true
 dispersion(obj::EconometricModel{<:Union{NominalResponse,OrdinalResponse}}) = false
 isiv(obj::EconometricModel{<:LinearModelEstimators}) = obj.iv > 0
 coef(obj::EconometricModel) = obj.β
-coefnames(obj::EconometricModel) = obj.vars
+coefnames(obj::EconometricModel) = obj.vars[2]
+responsename(obj::EconometricModel) = obj.vars[1]
 deviance(obj::EconometricModel) = -2 * loglikelihood(obj)
 deviance(obj::EconometricModel{<:LinearModelEstimators}) =
     weights(obj) |> (
@@ -216,7 +217,7 @@ function coeftable(obj::EconometricModel; level::Real = 0.95, vce::VCE = obj.vce
         string(@sprintf("%.2f", lims[1]), "%"),
         string(@sprintf("%.2f", lims[2]), "%"),
     ]
-    rownms = coefnames(obj)[2]
+    rownms = coefnames(obj)
     CoefTable(mat, colnms, rownms, 4)
 end
 function coeftable(obj::EconometricModel{<:NominalResponse}; level::Real = 0.95)
@@ -236,7 +237,8 @@ function coeftable(obj::EconometricModel{<:NominalResponse}; level::Real = 0.95)
         string(@sprintf("%.2f", lims[2]), "%"),
     ]
     vars = coefnames(obj)
-    rownms = [string(lhs, " ~ ", rhs) for lhs in vars[1] for rhs in vars[2]]
+    lhs = responsename(obj)
+    rownms = [ string(lhs, " ~ ", rhs) for lhs in lhs for rhs in vars ]
     CoefTable(mat, colnms, rownms, 4)
 end
 function coeftable(obj::EconometricModel{<:OrdinalResponse}; level::Real = 0.95)
@@ -258,7 +260,7 @@ function coeftable(obj::EconometricModel{<:OrdinalResponse}; level::Real = 0.95)
     vars = coefnames(obj)
     outcomes = obj.estimator.categories
     rownms = vcat(
-        vars[2],
+        vars,
         [
             string("(Intercept): ", outcomes[i], " | ", outcomes[i+1])
             for i in 1:length(outcomes)-1

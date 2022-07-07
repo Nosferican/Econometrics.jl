@@ -30,7 +30,7 @@ nullloglikelihood
 coef
 dof
 dof_residual
-coefnames(::EconometricModel)
+coefnames
 coeftable(::EconometricModel)
 islinear
 informationmatrix
@@ -39,8 +39,8 @@ stderror(::EconometricModel, ::Econometrics.VCE)
 confint(::EconometricModel)
 hasintercept
 isfitted
-fit(::EconometricModel)
-fit!(::EconometricModel)
+fit
+fit!
 response
 meanresponse
 fitted
@@ -49,7 +49,7 @@ modelmatrix
 residuals
 leverage
 nobs
-weights(::EconometricModel)
+weights
 ```
 
 ## Estimators

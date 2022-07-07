@@ -174,12 +174,12 @@ end
 	@unpack categories = estimator
     @assert isempty(z) && isempty(Z) "Nominal response models can only contain exogenous features"
     b = mapreduce(elem -> (eachindex(categories) .== elem)', vcat, y)
-    F = qr(X, Val(true))
+    F = qr(X, ColumnNorm())
     qrr = count(x -> abs(x) ≥ √eps(), diag(F.R))
     if qrr < size(F, 2)
         lin_ind = sort!(invperm(F.p)[1:qrr])
         X = convert(Matrix{Float64}, X[:,lin_ind])
-        F = qr(X, Val(true))
+        F = qr(X, ColumnNorm())
     else
         lin_ind = collect(1:size(F, 2))
     end
@@ -229,7 +229,7 @@ end
 	@unpack estimator, X, y, z, Z, wts = obj
 	@unpack categories = estimator
     @assert isempty(z) && isempty(Z) "Ordinal response models can only contain exogenous features"
-    F = qr(X, Val(true))
+    F = qr(X, ColumnNorm())
     qrr = count(x -> abs(x) ≥ √eps(), diag(F.R))
     if qrr < size(F, 2)
         lin_ind = sort!(invperm(F.p)[1:qrr])
