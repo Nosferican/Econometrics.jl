@@ -1,3 +1,4 @@
-docs/build/
+docs/build
 Manifest.toml
-scratch/
+scratch
+.vscode

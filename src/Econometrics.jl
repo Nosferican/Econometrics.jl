@@ -5,7 +5,7 @@
 """
 module Econometrics
 using Base.Iterators: flatten
-using CategoricalArrays: CategoricalArrays, CategoricalValue, levels, levels!, isordered, ordered!
+using CategoricalArrays: CategoricalArrays, CategoricalValue, categorical, levels, levels!, isordered, ordered!
 using Distributions:
     Distributions,
     cdf,
@@ -125,6 +125,9 @@ foreach(
     )
 export @formula,
     DummyCoding,
+    categorical,
+    levels!,
+    ordered!,
     aic,
     aicc,
     bic,
@@ -172,5 +175,6 @@ export @formula,
     HC2,
     HC3,
     HC4,
-    levels!
+    levels!,
+    Hermitian
 end

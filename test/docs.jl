@@ -1,14 +1,16 @@
 # Documentation
 @testset "Documentation" begin
-    using Documenter, Econometrics, Weave, StatsBase
+    using Documenter, Econometrics, Weave, StatsBase, StatsAPI
 
     prefix = ".."
+    # prefix = "."
 
     for file in filter!(file -> endswith(file, ".jmd"), readdir(joinpath(prefix, "docs", "jmd"), join = true))
-        weave(file,
-              out_path = joinpath(prefix, "docs", "src"),
-              doctype = "github",
-              )
+        weave(
+            file,
+            out_path = joinpath(prefix, "docs", "src"),
+            doctype = "github"
+            )
     end
 
     DocMeta.setdocmeta!(Econometrics,
@@ -20,7 +22,7 @@
     # doctest(Econometrics, fix = true)
     makedocs(sitename = "Econometrics",
              format = Documenter.HTML(assets = [joinpath("assets", "custom.css")]),
-             modules = [Econometrics, StatsBase],
+             modules = [Econometrics, StatsAPI],
              pages = [
                  "Introduction" => "index.md",
                  "Getting Started" => "getting_started.md",

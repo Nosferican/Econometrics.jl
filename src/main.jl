@@ -106,7 +106,7 @@ mutable struct EconometricModel{
         )
     end
 end
-function show(io::IO, obj::EconometricModel{<:LinearModelEstimators})
+function show(io::IO, ::MIME"text/plain", obj::EconometricModel{<:LinearModelEstimators})
     if !isfitted(obj)
         println(io, "Model has not been fitted.")
         return obj
@@ -124,7 +124,7 @@ function show(io::IO, obj::EconometricModel{<:LinearModelEstimators})
     println(io, "Variance Covariance Estimator: $(obj.vce)")
     show(io, coeftable(obj))
 end
-function show(io::IO, obj::EconometricModel{<:ContinuousResponse})
+function show(io::IO, ::MIME"text/plain", obj::EconometricModel{<:ContinuousResponse})
     if !isfitted(obj)
         println(io, "Model has not been fitted.")
         return obj
@@ -159,7 +159,7 @@ function show(io::IO, obj::EconometricModel{<:ContinuousResponse})
     println(io, "Variance Covariance Estimator: $(obj.vce)")
     show(io, coeftable(obj))
 end
-function show(io::IO, obj::EconometricModel{<:NominalResponse})
+function show(io::IO, ::MIME"text/plain", obj::EconometricModel{<:NominalResponse})
     if !isfitted(obj)
         println(io, "Model has not been fitted.")
         return obj
@@ -182,7 +182,7 @@ function show(io::IO, obj::EconometricModel{<:NominalResponse})
     println(io, clean_fm(obj))
     show(io, coeftable(obj))
 end
-function show(io::IO, obj::EconometricModel{<:OrdinalResponse})
+function show(io::IO, ::MIME"text/plain", obj::EconometricModel{<:OrdinalResponse})
     if !isfitted(obj)
         println(io, "Model has not been fitted.")
         return obj

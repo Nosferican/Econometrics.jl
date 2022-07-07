@@ -1,0 +1,41 @@
+cff-version: 1.2.0
+message: "Please cite this dataset using the metadata from 'preferred-citation'."
+authors:
+	- family-names: "Santiago Calderón"
+  	given-names: "José Bayoán"
+  	orcid: "https://orcid.org/0000-0002-8406-6175"
+title: "Econometrics.jl"
+identifiers:
+  - description: "Archive to latest release."
+    type: doi
+    value: 10.5281/zenodo.3379185
+date-released: "2019-07-08"
+repository-code: "https://github.com/Nosferican/Econometrics.jl"
+license: ISC
+keywords:
+  - "regression analysis"
+  - econometrics
+preferred-citation:
+  authors:
+    - family-names: "Santiago Calderón"
+      given-names: "José Bayoán"
+			orcid: "https://orcid.org/0000-0002-8406-6175"
+  title: "Econometrics.jl"
+  type: article
+	doi: 10.21105/jcon.00038
+	journal: "Proceedings of the JuliaCon Conferences"
+	date-published: "2020-07-26"
+	volume: 1
+	issue: 1
+	pages: 38
+	languages:
+		- en
+references:
+  - title: "Broadening participation in Economics through professional mentoring"
+    type: grant
+		institution: "National Science Foundation"
+		number: 1730651
+	- title: "Economics Mentoring Program"
+    type: grant
+		institution: "National Science Foundation"
+		number: 1357478
