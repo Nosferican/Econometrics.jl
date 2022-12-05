@@ -1,6 +1,16 @@
 # Linear Models
 @testset "Linear Models" begin
     @testset "Balanced Panel Data" begin
+        # Full ranking instruments #72
+        data = CSV.read(
+            joinpath(pkgdir(Econometrics), "data", "_72.csv"),
+            DataFrame
+            )
+        model = fit(
+            EconometricModel,
+            @formula(V ~ 1 + (d + p ~ (c1 + c2 + r2 + p̃) * j)),
+            data)
+        @test isa(model, EconometricModel)
         # Balanced Panel Data
         data = dataset("Ecdat", "Crime")
         # Pooling
@@ -76,6 +86,21 @@
             )
         @test sprint(show, model) ==
             "One-way Random Effect Model\nLongitudinal dataset: County, Year\nBalanced dataset with 90 panels of length 7\nindividual error component: 0.0162\nidiosyncratic error component: 0.0071\nρ: 0.8399\nNumber of observations: 630\nNull Loglikelihood: 2225.79\nLoglikelihood: 2226.01\nR-squared: 0.0007\nWald: 0.15 ∼ F(3, 626) ⟹ Pr > F = 0.9291\nFormula: CRMRTE ~ PrbConv + AvgSen + PrbPris\nVariance Covariance Estimator: OIM\n──────────────────────────────────────────────────────────────────────────────────────\n                    PE           SE       t-value  Pr > |t|         2.50%       97.50%\n──────────────────────────────────────────────────────────────────────────────────────\n(Intercept)   0.0309293    0.00266706   11.5968      <1e-27   0.0256918    0.0361668\nPrbConv      -3.96634e-5   0.000198471  -0.199845    0.8417  -0.000429413  0.000350086\nAvgSen        8.2428e-5    0.000127818   0.644887    0.5192  -0.000168575  0.000333431\nPrbPris      -0.000123327  0.00404272   -0.030506    0.9757  -0.00806226   0.00781561\n──────────────────────────────────────────────────────────────────────────────────────"
+        wagepan = DataFrame(wooldridge("wagepan"))
+        # From #83
+        model = fit(
+            RandomEffectsEstimator,
+            @formula(lwage ~ educ + black + hisp + exper + exper^2 + married + union + year),
+            wagepan,
+            panel = :nr,
+            time = :year,
+            contrasts = Dict(:year => DummyCoding())
+            )
+        @test coef(model) ≈ [
+            0.023586377, 0.091876276, -0.139376726, 0.021731732, 0.105754520,
+            -0.004723943, 0.063986022, 0.106134429, 0.040462003, 0.030921157,
+            0.020280640, 0.043118708, 0.057815458, 0.091947584, 0.134928917
+            ] rtol = 1e-3
         # IV Pooling
         model = fit(EconometricModel, @formula(CRMRTE ~ PrbConv + (AvgSen ~ PrbPris)), data)
         @test sprint(show, model) ==
