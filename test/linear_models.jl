@@ -1,6 +1,16 @@
 # Linear Models
 @testset "Linear Models" begin
     @testset "Balanced Panel Data" begin
+        # Full ranking instruments #72
+        data = CSV.read(
+            joinpath(pkgdir(Econometrics), "data", "_72.csv"),
+            DataFrame
+            )
+        model = fit(
+            EconometricModel,
+            @formula(V ~ 1 + (d + p ~ (c1 + c2 + r2 + p̃) * j)),
+            data)
+        @test isa(model, EconometricModel)
         # Balanced Panel Data
         data = dataset("Ecdat", "Crime")
         # Pooling
@@ -95,16 +105,6 @@
         model = fit(EconometricModel, @formula(CRMRTE ~ PrbConv + (AvgSen ~ PrbPris)), data)
         @test sprint(show, model) ==
             "Continuous Response Model\nNumber of observations: 630\nNull Loglikelihood: 1633.30\nLoglikelihood: -611.40\nR-squared: NaN\nLR Test: -4489.40 ∼ χ²(2) ⟹  Pr > χ² = 1.0000\nFormula: CRMRTE ~ 1 + PrbConv + (AvgSen ~ PrbPris)\nVariance Covariance Estimator: OIM\n─────────────────────────────────────────────────────────────────────────────────\n                   PE          SE        t-value  Pr > |t|       2.50%     97.50%\n─────────────────────────────────────────────────────────────────────────────────\n(Intercept)   2.17878     23.0244      0.0946291    0.9246  -43.0357    47.3932\nPrbConv       0.00456765   0.0638118   0.0715801    0.9430   -0.120743   0.129879\nAvgSen       -0.240139     2.57602    -0.093221     0.9258   -5.29883    4.81855\n─────────────────────────────────────────────────────────────────────────────────"
-        # Full ranking instruments #72
-        data = CSV.read(
-            joinpath(pkgdir(Econometrics), "data", "_72.csv"),
-            DataFrame
-            )
-        model = fit(
-            EconometricModel,
-            @formula(V ~ 1 + (d + p ~ (c1 + c2 + r2 + p̃) * j)),
-            data)
-        @test isa(model, EconometricModel)
         # IV Between
         model = fit(
             BetweenEstimator,
