@@ -19,7 +19,7 @@
         F = bunchkaufman(Hermitian(Z̃' * Diagonal(wts) * Z̃), true, check = false)
         bkr = count(x -> abs(x) ≥ √eps(), F.D)
 		if bkr < size(F, 2)
-            lin_ind = sort!(invperm(F.p)[1:bkr])
+            lin_ind = sort!(F.p[sortperm(F.p)[1:bkr]])
             count(x -> lin_ind > size(X, 2) + 1) ≥ size(z, 2) ||
                 throw(ArgumentError("Insufficient number of instruments."))
             Z̃ = Z̃[:,lin_ind]
@@ -35,7 +35,7 @@
     F = bunchkaufman(Hermitian(X̃' * Diagonal(wts) * X̃), true, check = false)
     bkr = count(x -> abs(x) ≥ √eps(), F.D)
     if bkr < size(F, 2)
-        lin_ind = sort!(invperm(F.p)[1:bkr])
+        lin_ind = sort!(F.p[sortperm(F.p)[1:bkr]])
         X̃ = convert(Matrix{Float64}, X̃[:,lin_ind])
         F = bunchkaufman(Hermitian(X̃' * Diagonal(wts) * X̃), true)
     else
@@ -63,7 +63,7 @@ end
         F = bunchkaufman(Hermitian(Z̃' * Diagonal(wts) * Z̃), true, check = false)
         bkr = count(x -> abs(x) ≥ √eps(), F.D)
 		if bkr < size(F, 2)
-            lin_ind = sort!(invperm(F.p)[1:bkr])
+            lin_ind = sort!(F.p[sortperm(F.p)[1:bkr]])
             count(x -> lin_ind > size(X, 2) + 1) ≥ size(z, 2) ||
                 throw(ArgumentError("Insufficient number of instruments."))
             Z̃ = Z̃[:,lin_ind]
@@ -79,7 +79,7 @@ end
     F = bunchkaufman(Hermitian(X̃' * Diagonal(wts) * X̃), true, check = false)
     bkr = count(x -> abs(x) ≥ √eps(), F.D)
     if bkr < size(F, 2)
-        lin_ind = sort!(invperm(F.p)[1:bkr])
+        lin_ind = sort!(F.p[sortperm(F.p)[1:bkr]])
         X̃ = convert(Matrix{Float64}, X̃[:,lin_ind])
         F = bunchkaufman(Hermitian(X̃' * Diagonal(wts) * X̃), true)
     else
@@ -112,7 +112,7 @@ end
         F = bunchkaufman(Hermitian(Z̃' * Diagonal(w) * Z̃), true, check = false)
         bkr = count(x -> abs(x) ≥ √eps(), F.D)
 		if bkr < size(F, 2)
-            lin_ind = sort!(invperm(F.p)[1:bkr])
+            lin_ind = sort!(F.p[sortperm(F.p)[1:bkr]])
             count(x -> lin_ind > size(X, 2) + 1) ≥ size(z, 2) ||
                 throw(ArgumentError("Insufficient number of instruments."))
             Z̃ = Z̃[:,lin_ind]
@@ -128,7 +128,7 @@ end
     F = bunchkaufman(Hermitian(X̃' * Diagonal(w) * X̃), true, check = false)
     bkr = count(x -> abs(x) ≥ √eps(), F.D)
     if bkr < size(F, 2)
-        lin_ind = sort!(invperm(F.p)[1:bkr])
+        lin_ind = sort!(F.p[sortperm(F.p)[1:bkr]])
         X̃ = convert(Matrix{Float64}, X̃[:,lin_ind])
         F = bunchkaufman(Hermitian(X̃' * Diagonal(w) * X̃), true)
     else
@@ -177,7 +177,7 @@ end
     F = qr(X, ColumnNorm())
     qrr = count(x -> abs(x) ≥ √eps(), diag(F.R))
     if qrr < size(F, 2)
-        lin_ind = sort!(invperm(F.p)[1:qrr])
+        lin_ind = sort!(F.p[sortperm(F.p)[1:bkr]])
         X = convert(Matrix{Float64}, X[:,lin_ind])
         F = qr(X, ColumnNorm())
     else
@@ -232,7 +232,7 @@ end
     F = qr(X, ColumnNorm())
     qrr = count(x -> abs(x) ≥ √eps(), diag(F.R))
     if qrr < size(F, 2)
-        lin_ind = sort!(invperm(F.p)[1:qrr])
+        lin_ind = sort!(F.p[sortperm(F.p)[1:bkr]])
         X = convert(Matrix{Float64}, X[:,lin_ind])
     else
         lin_ind = collect(1:size(F, 2))

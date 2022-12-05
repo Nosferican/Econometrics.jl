@@ -24,9 +24,9 @@ TableOperations = "ab02a1b2-a7df-11e8-156e-fb1833f50b87"
 Tables = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
 
 [compat]
-CategoricalArrays = "0.8, 0.9, 0.10"
-Distributions = "0.23, 0.24, 0.25"
-FillArrays = "0.9, 0.10, 0.11"
+CategoricalArrays = "0.10"
+Distributions = "0.25"
+FillArrays = "0.13"
 ForwardDiff = "0.10"
 JLLWrappers = "1"
 MLJModelInterface = "1"
@@ -34,7 +34,7 @@ Optim = "1"
 Parameters = "0.12"
 StatsAPI = "1"
 StatsBase = "0.33"
-StatsFuns = "0.9, 1"
+StatsFuns = "1"
 StatsModels = "0.6"
 TableOperations = "1"
 Tables = "1"
@@ -49,6 +49,7 @@ RDatasets = "ce6b1742-4840-55fa-b093-852dadbb1d8b"
 StatsAPI = "82ae8749-77ed-4fe6-ae5f-f523153014b0"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Weave = "44d3d7a6-8a23-5bf8-98c5-b353f8df5ec9"
+WooldridgeDatasets = "b46f53ff-21ea-4df8-83e7-e19d2972755a"
 
 [targets]
-test = ["CSV", "Documenter", "MLJBase", "MLJModelInterface", "RDatasets", "StatsAPI", "Test", "Weave"]
+test = ["CSV", "Documenter", "MLJBase", "MLJModelInterface", "RDatasets", "StatsAPI", "Test", "Weave", "WooldridgeDatasets"]
