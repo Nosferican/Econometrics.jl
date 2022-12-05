@@ -113,7 +113,9 @@ end
         bkr = count(x -> abs(x) ≥ √eps(), F.D)
 		if bkr < size(F, 2)
             lin_ind = sort!(F.p[sortperm(F.p)[1:bkr]])
-            count(x -> lin_ind > size(X, 2) + 1) ≥ size(z, 2) ||
+            F₀ = bunchkaufman(Hermitian(X' * Diagonal(w) * X), true, check = false)
+            num_of_linear_independent_exogenous_vars = count(x -> abs(x) ≥ √eps(), F₀.D)
+            (length(lin_ind) - num_of_linear_independent_exogenous_vars) ≥ size(z, 2) ||
                 throw(ArgumentError("Insufficient number of instruments."))
             Z̃ = Z̃[:,lin_ind]
             F = bunchkaufman(Hermitian(Z̃' * Diagonal(w) * Z̃), true)
