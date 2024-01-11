@@ -179,7 +179,7 @@ end
     F = qr(X, ColumnNorm())
     qrr = count(x -> abs(x) ≥ √eps(), diag(F.R))
     if qrr < size(F, 2)
-        lin_ind = sort!(F.p[sortperm(F.p)[1:bkr]])
+        lin_ind = sort!(F.p[sortperm(F.p)[1:qrr]])
         X = convert(Matrix{Float64}, X[:,lin_ind])
         F = qr(X, ColumnNorm())
     else
@@ -234,7 +234,7 @@ end
     F = qr(X, ColumnNorm())
     qrr = count(x -> abs(x) ≥ √eps(), diag(F.R))
     if qrr < size(F, 2)
-        lin_ind = sort!(F.p[sortperm(F.p)[1:bkr]])
+        lin_ind = sort!(F.p[sortperm(F.p)[1:qrr]])
         X = convert(Matrix{Float64}, X[:,lin_ind])
     else
         lin_ind = collect(1:size(F, 2))
