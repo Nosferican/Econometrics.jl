@@ -1,0 +1,28 @@
+FROM ubuntu:24.04
+ENV TZ America/New_York
+ENV JULIA_VERSION 1.11.1
+ENV JULIA_NUM_THREADS 4
+ENV QUARTO_VERSION 1.6.37
+
+RUN apt-get update \
+    && apt-get install -y wget \
+    && apt-get install -y unzip \
+    && apt-get install -y git
+RUN cd /usr/local/bin \
+    && mkdir quarto_dir \
+    && cd quarto_dir \
+    && wget -q https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-amd64.deb \
+    && echo "7ec9346bca871f96fa9d8983f4dde1e659e8103075037daf4f547032315282b3  quarto-${QUARTO_VERSION}-linux-amd64.deb" | sha256sum -c - \
+    && apt-get install -y ./quarto-${QUARTO_VERSION}-linux-amd64.deb \
+    && quarto add --no-prompt kapsner/authors-block
+RUN cd /usr/local/bin \
+    && mkdir julia_dir \
+    && cd julia_dir \
+    && wget -q https://julialang-s3.julialang.org/bin/linux/x64/`echo ${JULIA_VERSION} | cut -d. -f 1,2`/julia-${JULIA_VERSION}-linux-x86_64.tar.gz \
+    && echo "cca8d13dc4507e4f62a129322293313ee574f300d4df9e7db30b7b41c5f8a8f3  julia-${JULIA_VERSION}-linux-x86_64.tar.gz" | sha256sum -c - \
+    && tar fxz julia-${JULIA_VERSION}-linux-x86_64.tar.gz \
+    && rm -R julia-${JULIA_VERSION}-linux-x86_64.tar.gz \
+    && cd .. \
+    && ln -s julia_dir/julia-${JULIA_VERSION}/bin/julia julia
+RUN julia -e 'using Pkg; Pkg.add(["Revise"]);'
+RUN bash
