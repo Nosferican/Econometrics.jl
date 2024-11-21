@@ -56,7 +56,7 @@ function decompose(
         convert(Vector{Symbol}, filter!(!isnothing, union(termvars(f), [panel, time, wts])))
     data = select(data, pns...) |> columntable
     if isa(wts, Symbol)
-        wts = ifelse.(getproperty(data, wts) .≤ 0, missing, getproperty(data, wts))
+        data = (data..., wts = ifelse.(getproperty(data, wts) .≤ 0, missing, getproperty(data, wts)))
     end
     categorical_variables =
         Tables.schema(data) |> (
@@ -158,7 +158,7 @@ function decompose(
         Z = zeros(0, 0)
     end
     wts =
-        isnothing(wts) ? FrequencyWeights(ones(length(y))) : FrequencyWeights(collect(wts))
+        isnothing(wts) ? FrequencyWeights(ones(length(y))) : FrequencyWeights(collect(getproperty(data, wts)))
     if isa(estimator, Type{<:RandomEffectsEstimator})
         panel = (
             panel,
