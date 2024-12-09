@@ -12,6 +12,7 @@ for file in [
     "ologit",
     "formula_display",
     "mlj",
+    "issues",
     "docs"
     ]
     include("$file.jl")
